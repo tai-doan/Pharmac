@@ -1,0 +1,161 @@
+#root,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #f6f5f7;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
+
+button:focus {
+    box-shadow: 0px 0px 2px 1px #00000059 !important;
+}
+
+button:focus {
+    outline: none;
+}
+
+label {
+    font-size: 15px !important;
+}
+
+.bgColor {
+    background: linear-gradient(to right, #092350, #0440ab);
+}
+
+.btnSubmit {
+    border-radius: 50px !important;
+    border: none !important;
+    background: #e32047;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+    transition: transform 80ms ease-in !important;
+    padding: 10px 30px;
+    box-shadow: 0px 0px 2px 1px #00000059;
+}
+
+.btnSubmit:hover,
+.btnSubmit:active {
+    background: #e32047 !important;
+}
+
+.btnSubmit:active {
+    transform: scale(0.95);
+}
+
+.fz12 {
+    font-size: 12px !important;
+}
+.fz13 {
+    font-size: 13px !important;
+}
+.fz14 {
+    font-size: 14px !important;
+}
+
+.boxContainer {
+    width: 100%;
+    min-height: 550px;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.tableContainer {
+    max-height: calc(100vh - 245px);
+}
+
+.formSubmit .MuiFormControl-root {
+    /* height: 65px !important; */
+    height: unset;
+}
+
+.fixedIcon {
+    bottom: 25px;
+    right: 50px;
+    position: fixed !important;
+    z-index: 100;
+}
+
+/* ::-webkit-scrollbar {
+    height: 0px;
+    width: 5px;
+    background: #0000002e;
+    border-radius: 100px;
+}
+
+::-webkit-scrollbar-button {
+    height: 0px;
+    width: 5px;
+} */
+
+::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    background-color: rgba(0, 0, 0, 0.16);
+    border: 5px solid #0000005e;
+    border-radius: 100px;
+}
+
+table th {
+    background: #eee !important;
+    /* font-size: 12px !important; */
+    padding: 4px !important;
+}
+
+table td {
+    padding: 0px 8px !important;
+}
+
+.listSubHeader {
+    background: #eee !important;
+    height: 38px;
+    line-height: 39px !important;
+}
+
+button:focus {
+    box-shadow: none !important;
+}
+
+.titleDialog h2 {
+    font-size: 16px !important;
+}
+
+.customMenuList {
+    min-width: auto !important;
+    margin-left: 10px !important;
+}
+
+.uppercaseInput input {
+    text-transform: uppercase !important;
+}
+
+.icon-menu {
+    font-size: 20px !important;
+}
+
+.font-weight-500 {
+    font-weight: 500;
+}
+
+.normalLink:hover {
+    text-decoration: none !important;
+}
+
+.MuiOutlinedInput-adornedEnd {
+    padding-right: unset !important;
+}
+
+.registerForm .MuiOutlinedInput-inputMarginDense {
+    padding-top: 8.5px !important;
+    padding-bottom: 8.5px !important;
+}
+
+.mb-09 {
+    margin-bottom: 0.8rem !important;
+}
+
+.MuiDialogActions-root {
+    padding: 8px 24px !important;
+}

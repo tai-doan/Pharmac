@@ -1,0 +1,12 @@
+.icon {
+  min-width: auto;
+  margin-right: 5px;
+}
+
+.active {
+  background: #eee!important;
+}
+
+.title {
+  font-size: 14px!important;
+}

@@ -1,0 +1,121 @@
+.container_main {
+    margin: auto;
+    max-width: 1300px;
+}
+
+.home_aboutUs, .home_hello, .about {
+    background-color: transparent;
+    width: 100%;
+    position: relative;
+    z-index: 9;
+    padding: 20px 0;
+}
+
+.home_hello {
+    background: linear-gradient(to top, #ffffff, #b0f2f9);
+}
+
+.home_hello::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    z-index: -1;
+    background: url(../../asset/images/bg.png);
+    background-size: cover;
+    background-position: top left;
+    background-repeat: no-repeat;
+}
+
+.bg_right::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    z-index: -1;
+    background: url(../../asset/images/pattern-left.png);
+    background-size: contain;
+    background-position: top left;
+    background-repeat: no-repeat;
+    transform: rotateY(-180deg);
+}
+.bg_left::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    z-index: -1;
+    background: url(../../asset/images/pattern-left.png);
+    background-size: contain;
+    background-position: top left;
+    background-repeat: no-repeat;
+    transform: rotateY(0);
+}
+
+/*
+.home_contact .title,
+.home_download .title,
+.home_about .title {
+    font-size  : 43px;
+    font-weight: 700;
+    line-height: 54px;
+} */
+
+.container_home {
+    height: 100vh;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.about p {
+    width: 80%;
+    margin: 0 auto;
+    line-height: 1.7;
+    text-align: justify;
+}
+
+.buttonSubmit {
+    border-radius: 50px !important;
+    border: none !important;
+    background: #e32047;
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+    transition: transform 80ms ease-in !important;
+    padding: 10px 30px;
+    box-shadow: 0px 0px 2px 1px #00000059;
+}
+
+.home_contact .contact {
+    box-shadow: 0 0 10px rgba(0, 0, 0, .13);
+    border-radius: 20px;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.home_contact, .about {
+    background-color: #ffffff;
+}
+
+.home_download {
+    background: linear-gradient(to right, #0052e7, #0051e785);
+}
+
+.about {
+    position: relative;
+    min-height: 70vh;
+    align-items: center;
+    display: flex;
+}
+
+.home_contact {
+    position: relative;
+    min-height: 50vh;
+}

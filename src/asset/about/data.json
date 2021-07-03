@@ -1,0 +1,30 @@
+[
+    {
+        "title": "Chào mừng các bạn đến với",
+        "subTitle": "Quản Lý Nhà Thuốc",
+        "description": "Một phần mềm quản lý nhà thuốc/chuỗi nhà thuốc miễn phí đơn giản, tiện lợi nhưng đầy hiệu quả với những tính năng nổi trội như:",
+        "image": "https://quanlynhathuoc.com/assets/img/guide-img/huong-dan-nhap.png"
+    },
+    {
+        "title": "Tạo Đơn Nhập Kho",
+        "description": "Tại đây bạn có thể tạo thông tin một đơn nhập kho với thông tin nhà cung ứng, người giao/nhận hàng. Sau đó có thể dùng máy quét mã vạch (hoặc chuyển qua nhập tay) để tiến hành ghi nhận các sản phẩm nhập.",
+        "image": "https://quanlynhathuoc.com/assets/img/guide-img/huong-dan-nhap.png"
+    },
+    {
+        "title": "Tạo Đơn Xuất Bán",
+        "description": "Chọn lưu đơn xuất bán với thông tin khách hàng và nhân viên xuất bán trước khi thực hiện quét mã vạch (hoặc nhập tay) các sản phẩm cần xuất bán.",
+        "image": "https://quanlynhathuoc.com/assets/img/guide-img/tao-don-xuat.png"
+    },
+    {
+        "title": "Quản lý thông tin",
+        "subTitle": "kinh doanh trên SmartPhone",
+        "description": "Cung cấp ứng dụng nhận thông báo nhập/xuất hàng hóa thời gian thực và các báo cáo kinh doanh hữu dụng trên smart phone android và ios cho người dùng là chủ - NV quản lý nhà thuốc (Chỉ cho đăng nhập ứng dụng với user quản trị)",
+        "image": "https://quanlynhathuoc.com/assets/img/guide-img/huong-dan-nhap.png"
+    },
+    {
+        "title": "Forum - Diễn đàn hỏi đáp,",
+        "subTitle": "hướng dẫn sử dụng online",
+        "description": "Đây là nơi bạn có thể gửi các câu hỏi hoặc góp ý liên quan tới việc sử dụng & hoàn thiện hệ thống. Chúng tôi sẽ cố gắng phản hồi các thắc mắc của bạn trong thời gian sớm nhất, và sẽ vô cùng cảm kích những ý kiến đóng góp của các bạn!",
+        "image": "https://quanlynhathuoc.com/assets/img/guide-img/qa_page.PNG"
+    }
+]

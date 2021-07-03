@@ -1,0 +1,29 @@
+[
+    {
+        "title": "Nguyên tắc bắt buộc khi thiết lập hệ số quy đổi giữa các đơn vị tính của một sản phẩm:",
+        "description": [
+            {
+                "content": "a. Tạo thông tin thiết lập phải theo đúng tuần tự giữa các đơn vị tính, không được nhảy cóc giữa các đơn vị không liền kề nhau. Ví dụ đúng: Thùng -> Hộp -> Vỉ -> Viên, ví dụ sai: Thùng -> Vỉ -> Viên."
+            },
+            {
+                "content": "b. Hệ số chuyển đổi phải là một số nguyên (lần). Vì thế nếu 1 sản phẩm có 2 đơn vị tính khác nhau mà không thể chuyển đổi theo một số nguyên lần (như hộp - 30 viên và vỉ - 12 viên) thì phải khai báo nó như 2 sản phẩm riêng biệt (trong phần quản lý thông tin sản phẩm)."
+            }
+        ]
+    },
+    {
+        "title": "Tính toán hàng tồn:",
+        "description": [
+            {
+                "content": "Hệ số quy đổi ảnh hưởng trực tiếp tới việc tính toán hàng tồn của một sản phẩm, vì thế bạn hay thao tác thật chính xác và cẩn thận."
+            }
+        ]
+    },
+    {
+        "title": "Xóa một cặp hệ số chuyển đổi:",
+        "description": [
+            {
+                "content": "Hệ thống sẽ không cho bạn xóa mặt cặp hệ số chuyển đổi nếu 2 đơn vị này đã được dùng trong các đơn nhập/xuất trước đó. Bởi lúc này hàng tồn đã được tính và xác định theo hệ số quy đổi này rồi!."
+            }
+        ]
+    }
+]

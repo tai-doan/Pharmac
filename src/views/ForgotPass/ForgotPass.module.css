@@ -1,0 +1,23 @@
+.regist {
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+    position: relative;
+    overflow: hidden;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top     : 30px; */
+    border-radius: 20px;
+    /* margin-left    : auto;
+	margin-right   : auto; */
+    margin: 7% auto;
+}
+
+.box_regist {
+    width: 100%;
+    min-height: 550px;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,0 +1,14 @@
+.app_page {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.contentPage {
+    overflow: auto !important;
+    height: calc(100vh - 85px) !important;
+}
+
+.bgLightCustome {
+    background-color: #e1e3e4 !important;
+}

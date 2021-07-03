@@ -1,0 +1,259 @@
+{
+    "stt": "Index",
+    "lbl": {
+        "welcome": "Welcome to application",
+        "search": "Search ...",
+        "rowsPerPage": "Row per page",
+        "edit": "Update",
+        "action": "Action",
+        "profile": "Profile",
+        "emptyData": "Empty data!"
+    },
+    "updateUser": "User updated",
+    "updateDate": "Time updated",
+    "loading": "Loading ...",
+    "rowData": "records",
+    "row_per_page": "Row per page",
+    "website": {
+        "welcome": "Welcome to",
+        "title": "Pharmacy Manager",
+        "fanPage": "Fanpage Facebook",
+        "download": "You can download the app on the app",
+        "back": "Back to homepage"
+    },
+    "header": {
+        "import": "Import",
+        "export": "Export"
+    },
+    "language": {
+        "vn": "Vietnamese",
+        "en": "English"
+    },
+    "menu": {
+        "dashboard": "Dashboard",
+        "product": "Product",
+        "order": "Order",
+        "customer": "Customer",
+        "partner": "Partner",
+        "settlement": "Settlement",
+        "report": "Report",
+        "config": "Config",
+        "importOrder": "Import Order",
+        "importinven": "Inport Inventory",
+        "exportOrder": "Export Order",
+        "exportRepay": "Export Repay",
+        "exportDestroy": "Export Destroy",
+        "supplier": "Supplier",
+        "reportWarnEXP": "Report Warning experience",
+        "reportInventory": "Report Inventory",
+        "reportStoreLimit": "Report Store Limit",
+        "reportImportOrder": "Report Import Order",
+        "reportImportInven": "Report Import Inventory",
+        "reportExportOrder": "Report Export Order",
+        "reportExportRepay": "Report Export Repay",
+        "reportExportDestroy": "Report Export Destroy",
+        "reportSettlement": "Report Settlement",
+        "configUnit": "Unit",
+        "configUnitRate": "Unit Rate",
+        "configStoreLimit": "Store Limit",
+        "configPrice": "Price",
+        "configWarn": "Warning Experience",
+        "configWarnDefault": "Warning Experience MĐ",
+        "settlImp": "TT đơn nhập",
+        "settlExp": "TT đơn bán",
+        "settlExpRepay": "TT trả hàng"
+    },
+    "user": {
+        "profile": "Profile",
+        "logout": "Logout"
+    },
+    "btn": {
+        "login": "Login",
+        "regist": "Register",
+        "add": "Add new",
+        "edit": "Edit",
+        "delete": "Delet",
+        "agree": "Agree",
+        "close": "Close",
+        "save": "Save",
+        "logout": "Logout",
+        "showHiddenColumn": "Show/Hidden column",
+        "back": "Back",
+        "nextQuery": "Next"
+    },
+    "page": {
+        "home": "Home",
+        "product": "Product"
+    },
+    "login": {
+        "title": "Đăng nhập",
+        "userName": "Tên đăng nhập",
+        "password": "Mật khẩu",
+        "forgotPass": "Quên mật khẩu?",
+        "backLogin": "Về lại đăng nhập?",
+        "remmemberme": "Ghi nhớ tên đăng nhập"
+    },
+    "regist": {
+        "title": "Tạo tài khoản Nhà Thuốc",
+        "pharmacyName": "Tên nhà thuốc",
+        "licence": "GP kinh doanh",
+        "licenceDate": "Ngày cấp",
+        "licencePlace": "Nơi cấp",
+        "pharmacyAddress": "Địa chỉ nhà thuốc",
+        "bossName": "Người đứng tên",
+        "phone": "ĐT liên lạc",
+        "email": "Email",
+        "emailIncorrect": "Email không chính xác",
+        "address": "Địa chỉ",
+        "calculator": "Nhập kết quả",
+        "inputCorrectInfo": "Hãy nhập kết quả chính xác của phép toán",
+        "conditon": "Điều khoản sử dụng",
+        "agreeCond": "Tôi đồng ý với các điều khoản trên",
+        "agreeFirst": "Bạn cần đồng ý với các điều khoản sử dụng hệ thống nếu muốn đăng ký"
+    },
+    "forgotPass": {
+        "userName": "Tên đăng nhập",
+        "email": "Email đăng ký",
+        "btn": "Gửi yêu cầu"
+    },
+    "message": {
+        "required": "Đây là thông tin bắt buộc nhập",
+        "network": "Hệ thống hiện tại không kết nối được tới server, hãy kiểm tra đường truyền internet của bạn",
+        "noReceiveFeedback": "Không nhận được phản hồi từ máy chủ",
+        "email": "Vui lòng nhập đúng định dạng email"
+    },
+    "product": {
+        "titleAdd": "Thêm sản phẩm",
+        "titleEdit": "Cập nhật sản phẩm {{name}}",
+        "titleRemove": "Bạn có thực sự muốn xóa sản phẩm {{name}} không ?",
+        "title": "Danh sách sản phẩm",
+        "type": "Loại sản phẩm",
+        "name": "Tên sản phẩm",
+        "code": "Mã sản phẩm",
+        "search": "Tìm theo tên sản phẩm",
+        "barcode": "Mã vạch",
+        "manufact": "Xuất xứ",
+        "contents": "Thành phần - hợp chất",
+        "dosage": "Liều lượng - cách dùng",
+        "contraind": "Chống chỉ định",
+        "designate": "Công dụng - chỉ định",
+        "warned": "Cảnh báo - thận trọng",
+        "interact": "Tương tác thuốc",
+        "pregb": "Có thai và cho con bú",
+        "effect": "Tác dụng phụ",
+        "overdose": "Quá liều và cách xử lý",
+        "storages": "Điều kiện bảo quản",
+        "packing": "Quy cách đóng gói",
+        "infoMain": "Thông tin chính",
+        "infoExpand": "Thông tin mở rộng",
+        "unitTime": "Đơn vị TG",
+        "unit": "Đơn vị tính",
+        "config_info": "Cấu hình",
+        "store_current": "Số lượng tồn kho hiện tại",
+        "tooltip": {
+            "productCode": "Nếu để trống, hệ thống sẽ tự sinh mã SP",
+            "barcode": "Nhập dãy số hoặc dùng máy quét",
+            "price": "Có thể thiết lập sau ở: Cấu hình/ Bảng giá bán",
+            "store": "Có thể thiết lập sau ở: Cấu hình/ Hạn mức kho",
+            "warnTime": "Có thể bỏ qua nếu sản phẩm dùng mốc cảnh báo HSD chung, hoặc thiết lập sau ở: Cấu hình/ Mốc cảnh báo HSD"
+        },
+        "store_qty_require_unit_id": "Nếu nhập số lượng tồn kho thì bạn cần phải nhập đơn vị tính tương ứng",
+        "price_require_unit_id": "Nếu nhập giá thì bạn cần phải nhập đơn vị tính tương ứng",
+        "qty_require_unit_id": "Nếu nhập hạn mức kho thì bạn cần phải nhập đơn vị tính tương ứng",
+        "minqty_cant_over_maxqty": "Hạn mức kho tối thiểu phải nhỏ hơn hạn mức kho tối đa"
+    },
+    "productType": {
+        "title": "Loại sản phẩm",
+        "code": "Mã",
+        "name": "Tên loại",
+        "titleAdd": "Thêm loại sản phẩm",
+        "remove": "Bạn có chắc muốn xóa loại sản phẩm không ?"
+    },
+    "warnTime": {
+        "title": "Đơn vị TG cảnh báo",
+        "code": "Mã",
+        "name": "Tên đơn vị",
+        "titleAdd": "Thêm đơn vị TG cảnh báo",
+        "remove": "Bạn có chắc muốn xóa đơn vị thời gian cảnh báo không ?"
+    },
+    "config": {
+        "title": "Config",
+        "unit": {
+            "titleAdd": "Add new units",
+            "titleEdit": "Update units {{name}}",
+            "titleView": "View detail",
+            "titleRemove": "Do you really want to delete {{name}} item?",
+            "titleList": "Product group list",
+            "name": "Name",
+            "note": "Note",
+            "titleBranch": "Branch",
+            "search_name": "Search by Name"
+        },
+        "unitRate": {
+            "titleAdd": "Thêm hệ số quy đổi",
+            "titleEdit": "Cập nhật hệ số quy đổi {{name}}",
+            "titleRemove": "Bạn có thực sự muốn xóa hệ số quy đổi {{name}} không ?",
+            "titleList": "Danh sách hệ số quy đổi",
+            "product": "Sản phẩm",
+            "productName": "Tên sản phẩm",
+            "amount": "Số lượng",
+            "unitParent": "Đơn vị bậc cha",
+            "unitChild": "Đơn vị bậc con",
+            "note": "Ghi chú",
+            "rule": "Nguyên tắc"
+        },
+        "price": {
+            "titleAdd": "Thêm bảng báo giá",
+            "titleEdit": "Cập nhật bảng báo giá {{name}}",
+            "titleRemove": "Bạn có thực sự muốn xóa bảng báo giá {{name}} không ?",
+            "titleList": "Danh sách bảng báo giá",
+            "product": "Tên sản phẩm",
+            "productType": "Loại sản phẩm",
+            "unit": "Đơn vị",
+            "price": "Giá bán lẻ",
+            "originalPrice": "Giá gốc",
+            "wholePrice": "Giá bán sỉ",
+            "note": "Ghi chú"
+        },
+        "storeLimit": {
+            "titleAdd": "Thêm hạn mức kho",
+            "titleEdit": "Cập nhật hạn mức kho {{name}}",
+            "titleRemove": "Bạn có thực sự muốn xóa hạn mức kho {{name}} không ?",
+            "titleList": "Danh sách hạn mức kho",
+            "productName": "Tên sản phẩm",
+            "product": "Sản phẩm",
+            "unit": "Đơn vị",
+            "minQuantity": "Hạn mức tối thiểu",
+            "maxQuantity": "Hạn mức tối đa",
+            "selectProduct": "Chọn sản phẩm"
+        },
+        "warnTime": {
+            "titleAdd": "Thêm mốc cảnh báo HSD",
+            "titleEdit": "Cập nhật mốc cảnh báo HSD {{name}}",
+            "titleRemove": "Bạn có thực sự muốn xóa mốc cảnh báo HSD {{name}} không ?",
+            "titleList": "Mốc cảnh báo riêng theo sản phẩm",
+            "titleNote": "Lưu ý: Chỉ thiết lập cho những SP có mốc cảnh báo khác với mốc cảnh báo chung ở trên",
+            "productName": "Tên sản phẩm",
+            "time": "Thời gian cảnh báo",
+            "code": "Mã",
+            "name": "Tên đơn vị thời gian",
+            "titleDefault": "Mốc cảnh báo áp dụng chung",
+            "timeDefault": "Thời gian",
+            "unit": "Đơn vị"
+        },
+        "save_continute": "Save and continue"
+    },
+    "products": {
+        "title": "Product",
+        "productGroup": {
+            "titleAdd": "Add new product group",
+            "titleEdit": "Update product group {{name}}",
+            "titleRemove": "Do you really want to delete {{name}} item?",
+            "titleList": "Product group list",
+            "name": "Name",
+            "note": "Note",
+            "titleBranch": "Branch",
+            "search_name": "Search by Name"
+        }
+    }
+}
