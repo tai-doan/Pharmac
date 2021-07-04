@@ -2,6 +2,7 @@ import React, { lazy } from 'react'
 import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 
 const Customer = lazy(() => import('./Customer'))
+const CustomerClone = lazy(() => import('./CustomerClone'))
 const InsCus = lazy(() => import('./InsCus'))
 const Suppliers = lazy(() => import('./Suppliers'))
 const InsSup = lazy(() => import('./InsSup'))
@@ -27,7 +28,7 @@ function Child() {
 
     switch (link) {
         case 'customer':
-            return <Customer />
+            return <CustomerClone />
         case 'ins-customer':
             return <InsCus id={id || 0}/>
         case 'supplier':

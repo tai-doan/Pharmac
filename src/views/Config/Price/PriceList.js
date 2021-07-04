@@ -90,8 +90,8 @@ const PriceList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const unit_SendReqFlag = useRef(false)
-    const unit_ProcTimeOut = useRef(null)
+    const price_SendReqFlag = useRef(false)
+    const price_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const saveContinue = useRef(false)
@@ -99,7 +99,7 @@ const PriceList = () => {
 
     useEffect(() => {
         getList(999999999999, '');
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const priceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 console.log('Price msg ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -129,7 +129,7 @@ const PriceList = () => {
             }
         })
         return () => {
-            unitSub.unsubscribe()
+            priceSub.unsubscribe()
         }
     }, [])
 
@@ -146,7 +146,7 @@ const PriceList = () => {
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
+        price_SendReqFlag.current = false
         setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -168,7 +168,7 @@ const PriceList = () => {
 
     const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
+        price_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -189,7 +189,7 @@ const PriceList = () => {
 
     const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
+        price_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -209,7 +209,7 @@ const PriceList = () => {
 
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
+        price_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }

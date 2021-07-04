@@ -30,10 +30,10 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, config } from './Modal/StoreLimit.modal'
-import StoreLimitAdd from './StoreLimitAdd';
-import StoreLimitView from './StoreLimitView';
-import StoreLimitEdit from './StoreLimitEdit'
+import { tableColumn, config } from './Modal/Customer.modal'
+import CustomerAdd from './CustomerAdd';
+import CustomerView from './CustomerView';
+import CustomerEdit from './CustomerEdit'
 
 const serviceInfo = {
     GET_ALL: {
@@ -74,7 +74,7 @@ const serviceInfo = {
     }
 }
 
-const StoreLimitList = () => {
+const CustomerList = () => {
     const { t } = useTranslation()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
@@ -90,8 +90,8 @@ const StoreLimitList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const storeLimit_SendReqFlag = useRef(false)
-    const storeLimit_ProcTimeOut = useRef(null)
+    const customer_SendReqFlag = useRef(false)
+    const customer_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const saveContinue = useRef(false)
@@ -99,8 +99,9 @@ const StoreLimitList = () => {
 
     useEffect(() => {
         getList(999999999999, '');
-        const storeLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
+                console.log('Customer msg ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
                     return
@@ -109,18 +110,17 @@ const StoreLimitList = () => {
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                console.log('StoreLimit msg ', msg)
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.STORE_LIMIT_LIST:
+                    case reqFunction.CUSTOMER_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.STORE_LIMIT_CREATE:
+                    case reqFunction.CUSTOMER_CREATE:
                         resultCreate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.STORE_LIMIT_UPDATE:
+                    case reqFunction.CUSTOMER_UPDATE:
                         resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.STORE_LIMIT_DELETE:
+                    case reqFunction.CUSTOMER_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
                         break
                     default:
@@ -129,7 +129,7 @@ const StoreLimitList = () => {
             }
         })
         return () => {
-            storeLimitSub.unsubscribe()
+            customerSub.unsubscribe()
         }
     }, [])
 
@@ -146,7 +146,7 @@ const StoreLimitList = () => {
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        storeLimit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -168,7 +168,7 @@ const StoreLimitList = () => {
 
     const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        storeLimit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -189,7 +189,7 @@ const StoreLimitList = () => {
 
     const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        storeLimit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -209,7 +209,7 @@ const StoreLimitList = () => {
 
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        storeLimit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -256,7 +256,7 @@ const StoreLimitList = () => {
     const onRemove = item => {
         setShouldOpenRemoveModal(item ? true : false);
         setId(item ? item.o_1 : 0)
-        setName(item ? item.o_3 : '')
+        setName(item ? item.o_2 : '')
     }
 
     const onEdit = item => {
@@ -303,12 +303,53 @@ const StoreLimitList = () => {
 
     const handleCreate = (actionType, dataObject) => {
         saveContinue.current = actionType
-        const inputParam = [dataObject.product, dataObject.unit, dataObject.minQuantity, dataObject.maxQuantity];
+        const inputParam = [
+            dataObject.cust_nm_v,
+            dataObject.cust_nm_e,
+            dataObject.cust_nm_short,
+            dataObject.address,
+            dataObject.phone,
+            dataObject.fax,
+            dataObject.email,
+            dataObject.website,
+            dataObject.tax_cd,
+            dataObject.bank_acnt_no,
+            dataObject.bank_acnt_nm,
+            dataObject.bank_cd,
+            dataObject.agent_nm,
+            dataObject.agent_fun,
+            dataObject.agent_address,
+            dataObject.agent_phone,
+            dataObject.agent_email,
+            dataObject.default_yn,
+            dataObject.cust_tp
+        ];
         sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleUpdate = dataObject => {
-        const inputParam = [dataObject.o_1, dataObject.o_4, dataObject.o_6, dataObject.o_7];
+        const inputParam = [
+            dataObject.o_1, //id
+            dataObject.o_2, //tên tv
+            dataObject.o_3, //tên ta
+            dataObject.o_4, //tên ngắn
+            dataObject.o_5, //địa chỉ
+            dataObject.o_6, //sđt
+            dataObject.o_7, //fax
+            dataObject.o_8, //email
+            dataObject.o_9, //web
+            dataObject.o_10, //taxt
+            dataObject.o_11, //tk ngân hàng
+            dataObject.o_12, //tên tk ngân hàng
+            dataObject.o_13, //mã ngân hàng
+            dataObject.o_15, //tên người đại diện
+            dataObject.o_16, //chức vụ
+            dataObject.o_17, //địa chỉ
+            dataObject.o_18, //sđt
+            dataObject.o_19, //email
+            dataObject.o_22, //xét mặc định
+            dataObject.o_23 //phân loại KH
+        ];
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
@@ -338,7 +379,7 @@ const StoreLimitList = () => {
                     </div>
                 </div>
                 <div className='d-flex justify-content-between'>
-                    <h6 className="d-flex font-weight-bold mb-2">{t('config.store_limit.titleList')}</h6>
+                    <h6 className="d-flex font-weight-bold mb-2">{t('partner.customer.titleList')}</h6>
                     <div className='d-flex'>
                         <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                         <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
@@ -361,6 +402,7 @@ const StoreLimitList = () => {
                             <TableRow>
                                 {column.map(col => (
                                     <TableCell
+                                        nowrap="true"
                                         className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                         key={col.field}
                                     >
@@ -429,7 +471,7 @@ const StoreLimitList = () => {
             >
                 <DialogContent>
                     <DialogContentText className="m-0 text-dark">
-                        {t('config.store_limit.titleRemove', { name: name })}
+                        {t('partner.customer.titleRemove', { name: name })}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -449,7 +491,7 @@ const StoreLimitList = () => {
             </Dialog>
 
             {/* modal add */}
-            <StoreLimitAdd
+            <CustomerAdd
                 id={id}
                 shouldOpenModal={shouldOpenModal}
                 handleCloseAddModal={handleCloseAddModal}
@@ -457,7 +499,7 @@ const StoreLimitList = () => {
             />
 
             {/* modal edit */}
-            <StoreLimitEdit
+            <CustomerEdit
                 id={id}
                 shouldOpenEditModal={shouldOpenEditModal}
                 handleCloseEditModal={handleCloseEditModal}
@@ -465,7 +507,7 @@ const StoreLimitList = () => {
             />
 
             {/* modal view */}
-            <StoreLimitView
+            <CustomerView
                 id={id}
                 shouldOpenViewModal={shouldOpenViewModal}
                 handleCloseViewModal={handleCloseViewModal}
@@ -474,4 +516,4 @@ const StoreLimitList = () => {
     )
 }
 
-export default StoreLimitList
+export default CustomerList
