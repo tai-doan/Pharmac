@@ -30,9 +30,10 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, config } from './Modal/Unit.modal'
-import UnitAdd from './UnitAdd';
-import UnitView from './UnitView';
+import { tableColumn, config } from './Modal/Customer.modal'
+import CustomerAdd from './CustomerAdd';
+import CustomerView from './CustomerView';
+import CustomerEdit from './CustomerEdit'
 
 const serviceInfo = {
     GET_ALL: {
@@ -44,12 +45,21 @@ const serviceInfo = {
         biz: config.biz,
         object: config.object
     },
-    SUBMIT_DATA: {
+    CREATE: {
         moduleName: config.moduleName,
         screenName: config.screenName,
-        funct: config['insert'].functionName,
+        functionName: config['insert'].functionName,
         reqFunct: config['insert'].reqFunct,
         operation: config['insert'].operation,
+        biz: config.biz,
+        object: config.object
+    },
+    UPDATE: {
+        moduleName: config.moduleName,
+        screenName: config.screenName,
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        operation: config['update'].operation,
         biz: config.biz,
         object: config.object
     },
@@ -64,37 +74,34 @@ const serviceInfo = {
     }
 }
 
-const UnitList = () => {
+const CustomerList = () => {
     const { t } = useTranslation()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
-    const [page, setPage] = useState(0)
     const [totalRecords, setTotalRecords] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(20)
     const [dataSource, setDataSource] = useState([])
 
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
     const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
-    const [note, setNote] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const unit_SendReqFlag = useRef(false)
-    const unit_ProcTimeOut = useRef(null)
+    const customer_SendReqFlag = useRef(false)
+    const customer_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const saveContinue = useRef(false)
-    const unitNameFocus = useRef(null)
-    const unitNoteFocus = useRef(null)
     const idRef = useRef(0)
 
     useEffect(() => {
         getList(999999999999, '');
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
+                console.log('Customer msg ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
                     return
@@ -104,19 +111,16 @@ const UnitList = () => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.GET_UNIT_LIST:
+                    case reqFunction.CUSTOMER_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
-                    // case reqFunction.GET_UNIT:
-                    //     resultGetById(msg, cltSeqResult, reqInfoMap)
-                    //     break
-                    case reqFunction.INS_UNIT:
-                        resultSubmit(msg, cltSeqResult, reqInfoMap)
+                    case reqFunction.CUSTOMER_CREATE:
+                        resultCreate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.MOD_UNIT:
-                        resultSubmit(msg, cltSeqResult, reqInfoMap)
+                    case reqFunction.CUSTOMER_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.DEL_UNIT:
+                    case reqFunction.CUSTOMER_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
                         break
                     default:
@@ -125,7 +129,7 @@ const UnitList = () => {
             }
         })
         return () => {
-            unitSub.unsubscribe()
+            customerSub.unsubscribe()
         }
     }, [])
 
@@ -136,12 +140,13 @@ const UnitList = () => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
+        console.log('handleTimeOut: ', e)
         SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -161,18 +166,9 @@ const UnitList = () => {
         }
     }
 
-    const onSubmit = (data, type) => {
-        const svInfo = serviceInfo.SUBMIT_DATA
-        svInfo.functionName = config[type].functionName
-        svInfo.reqFunct = config[type].reqFunct
-        svInfo.operation = config[type].operation
-        sendRequest(svInfo, data, e => console.log(e), true, handleTimeOut)
-    }
-
-    const resultSubmit = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        // clearTimeout(unit_ProcTimeOut.current)
-        unit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -181,33 +177,39 @@ const UnitList = () => {
         if (message['PROC_STATUS'] === 2) {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             setName('')
-            setNote('')
             setId(0)
-            if (saveContinue.current) {
-                setShouldOpenModal(true)
-                setTimeout(() => {
-                    if (unitNameFocus.current) unitNameFocus.current.focus()
-                }, 100)
-            } else {
-                setShouldOpenModal(false)
-            }
+            setShouldOpenModal(saveContinue.current)
             dataSourceRef.current = [];
             getList(999999999999, searchValue)
-            // if (reqInfoMap.reqFunct === 'MOD_UNIT') {
-            //     const index = dataSourceRef.current.findIndex(item => item.o_1 === reqInfoMap.inputParam[0])
-            //     dataSourceRef.current[index].o_2 = reqInfoMap.inputParam[1]
-            //     dataSourceRef.current[index].o_3 = reqInfoMap.inputParam[2]
-            //     setDataSource([...dataSourceRef.current])
-            // } else {
-            // }
+        }
+    }
+
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        customer_SendReqFlag.current = false
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            setId(0)
+            setShouldOpenEditModal(false)
+            dataSourceRef.current = [];
+            getList(999999999999, searchValue)
         }
     }
 
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
+        customer_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -247,7 +249,6 @@ const UnitList = () => {
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
-        setPage(0)
         setTotalRecords(0)
         getList(999999999999, value)
     }
@@ -259,29 +260,14 @@ const UnitList = () => {
     }
 
     const onEdit = item => {
-        setShouldOpenModal(item ? true : false)
+        setShouldOpenEditModal(item ? true : false)
         setId(item ? item.o_1 : 0)
-        setName(item && item.o_1 > 0 ? item.o_2 : '')
-        setNote(item && item.o_1 > 0 ? item.o_3 : '')
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
     }
 
     const onView = item => {
         setShouldOpenViewModal(item ? true : false)
-        setName(item && item.o_1 > 0 ? item.o_2 : '')
-        setNote(item && item.o_1 > 0 ? item.o_3 : '')
-    }
-
-    const handleSubmit = (actionType, newName, newNote) => {
-        let data = [],
-            type = 'insert'
-        if (id > 0) {
-            data.push(id)
-            type = 'update'
-        }
-        saveContinue.current = actionType
-        data = data.concat([newName, newNote])
-        onSubmit(data, type)
+        setId(item ? item.o_1 : 0)
     }
 
     const handleDelete = e => {
@@ -302,16 +288,69 @@ const UnitList = () => {
 
     const handleCloseViewModal = value => {
         setId(0);
-        setName('')
-        setNote('')
         setShouldOpenViewModal(value)
     }
 
     const handleCloseAddModal = value => {
         setId(0);
-        setName('')
-        setNote('')
         setShouldOpenModal(value)
+    }
+
+    const handleCloseEditModal = value => {
+        setId(0);
+        setShouldOpenEditModal(value)
+    }
+
+    const handleCreate = (actionType, dataObject) => {
+        saveContinue.current = actionType
+        const inputParam = [
+            dataObject.cust_nm_v,
+            dataObject.cust_nm_e,
+            dataObject.cust_nm_short,
+            dataObject.address,
+            dataObject.phone,
+            dataObject.fax,
+            dataObject.email,
+            dataObject.website,
+            dataObject.tax_cd,
+            dataObject.bank_acnt_no,
+            dataObject.bank_acnt_nm,
+            dataObject.bank_cd,
+            dataObject.agent_nm,
+            dataObject.agent_fun,
+            dataObject.agent_address,
+            dataObject.agent_phone,
+            dataObject.agent_email,
+            dataObject.default_yn,
+            dataObject.cust_tp
+        ];
+        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
+    }
+
+    const handleUpdate = dataObject => {
+        const inputParam = [
+            dataObject.o_1, //id
+            dataObject.o_2, //tên tv
+            dataObject.o_3, //tên ta
+            dataObject.o_4, //tên ngắn
+            dataObject.o_5, //địa chỉ
+            dataObject.o_6, //sđt
+            dataObject.o_7, //fax
+            dataObject.o_8, //email
+            dataObject.o_9, //web
+            dataObject.o_10, //taxt
+            dataObject.o_11, //tk ngân hàng
+            dataObject.o_12, //tên tk ngân hàng
+            dataObject.o_13, //mã ngân hàng
+            dataObject.o_15, //tên người đại diện
+            dataObject.o_16, //chức vụ
+            dataObject.o_17, //địa chỉ
+            dataObject.o_18, //sđt
+            dataObject.o_19, //email
+            dataObject.o_22, //xét mặc định
+            dataObject.o_23 //phân loại KH
+        ];
+        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     return (
@@ -322,7 +361,7 @@ const UnitList = () => {
                         <SearChComp
                             searchSubmit={searchSubmit}
                             setSearchVal={setSearchValue}
-                            placeholder={'config.unit.search_name'}
+                            placeholder={'partner.customer.search_name'}
                         />
                     </div>
                     <div className='d-flex'>
@@ -340,7 +379,7 @@ const UnitList = () => {
                     </div>
                 </div>
                 <div className='d-flex justify-content-between'>
-                    <h6 className="d-flex font-weight-bold mb-2">{t('config.unit.titleList')}</h6>
+                    <h6 className="d-flex font-weight-bold mb-2">{t('partner.customer.titleList')}</h6>
                     <div className='d-flex'>
                         <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                         <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
@@ -362,7 +401,8 @@ const UnitList = () => {
                         <TableHead>
                             <TableRow>
                                 {column.map(col => (
-                                    <TableCell nowrap="true"
+                                    <TableCell
+                                        nowrap="true"
                                         className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                         key={col.field}
                                     >
@@ -431,7 +471,7 @@ const UnitList = () => {
             >
                 <DialogContent>
                     <DialogContentText className="m-0 text-dark">
-                        {t('config.unit.titleRemove', { name: name })}
+                        {t('partner.customer.titleRemove', { name: name })}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -450,27 +490,30 @@ const UnitList = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* modal add/edit */}
-            <UnitAdd
+            {/* modal add */}
+            <CustomerAdd
                 id={id}
-                Bname={name}
-                Bnote={note}
                 shouldOpenModal={shouldOpenModal}
                 handleCloseAddModal={handleCloseAddModal}
-                unitNameFocus={unitNameFocus}
-                unitNoteFocus={unitNoteFocus}
-                handleSubmit={handleSubmit}
+                handleCreate={handleCreate}
+            />
+
+            {/* modal edit */}
+            <CustomerEdit
+                id={id}
+                shouldOpenEditModal={shouldOpenEditModal}
+                handleCloseEditModal={handleCloseEditModal}
+                handleUpdate={handleUpdate}
             />
 
             {/* modal view */}
-            <UnitView
-                Bname={name}
-                Bnote={note}
-                shouldOpenModal={shouldOpenViewModal}
+            <CustomerView
+                id={id}
+                shouldOpenViewModal={shouldOpenViewModal}
                 handleCloseViewModal={handleCloseViewModal}
             />
         </>
     )
 }
 
-export default UnitList
+export default CustomerList

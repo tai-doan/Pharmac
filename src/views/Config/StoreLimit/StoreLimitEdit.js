@@ -34,6 +34,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
     const { t } = useTranslation()
 
     const [StoreLimit, setStoreLimit] = useState({})
+    const [unitSelect, setUnitSelect] = useState('')
 
     useEffect(() => {
         const StoreLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -73,6 +74,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setStoreLimit(newData.rows[0])
+            setUnitSelect(newData.rows[0].o_5)
         }
     }
 
@@ -86,6 +88,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
     const handleSelectUnit = obj => {
         const newStoreLimit = { ...StoreLimit };
         newStoreLimit['o_4'] = !!obj ? obj?.o_1 : null
+        setUnitSelect(!!obj ? obj?.o_2 : '')
         setStoreLimit(newStoreLimit)
     }
 
@@ -110,29 +113,29 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('config.StoreLimit.titleEdit', { name: StoreLimit.o_3 })}
+                {t('config.store_limit.titleEdit', { name: StoreLimit.o_3 })}
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <Product_Autocomplete
                             disabled={true}
-                            value={StoreLimit.o_2}
+                            value={StoreLimit.o_3}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <Unit_Autocomplete
-                            value={StoreLimit.o_4}
+                            value={unitSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}
                             onSelect={handleSelectUnit}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required

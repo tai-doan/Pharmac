@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -11,56 +11,99 @@ import MenuItem from "@material-ui/core/MenuItem"
 import FormControl from "@material-ui/core/FormControl"
 import Select from "@material-ui/core/Select"
 import { Grid } from '@material-ui/core'
+import sendRequest from '../../../utils/service/sendReq'
+import glb_sv from '../../../utils/service/global_service'
+import control_sv from '../../../utils/service/control_services'
+import socket_sv from '../../../utils/service/socket_service'
+import reqFunction from '../../../utils/constan/functions';
+import { config } from './Modal/Supplier.modal'
+import { requestInfo } from '../../../utils/models/requestInfo'
 
-const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
+const serviceInfo = {
+    GET_CUSTOMER_BY_ID: {
+        functionName: config['byId'].functionName,
+        reqFunct: config['byId'].reqFunct,
+        biz: config.biz,
+        object: config.object
+    }
+}
+
+const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
     const { t } = useTranslation()
 
-    const [Customer, setCustomer] = useState({
-        cust_nm_v: '',
-        cust_nm_e: '',
-        cust_nm_short: '',
-        cust_tp: '1',
-        address: '',
-        phone: '',
-        fax: '',
-        email: '',
-        website: '',
-        tax_cd: '',
-        bank_acnt_no: '',
-        bank_acnt_nm: '',
-        bank_nm: '',
-        agent_nm: '',
-        agent_fun: '',
-        agent_address: '',
-        agent_phone: '',
-        agent_email: '',
-        default_yn: 'Y'
-    })
+    const [Supplier, setSupplier] = useState({})
+
+    useEffect(() => {
+        const SupplierSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+            if (msg) {
+                const cltSeqResult = msg['REQUEST_SEQ']
+                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
+                    return
+                }
+                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
+                if (reqInfoMap == null || reqInfoMap === undefined) {
+                    return
+                }
+                if (reqInfoMap.reqFunct === reqFunction.CUSTOMER_BY_ID) {
+                    resultGetSupplierByID(msg, cltSeqResult, reqInfoMap)
+                }
+            }
+        })
+        return () => {
+            SupplierSub.unsubscribe()
+        }
+    }, [])
+
+    useEffect(() => {
+        if (id) {
+            sendRequest(serviceInfo.GET_CUSTOMER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+        }
+    }, [id])
+
+    const resultGetSupplierByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        reqInfoMap.procStat = 2
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        }
+        if (message['PROC_DATA']) {
+            let newData = message['PROC_DATA']
+            setSupplier(newData.rows[0])
+        }
+    }
 
     const checkValidate = () => {
-        if (!!Customer.cust_nm_v) {
+        if (!!Supplier.o_1 && !!Supplier.o_2) {
             return false
         }
         return true
     }
 
+    const handleSelectUnit = obj => {
+        const newSupplier = { ...Supplier };
+        newSupplier['o_4'] = !!obj ? obj?.o_1 : null
+        setSupplier(newSupplier)
+    }
+
     const handleChange = e => {
-        const newCustomer = { ...Customer };
-        newCustomer[e.target.name] = e.target.value
-        setCustomer(newCustomer)
+        const newSupplier = { ...Supplier };
+        newSupplier[e.target.name] = e.target.value
+        setSupplier(newSupplier)
     }
 
     return (
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenModal}
+            open={shouldOpenEditModal}
             onClose={e => {
-                handleCloseAddModal(false)
+                handleCloseEditModal(false)
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('partner.customer.titleAdd')}
+                {t('partner.supplier.titleEdit', { name: Supplier.o_3 })}
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
@@ -71,10 +114,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.cust_nm_v')}
+                            label={t('partner.supplier.vender_nm_v')}
                             onChange={handleChange}
-                            value={Customer.cust_nm_v || ''}
-                            name='cust_nm_v'
+                            value={Supplier.o_2 || ''}
+                            name='o_2'
                             variant="outlined"
                         />
                     </Grid>
@@ -85,10 +128,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.cust_nm_e')}
+                            label={t('partner.supplier.vender_nm_e')}
                             onChange={handleChange}
-                            value={Customer.cust_nm_e || ''}
-                            name='cust_nm_e'
+                            value={Supplier.o_3 || ''}
+                            name='o_3'
                             variant="outlined"
                         />
                     </Grid>
@@ -99,10 +142,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.cust_nm_short')}
+                            label={t('partner.supplier.vender_nm_short')}
                             onChange={handleChange}
-                            value={Customer.cust_nm_short || ''}
-                            name='cust_nm_short'
+                            value={Supplier.o_4 || ''}
+                            name='o_4'
                             variant="outlined"
                         />
                     </Grid>
@@ -115,10 +158,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.address')}
+                            label={t('partner.supplier.address')}
                             onChange={handleChange}
-                            value={Customer.address || ''}
-                            name='address'
+                            value={Supplier.o_5 || ''}
+                            name='o_5'
                             variant="outlined"
                         />
                     </Grid>
@@ -129,10 +172,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.phone')}
+                            label={t('partner.supplier.phone')}
                             onChange={handleChange}
-                            value={Customer.phone || ''}
-                            name='phone'
+                            value={Supplier.o_6 || ''}
+                            name='o_6'
                             variant="outlined"
                         />
                     </Grid>
@@ -143,10 +186,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.fax')}
+                            label={t('partner.supplier.fax')}
                             onChange={handleChange}
-                            value={Customer.fax || ''}
-                            name='fax'
+                            value={Supplier.o_7 || ''}
+                            name='o_7'
                             variant="outlined"
                         />
                     </Grid>
@@ -159,10 +202,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.email')}
+                            label={t('partner.supplier.email')}
                             onChange={handleChange}
-                            value={Customer.email || ''}
-                            name='email'
+                            value={Supplier.o_8 || ''}
+                            name='o_8'
                             variant="outlined"
                         />
                     </Grid>
@@ -173,10 +216,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.website')}
+                            label={t('partner.supplier.website')}
                             onChange={handleChange}
-                            value={Customer.website || ''}
-                            name='website'
+                            value={Supplier.o_9 || ''}
+                            name='o_9'
                             variant="outlined"
                         />
                     </Grid>
@@ -187,10 +230,10 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.tax_cd')}
+                            label={t('partner.supplier.tax_cd')}
                             onChange={handleChange}
-                            value={Customer.tax_cd || ''}
-                            name='tax_cd'
+                            value={Supplier.o_10 || ''}
+                            name='o_10'
                             variant="outlined"
                         />
                     </Grid>
@@ -201,134 +244,118 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.bank_acnt_no')}
+                            label={t('partner.supplier.bank_acnt_no')}
                             onChange={handleChange}
-                            value={Customer.bank_acnt_no || ''}
-                            name='bank_acnt_no'
+                            value={Supplier.o_11 || ''}
+                            name='o_11'
                             variant="outlined"
                         />
                     </Grid>
                 </Grid>
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={6} sm={4}>
                         <TextField
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.bank_acnt_nm')}
+                            label={t('partner.supplier.bank_acnt_nm')}
                             onChange={handleChange}
-                            value={Customer.bank_acnt_nm || ''}
-                            name='bank_acnt_nm'
+                            value={Supplier.o_12 || ''}
+                            name='o_12'
                             variant="outlined"
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={6} sm={4}>
                         <TextField
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.bank_cd')}
+                            label={t('partner.supplier.bank_cd')}
                             onChange={handleChange}
-                            value={Customer.bank_cd || ''}
-                            name='bank_cd'
+                            value={Supplier.o_13 || ''}
+                            name='o_13'
                             variant="outlined"
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs={6} sm={4}>
                         <FormControl margin="dense" variant="outlined" className='w-100'>
-                            <InputLabel id="default_yn">{t('partner.customer.default_yn')}</InputLabel>
+                            <InputLabel id="default_yn">{t('partner.supplier.default_yn')}</InputLabel>
                             <Select
                                 labelId="default_yn"
                                 id="default_yn-select"
-                                value={Customer.default_yn || 'Y'}
+                                value={Supplier.o_22 || 'Y'}
                                 onChange={handleChange}
-                                label={t('partner.customer.default_yn')}
-                                name='default_yn'
+                                label={t('partner.supplier.default_yn')}
+                                name='o_22'
                             >
                                 <MenuItem value="Y">{t('yes')}</MenuItem>
                                 <MenuItem value="N">{t('no')}</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <FormControl margin="dense" variant="outlined" className='w-100'>
-                            <InputLabel id="cust_tp">{t('partner.customer.cust_tp')}</InputLabel>
-                            <Select
-                                labelId="cust_tp"
-                                id="cust_tp-select"
-                                value={Customer.cust_tp || '1'}
-                                onChange={handleChange}
-                                label={t('partner.customer.cust_tp')}
-                                name='cust_tp'
-                            >
-                                <MenuItem value="1">{t('partner.customer.individual_customers')}</MenuItem>
-                                <MenuItem value="2">{t('partner.customer.institutional_customers')}</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
                 </Grid>
                 <Grid container spacing={2}>
                     <Grid item xs={6} sm={3}>
                         <TextField
-                            disabled={Customer.cust_tp === '1'}
+                            disabled={Supplier.o_23 === '1'}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.agent_nm')}
+                            label={t('partner.supplier.agent_nm')}
                             onChange={handleChange}
-                            value={Customer.agent_nm || ''}
-                            name='agent_nm'
+                            value={Supplier.o_15 || ''}
+                            name='o_15'
                             variant="outlined"
                         />
                     </Grid>
                     <Grid item xs={6} sm={3}>
                         <TextField
-                            disabled={Customer.cust_tp === '1'}
+                            disabled={Supplier.o_23 === '1'}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.agent_fun')}
+                            label={t('partner.supplier.agent_fun')}
                             onChange={handleChange}
-                            value={Customer.agent_fun || ''}
-                            name='agent_fun'
+                            value={Supplier.o_16 || ''}
+                            name='o_16'
                             variant="outlined"
                         />
                     </Grid>
                     <Grid item xs={6} sm={3}>
                         <TextField
-                            disabled={Customer.cust_tp === '1'}
+                            disabled={Supplier.o_23 === '1'}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.agent_phone')}
+                            label={t('partner.supplier.agent_phone')}
                             onChange={handleChange}
-                            value={Customer.agent_phone || ''}
-                            name='agent_phone'
+                            value={Supplier.o_18 || ''}
+                            name='o_18'
                             variant="outlined"
                         />
                     </Grid>
                     <Grid item xs={6} sm={3}>
                         <TextField
-                            disabled={Customer.cust_tp === '1'}
+                            disabled={Supplier.o_23 === '1'}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
-                            label={t('partner.customer.agent_email')}
+                            label={t('partner.supplier.agent_email')}
                             onChange={handleChange}
-                            value={Customer.agent_email || ''}
-                            name='agent_email'
+                            value={Supplier.o_19 || ''}
+                            name='o_19'
                             variant="outlined"
                         />
                     </Grid>
@@ -336,16 +363,16 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12}>
                         <TextField
-                            disabled={Customer.agent_nm === '1'}
+                            disabled={Supplier.o_23 === '1'}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={2}
                             autoComplete="off"
-                            label={t('partner.customer.agent_address')}
+                            label={t('partner.supplier.agent_address')}
                             onChange={handleChange}
-                            value={Customer.agent_address || ''}
-                            name='agent_address'
+                            value={Supplier.o_17 || ''}
+                            name='o_17'
                             variant="outlined"
                         />
                     </Grid>
@@ -354,7 +381,7 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
             <DialogActions>
                 <Button
                     onClick={e => {
-                        handleCloseAddModal(false);
+                        handleCloseEditModal(false);
                     }}
                     variant="contained"
                     disableElevation
@@ -363,7 +390,7 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 </Button>
                 <Button
                     onClick={() => {
-                        handleCreate(false, Customer);
+                        handleUpdate(Supplier);
                     }}
                     variant="contained"
                     disabled={checkValidate()}
@@ -371,19 +398,9 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 >
                     {t('btn.save')}
                 </Button>
-                <Button
-                    onClick={() => {
-                        handleCreate(true, Customer);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('partner.save_continue')}
-                </Button>
             </DialogActions>
         </Dialog >
     )
 }
 
-export default CustomerAdd
+export default SupplierEdit

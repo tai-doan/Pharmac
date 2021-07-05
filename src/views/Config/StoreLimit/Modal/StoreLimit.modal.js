@@ -14,7 +14,7 @@ const config = {
     biz: 'common',
     moduleName: 'common',
     screenName: 'storeLimit',
-    object: 'storeLimit',
+    object: 'store_limit',
     list: {
         functionName: 'get_all',
         operation: 'Q',

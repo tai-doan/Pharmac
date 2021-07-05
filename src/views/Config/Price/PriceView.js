@@ -21,11 +21,8 @@ import moment from 'moment'
 
 const serviceInfo = {
     GET_PRICE_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
         biz: config.biz,
         object: config.object
     }
@@ -87,14 +84,14 @@ const PriceView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('config.Price.titleView', { name: Price.o_3 })}
+                {t('config.price.titleView', { name: Price.o_3 })}
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
                             disabled={true}
-                            value={Price.o_2}
+                            value={Price.o_3}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -103,7 +100,7 @@ const PriceView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
                             disabled={true}
-                            value={Price.o_4}
+                            value={Price.o_5}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}
@@ -145,6 +142,7 @@ const PriceView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             thousandSeparator={true}
                             inputProps={{
                                 min: 0,
+                                max: 10
                             }}
                         />
                     </Grid>
@@ -184,25 +182,6 @@ const PriceView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <NumberFormat
-                            disabled={true}
-                            style={{ width: '100%' }}
-                            required
-                            value={Price.o_10}
-                            label={t('config.price.exportVAT')}
-                            customInput={TextField}
-                            autoComplete="off"
-                            margin="dense"
-                            type="text"
-                            variant="outlined"
-                            suffix="%"
-                            thousandSeparator={true}
-                            inputProps={{
-                                min: 0,
-                            }}
-                        />
-                    </Grid>
                 </Grid>
                 <Grid container spacing={2}>
                     <Grid item xs={6} sm={4}>
@@ -221,6 +200,7 @@ const PriceView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             thousandSeparator={true}
                             inputProps={{
                                 min: 0,
+                                max: 10
                             }}
                         />
                     </Grid>

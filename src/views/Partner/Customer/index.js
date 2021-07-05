@@ -1,3 +1,3 @@
-import CustomerContainer from './CustomerContainer';
+import CustomerList from './CustomerList';
 
-export default CustomerContainer;
+export default CustomerList;

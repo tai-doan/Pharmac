@@ -19,7 +19,7 @@ const config = {
     biz: 'common',
     moduleName: 'common',
     screenName: 'price',
-    object: 'setupPrice',
+    object: 'setup_price',
     list: {
         functionName: 'get_all',
         operation: 'Q',

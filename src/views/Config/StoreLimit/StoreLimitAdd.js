@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -15,6 +15,16 @@ const StoreLimitAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate 
     const { t } = useTranslation()
 
     const [StoreLimit, setStoreLimit] = useState({})
+    const [productSelect, setProductSelect] = useState('')
+    const [unitSelect, setUnitSelect] = useState('')
+
+    useEffect(() => {
+        if (shouldOpenModal) {
+            setStoreLimit({})
+            setProductSelect('')
+            setUnitSelect('')
+        }
+    }, [shouldOpenModal])
 
     const checkValidate = () => {
         if (!!StoreLimit.product && !!StoreLimit.unit && !!StoreLimit.minQuantity && !!StoreLimit.maxQuantity) {
@@ -26,12 +36,14 @@ const StoreLimitAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate 
     const handleSelectProduct = obj => {
         const newStoreLimit = { ...StoreLimit };
         newStoreLimit['product'] = !!obj ? obj?.o_1 : null
+        setProductSelect(!!obj ? obj?.o_2 : '')
         setStoreLimit(newStoreLimit)
     }
 
     const handleSelectUnit = obj => {
         const newStoreLimit = { ...StoreLimit };
         newStoreLimit['unit'] = !!obj ? obj?.o_1 : null
+        setUnitSelect(!!obj ? obj?.o_2 : '')
         setStoreLimit(newStoreLimit)
     }
 
@@ -62,7 +74,7 @@ const StoreLimitAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate 
                 <Grid container spacing={2}>
                     <Grid item xs>
                         <Product_Autocomplete
-                            value={StoreLimit.product}
+                            value={productSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -71,7 +83,7 @@ const StoreLimitAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate 
                     </Grid>
                     <Grid item xs>
                         <Unit_Autocomplete
-                            value={StoreLimit.unit}
+                            value={unitSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}

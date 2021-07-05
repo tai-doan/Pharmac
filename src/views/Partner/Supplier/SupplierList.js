@@ -30,10 +30,10 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, config } from './Modal/Customer.modal'
-import CustomerAdd from './CustomerAdd';
-import CustomerView from './CustomerView';
-import CustomerEdit from './CustomerEdit'
+import { tableColumn, config } from './Modal/Supplier.modal'
+import SupplierAdd from './SupplierAdd';
+import SupplierView from './SupplierView';
+import SupplierEdit from './SupplierEdit'
 
 const serviceInfo = {
     GET_ALL: {
@@ -74,7 +74,7 @@ const serviceInfo = {
     }
 }
 
-const CustomerList = () => {
+const SupplierList = () => {
     const { t } = useTranslation()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
@@ -90,8 +90,8 @@ const CustomerList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const customer_SendReqFlag = useRef(false)
-    const customer_ProcTimeOut = useRef(null)
+    const supplier_SendReqFlag = useRef(false)
+    const supplier_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const saveContinue = useRef(false)
@@ -99,9 +99,9 @@ const CustomerList = () => {
 
     useEffect(() => {
         getList(999999999999, '');
-        const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const supplierSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
-                console.log('Customer msg ', msg)
+                console.log('Supplier msg ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
                     return
@@ -129,7 +129,7 @@ const CustomerList = () => {
             }
         })
         return () => {
-            customerSub.unsubscribe()
+            supplierSub.unsubscribe()
         }
     }, [])
 
@@ -146,7 +146,7 @@ const CustomerList = () => {
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
+        supplier_SendReqFlag.current = false
         setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -168,7 +168,7 @@ const CustomerList = () => {
 
     const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
+        supplier_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -189,7 +189,7 @@ const CustomerList = () => {
 
     const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
+        supplier_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -209,7 +209,7 @@ const CustomerList = () => {
 
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
+        supplier_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -304,9 +304,9 @@ const CustomerList = () => {
     const handleCreate = (actionType, dataObject) => {
         saveContinue.current = actionType
         const inputParam = [
-            dataObject.cust_nm_v,
-            dataObject.cust_nm_e,
-            dataObject.cust_nm_short,
+            dataObject.vender_nm_v,
+            dataObject.vender_nm_e,
+            dataObject.vender_nm_short,
             dataObject.address,
             dataObject.phone,
             dataObject.fax,
@@ -321,8 +321,7 @@ const CustomerList = () => {
             dataObject.agent_address,
             dataObject.agent_phone,
             dataObject.agent_email,
-            dataObject.default_yn,
-            dataObject.cust_tp
+            dataObject.default_yn
         ];
         sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -347,8 +346,7 @@ const CustomerList = () => {
             dataObject.o_17, //địa chỉ
             dataObject.o_18, //sđt
             dataObject.o_19, //email
-            dataObject.o_22, //xét mặc định
-            dataObject.o_23 //phân loại KH
+            dataObject.o_22 //xét mặc định
         ];
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -361,7 +359,7 @@ const CustomerList = () => {
                         <SearChComp
                             searchSubmit={searchSubmit}
                             setSearchVal={setSearchValue}
-                            placeholder={'products.product.search_name'}
+                            placeholder={'partner.supplier.search_name'}
                         />
                     </div>
                     <div className='d-flex'>
@@ -379,7 +377,7 @@ const CustomerList = () => {
                     </div>
                 </div>
                 <div className='d-flex justify-content-between'>
-                    <h6 className="d-flex font-weight-bold mb-2">{t('partner.customer.titleList')}</h6>
+                    <h6 className="d-flex font-weight-bold mb-2">{t('partner.supplier.titleList')}</h6>
                     <div className='d-flex'>
                         <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                         <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
@@ -447,7 +445,7 @@ const CustomerList = () => {
                                                         )
                                                     default:
                                                         return (
-                                                            <TableCell key={indexRow} align={col.align}>
+                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
                                                                 {glb_sv.formatValue(value, col['type'])}
                                                             </TableCell>
                                                         )
@@ -471,7 +469,7 @@ const CustomerList = () => {
             >
                 <DialogContent>
                     <DialogContentText className="m-0 text-dark">
-                        {t('partner.customer.titleRemove', { name: name })}
+                        {t('partner.supplier.titleRemove', { name: name })}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -491,7 +489,7 @@ const CustomerList = () => {
             </Dialog>
 
             {/* modal add */}
-            <CustomerAdd
+            <SupplierAdd
                 id={id}
                 shouldOpenModal={shouldOpenModal}
                 handleCloseAddModal={handleCloseAddModal}
@@ -499,7 +497,7 @@ const CustomerList = () => {
             />
 
             {/* modal edit */}
-            <CustomerEdit
+            <SupplierEdit
                 id={id}
                 shouldOpenEditModal={shouldOpenEditModal}
                 handleCloseEditModal={handleCloseEditModal}
@@ -507,7 +505,7 @@ const CustomerList = () => {
             />
 
             {/* modal view */}
-            <CustomerView
+            <SupplierView
                 id={id}
                 shouldOpenViewModal={shouldOpenViewModal}
                 handleCloseViewModal={handleCloseViewModal}
@@ -516,4 +514,4 @@ const CustomerList = () => {
     )
 }
 
-export default CustomerList
+export default SupplierList

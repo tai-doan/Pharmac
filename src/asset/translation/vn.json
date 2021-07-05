@@ -189,6 +189,7 @@
     },
     "partner": {
         "customer": {
+            "search_name": "Tìm theo tên khách hàng",
             "titleAdd": "Thêm Khách hàng",
             "titleEdit": "Cập nhật Khách hàng {{name}}",
             "titleRemove": "Bạn có thực sự muốn xóa Khách hàng {{name}} không ?",
@@ -216,31 +217,34 @@
             "agent_address": "Địa chỉ",
             "agent_phone": "Điện thoại",
             "agent_email": "Email",
-            "default_yn": "Khách hàng mặc định khi thêm mới một hóa đơn xuất không"
+            "default_yn": "Khách hàng mặc định khi tạo hóa đơn xuất"
         },
         "supplier": {
+            "search_name": "Tìm theo tên nhà cung ứng",
             "titleAdd": "Thêm Nhà cung cấp",
             "titleEdit": "Cập nhật Nhà cung cấp {{name}}",
             "titleRemove": "Bạn có thực sự muốn xóa Nhà cung cấp {{name}} không ?",
-            "title": "Danh sách Nhà cung cấp",
+            "titleList": "Danh sách Nhà cung cấp",
+            "titleView": "Xem chi tiết nhà cung ứng {{name}}",
             "id": "Id của nhà cung ứng",
-            "vender_nm_v": "Tên tiếng Việt nhà cung ứng",
-            "vender_nm_e": "Tên tiếng Anh nhà cung ứng",
+            "vender_nm_v": "Tên nhà cung ứng (TV)",
+            "vender_nm_e": "Tên nhà cung ứng (TA)",
             "vender_nm_short": "Tên viết tắt",
-            "address": "địa chỉ",
-            "phone": "điện thoại",
+            "address": "Địa chỉ",
+            "phone": "Điện thoại",
             "fax": "Fax",
             "email": "Email",
-            "website": "địa chỉ website",
+            "website": "Website",
             "tax_cd": "Mã số thuế",
             "bank_acnt_no": "Số tài khoản NH",
             "bank_acnt_nm": "Tên chủ tài khoản",
             "bank_nm": "Tên ngân hàng",
             "agent_nm": "Tên người đại diện",
             "agent_fun": "Chức vụ",
-            "agent_address": "địa chỉ",
-            "agent_phone": "điện thoại",
-            "agent_email": "Email"
+            "agent_address": "Địa chỉ",
+            "agent_phone": "Điện thoại",
+            "agent_email": "Email",
+            "default_yn": "Nhà cung ứng mặc định khi tạo một hóa đơn nhập"
         }
     },
     "report": {
@@ -452,6 +456,7 @@
             "titleEdit": "Cập nhật bảng báo giá của sản phẩm {{name}}",
             "titleRemove": "Bạn có thực sự muốn xóa bảng báo giá của sản phẩm {{name}} không ?",
             "titleList": "Danh sách bảng báo giá",
+            "titleView": "Xem bảng báo giá của sản phẩm {{name}}",
             "product": "Tên sản phẩm",
             "productType": "Loại sản phẩm",
             "unit": "Đơn vị",
@@ -468,6 +473,7 @@
             "titleEdit": "Cập nhật hạn mức kho {{name}}",
             "titleRemove": "Bạn có thực sự muốn xóa hạn mức kho {{name}} không ?",
             "titleList": "Danh sách hạn mức kho",
+            "titleView": "Xem hạn mức kho của sản phẩm {{name}}",
             "productName": "Tên sản phẩm",
             "product": "Sản phẩm",
             "unit": "Đơn vị",

@@ -1,4 +1,6 @@
 export default {
+    PRODUCT_DROPDOWN_LIST: 'PRODUCT_DROPDOWN_LIST',
+    UNIT_DROPDOWN_LIST: 'UNIT_DROPDOWN_LIST',
     //-- Lấy danh sách sản phẩm
     GET_PROD_LIST: 'GET_PROD_LIST',
     //-- Lấy thông tin 1 sản phẩm

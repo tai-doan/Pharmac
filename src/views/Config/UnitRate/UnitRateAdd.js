@@ -15,6 +15,16 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
+    const [productSelect, setProductSelect] = useState('')
+    const [unitSelect, setUnitSelect] = useState('')
+
+    useEffect(() => {
+        if (shouldOpenModal) {
+            setUnitRate({})
+            setProductSelect('')
+            setUnitSelect('')
+        }
+    }, [shouldOpenModal])
 
     const checkValidate = () => {
         if (!!unitRate.product && !!unitRate.unit && !!unitRate.rate) {
@@ -27,12 +37,14 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
         const newUnitRate = { ...unitRate };
         newUnitRate['product'] = !!obj ? obj?.o_1 : null
         setUnitRate(newUnitRate)
+        setProductSelect(!!obj ? obj?.o_2 : '')
     }
 
     const handleSelectUnit = obj => {
         const newUnitRate = { ...unitRate };
         newUnitRate['unit'] = !!obj ? obj?.o_1 : null
         setUnitRate(newUnitRate)
+        setUnitSelect(!!obj ? obj?.o_2 : '')
     }
 
     const handleChange = value => {
@@ -57,7 +69,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 <Grid container className="{}" spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
-                            value={unitRate.product}
+                            value={productSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -66,7 +78,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     </Grid>
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
-                            value={unitRate.unit}
+                            value={unitSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}

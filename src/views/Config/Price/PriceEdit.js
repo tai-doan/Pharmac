@@ -20,11 +20,8 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 
 const serviceInfo = {
     GET_PRICE_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
         biz: config.biz,
         object: config.object
     }
@@ -34,6 +31,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
     const { t } = useTranslation()
 
     const [Price, setPrice] = useState({})
+    const [unitSelect, setUnitSelect] = useState('')
 
     useEffect(() => {
         const PriceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -73,6 +71,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setPrice(newData.rows[0])
+            setUnitSelect(newData.rows[0].o_5)
         }
     }
 
@@ -86,6 +85,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
     const handleSelectUnit = obj => {
         const newPrice = { ...Price };
         newPrice['o_4'] = !!obj ? obj?.o_1 : null
+        setUnitSelect(!!obj ? obj?.o_2 : '')
         setPrice(newPrice)
     }
 
@@ -132,14 +132,14 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('config.Price.titleEdit', { name: Price.o_3 })}
+                {t('config.price.titleEdit', { name: Price.o_3 })}
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
                             disabled={true}
-                            value={Price.o_2}
+                            value={Price.o_3}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -147,7 +147,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                     </Grid>
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
-                            value={Price.o_4}
+                            value={unitSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}
@@ -190,6 +190,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                             onValueChange={handleImportVATChange}
                             inputProps={{
                                 min: 0,
+                                max: 10
                             }}
                         />
                     </Grid>
@@ -245,6 +246,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                             onValueChange={handleExportVATChange}
                             inputProps={{
                                 min: 0,
+                                max: 10
                             }}
                         />
                     </Grid>

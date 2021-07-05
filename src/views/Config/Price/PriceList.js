@@ -37,38 +37,26 @@ import PriceEdit from './PriceEdit'
 
 const serviceInfo = {
     GET_ALL: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        operation: config['list'].operation,
         biz: config.biz,
         object: config.object
     },
     CREATE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['insert'].functionName,
         reqFunct: config['insert'].reqFunct,
-        operation: config['insert'].operation,
         biz: config.biz,
         object: config.object
     },
     UPDATE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['update'].functionName,
         reqFunct: config['update'].reqFunct,
-        operation: config['update'].operation,
         biz: config.biz,
         object: config.object
     },
     DELETE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
-        operation: config['delete'].operation,
         biz: config.biz,
         object: config.object
     }
@@ -101,7 +89,6 @@ const PriceList = () => {
         getList(999999999999, '');
         const priceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
-                console.log('Price msg ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
                     return
@@ -360,7 +347,7 @@ const PriceList = () => {
                         <TableHead>
                             <TableRow>
                                 {column.map(col => (
-                                    <TableCell
+                                    <TableCell nowrap="true"
                                         className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                         key={col.field}
                                     >
@@ -379,7 +366,7 @@ const PriceList = () => {
                                                 switch (col.field) {
                                                     case 'action':
                                                         return (
-                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                            <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
                                                                 <IconButton
                                                                     onClick={e => {
                                                                         onRemove(item)
@@ -405,7 +392,7 @@ const PriceList = () => {
                                                         )
                                                     default:
                                                         return (
-                                                            <TableCell key={indexRow} align={col.align}>
+                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
                                                                 {glb_sv.formatValue(value, col['type'])}
                                                             </TableCell>
                                                         )

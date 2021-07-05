@@ -5,7 +5,7 @@ export class inputPrmRq {
         this.branchId = glb_sv.branchId || 0
         this.userId = glb_sv.userId || 'system' // -- userId
         this.authenInfo = 'none' // -- prod
-        this.reqFunct = ''
+        // this.reqFunct = ''
         // this.authenInfo = 'Cq5m1D2p6z7ZpM42cu2mdl1D6A2!1-test'; // -- dev
         this.timeOut = 15
         this.lang = 'vi'

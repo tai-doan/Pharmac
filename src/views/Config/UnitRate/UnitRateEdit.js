@@ -106,7 +106,7 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
                             disabled={true}
-                            value={unitRate.o_2}
+                            value={unitRate.o_3}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -115,7 +115,7 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
                             disabled={true}
-                            value={unitRate.o_4}
+                            value={unitRate.o_5}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}

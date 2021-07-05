@@ -87,14 +87,14 @@ const StoreLimitView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('config.StoreLimit.titleView', { name: StoreLimit.o_3 })}
+                {t('config.store_limit.titleView', { name: StoreLimit.o_3 })}
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
                             disabled={true}
-                            value={StoreLimit.o_2}
+                            value={StoreLimit.o_3}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -103,7 +103,7 @@ const StoreLimitView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
                             disabled={true}
-                            value={StoreLimit.o_4}
+                            value={StoreLimit.o_5}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}

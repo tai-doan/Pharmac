@@ -10,7 +10,7 @@ const tableColumn = [
     { field: 'o_7', title: 'partner.customer.fax', show: true, disabled: false, minWidth: 100 },
     { field: 'o_8', title: 'partner.customer.email', show: true, disabled: false, minWidth: 100 },
     { field: 'o_9', title: 'partner.customer.website', show: true, disabled: false, minWidth: 300 },
-    { field: 'o_10', title: 'partner.customer.tax_cd', show: true, disabled: true, minWidth: 200 },
+    { field: 'o_10', title: 'partner.customer.tax_cd', show: true, disabled: false, minWidth: 200 },
     { field: 'o_11', title: 'partner.customer.bank_acnt_no', show: true, disabled: false, minWidth: 200 },
     { field: 'o_12', title: 'partner.customer.bank_acnt_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'o_14', title: 'partner.customer.bank_nm', show: true, disabled: false, minWidth: 100 },
@@ -57,7 +57,30 @@ const config = {
     },
 }
 
+const defaultModalAdd = {
+    cust_nm_v: '',
+    cust_nm_e: '',
+    cust_nm_short: '',
+    cust_tp: '1',
+    address: '',
+    phone: '',
+    fax: '',
+    email: '',
+    website: '',
+    tax_cd: '',
+    bank_acnt_no: '',
+    bank_acnt_nm: '',
+    bank_nm: '',
+    agent_nm: '',
+    agent_fun: '',
+    agent_address: '',
+    agent_phone: '',
+    agent_email: '',
+    default_yn: 'Y'
+}
+
 export {
+    defaultModalAdd,
     tableColumn,
     config
 }

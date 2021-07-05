@@ -9,36 +9,14 @@ import control_sv from '../../../../utils/service/control_services'
 import socket_sv from '../../../../utils/service/socket_service'
 import reqFunction from '../../../../utils/constan/functions';
 import { requestInfo } from '../../../../utils/models/requestInfo';
-import { config } from '../Modal/Product.modal'
 
 const serviceInfo = {
-    GET_ALL: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
-        functionName: config['list'].functionName,
-        reqFunct: config['list'].reqFunct,
-        operation: config['list'].operation,
-        biz: config.biz,
-        object: config.object
-    },
-    GET_PRODUCT_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
-        functionName: config['byId'].functionName,
-        reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
-        biz: config.biz,
-        object: config.object
-    },
-    TEST_SV: {
-        moduleName: 'common',
-        screenName: 'common',
+    DROPDOWN_LIST: {
         functionName: 'drop_list',
-        reqFunct: 'TEST_SV',
-        operation: config['list'].operation,
+        reqFunct: reqFunction.PRODUCT_DROPDOWN_LIST,
         biz: 'common',
-        object: 'dropdownList'
-    },
+        object: 'dropdown_list'
+    }
 }
 
 const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
@@ -49,14 +27,11 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = 
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = [999999999999, '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
-        const inputTest = ['products', '%']
-        sendRequest(serviceInfo.TEST_SV, inputTest, e => console.log('result ', e), true, handleTimeOut)
+        const inputParam = ['products', '%']
+        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
 
         const ProductSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
-                console.log('msg trả: ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
                     return
@@ -65,14 +40,8 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = 
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === 'TEST_SV') {
-                    resultTestSV(msg, cltSeqResult, reqInfoMap)
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_LIST) {
-                    resultGetList(msg, cltSeqResult, reqInfoMap)
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_BY_ID) {
-                    resultGetProductByID(msg, cltSeqResult, reqInfoMap)
+                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_DROPDOWN_LIST) {
+                    resultProductDropDownList(msg, cltSeqResult, reqInfoMap)
                 }
             }
         })
@@ -83,11 +52,11 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = 
 
     useEffect(() => {
         if (value) {
-            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [value], null, true, handleTimeOut)
+            setValueSelect(dataSource.find(x => x.o_2 === value))
         }
-    }, [value])
+    }, [value, dataSource])
 
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultProductDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         reqInfoMap.procStat = 2
         if (message['PROC_STATUS'] === 2) {
@@ -97,43 +66,7 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = 
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            let newDataSource = dataSource.concat(newData.rows)
-            setDataSource(newDataSource)
-            if (newDataSource.length < newData.rowTotal) {
-                const inputParam = [newDataSource[newDataSource.length - 1].o_1, '%']
-                sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
-            }
-        }
-    }
-
-    const resultGetProductByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
-            let newData = message['PROC_DATA']
-            setValueSelect(newData.rows[0])
-        }
-    }
-
-    const resultTestSV = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
-            let newData = message['PROC_DATA']
-            console.log('test sv trả ra: ', newData)
+            setDataSource(newData.rows)
         }
     }
 
@@ -161,7 +94,7 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = 
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect || {}}
-            getOptionLabel={(option) => option.o_3 || ''}
+            getOptionLabel={(option) => option.o_2 || ''}
             style={style}
             renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
         />

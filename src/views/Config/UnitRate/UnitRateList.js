@@ -376,7 +376,7 @@ const UnitRateList = () => {
                         <TableHead>
                             <TableRow>
                                 {column.map(col => (
-                                    <TableCell
+                                    <TableCell nowrap="true"
                                         className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                         key={col.field}
                                     >
@@ -421,7 +421,7 @@ const UnitRateList = () => {
                                                         )
                                                     default:
                                                         return (
-                                                            <TableCell key={indexRow} align={col.align}>
+                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
                                                                 {glb_sv.formatValue(value, col['type'])}
                                                             </TableCell>
                                                         )

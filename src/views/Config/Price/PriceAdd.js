@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -15,6 +15,16 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
     const { t } = useTranslation()
 
     const [Price, setPrice] = useState({})
+    const [productSelect, setProductSelect] = useState('')
+    const [unitSelect, setUnitSelect] = useState('')
+
+    useEffect(() => {
+        if (shouldOpenModal) {
+            setPrice({})
+            setProductSelect('')
+            setUnitSelect('')
+        }
+    }, [shouldOpenModal])
 
     const checkValidate = () => {
         if (!!Price.product && !!Price.unit && !!Price.importPrice && !!Price.importVAT && !!Price.price && !!Price.wholePrice && !!Price.exportVAT) {
@@ -26,12 +36,14 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
     const handleSelectProduct = obj => {
         const newPrice = { ...Price };
         newPrice['product'] = !!obj ? obj?.o_1 : null
+        setProductSelect(!!obj ? obj?.o_2 : '')
         setPrice(newPrice)
     }
 
     const handleSelectUnit = obj => {
         const newPrice = { ...Price };
         newPrice['unit'] = !!obj ? obj?.o_1 : null
+        setUnitSelect(!!obj ? obj?.o_2 : '')
         setPrice(newPrice)
     }
 
@@ -84,7 +96,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                 <Grid container spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
-                            value={Price.product}
+                            value={productSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -93,7 +105,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                     </Grid>
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
-                            value={Price.unit}
+                            value={unitSelect}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}
@@ -136,6 +148,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                             onValueChange={handleImportVATChange}
                             inputProps={{
                                 min: 0,
+                                max: 10
                             }}
                         />
                     </Grid>
@@ -191,6 +204,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                             onValueChange={handleExportVATChange}
                             inputProps={{
                                 min: 0,
+                                max: 10
                             }}
                         />
                     </Grid>
