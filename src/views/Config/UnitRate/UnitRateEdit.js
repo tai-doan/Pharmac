@@ -20,11 +20,8 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 
 const serviceInfo = {
     GET_UNIT_RATE_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
         biz: config.biz,
         object: config.object
     }

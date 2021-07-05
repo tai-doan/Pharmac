@@ -27,11 +27,8 @@ import moment from 'moment'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
         biz: config.biz,
         object: config.object
     }

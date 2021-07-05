@@ -17,11 +17,8 @@ import { config } from './Modal/ProductGroup.modal'
 
 const serviceInfo = {
     GET_PRODUCT_GROUP_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
         biz: config.biz,
         object: config.object
     }

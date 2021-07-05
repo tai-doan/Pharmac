@@ -31,15 +31,9 @@ const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOu
     const clientSeq = socket_sv.getClientSeq()
     const svInputPrm = new inputPrmRq()
     svInputPrm.clientSeq = clientSeq
-    // svInputPrm.moduleName = serviceInfo.moduleName
-    // svInputPrm.screenName = serviceInfo.screenName
-    // svInputPrm.functionName = serviceInfo.functionName
-    // svInputPrm.operation = serviceInfo.operation
     svInputPrm.biz = serviceInfo.biz
     svInputPrm.object = serviceInfo.object
     svInputPrm.funct = serviceInfo.functionName
-    // svInputPrm.reqFunct = serviceInfo.reqFunct
-    // svInputPrm.inputPrm = inputParams
     svInputPrm.input = inputParams
     console.log('sendEvent 2 server => ', svInputPrm)
     socket_sv.sendMsg(socket_sv.key_ClientReq, svInputPrm)

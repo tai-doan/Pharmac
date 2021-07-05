@@ -37,38 +37,26 @@ import CustomerEdit from './CustomerEdit'
 
 const serviceInfo = {
     GET_ALL: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        operation: config['list'].operation,
         biz: config.biz,
         object: config.object
     },
     CREATE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['insert'].functionName,
         reqFunct: config['insert'].reqFunct,
-        operation: config['insert'].operation,
         biz: config.biz,
         object: config.object
     },
     UPDATE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['update'].functionName,
         reqFunct: config['update'].reqFunct,
-        operation: config['update'].operation,
         biz: config.biz,
         object: config.object
     },
     DELETE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
-        operation: config['delete'].operation,
         biz: config.biz,
         object: config.object
     }

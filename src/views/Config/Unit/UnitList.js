@@ -36,29 +36,20 @@ import UnitView from './UnitView';
 
 const serviceInfo = {
     GET_ALL: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        operation: config['list'].operation,
         biz: config.biz,
         object: config.object
     },
     SUBMIT_DATA: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         funct: config['insert'].functionName,
         reqFunct: config['insert'].reqFunct,
-        operation: config['insert'].operation,
         biz: config.biz,
         object: config.object
     },
     DELETE: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
-        operation: config['delete'].operation,
         biz: config.biz,
         object: config.object
     }
