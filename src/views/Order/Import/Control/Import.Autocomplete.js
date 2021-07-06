@@ -9,18 +9,30 @@ import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
 import socket_sv from '../../../../utils/service/socket_service'
-import { config } from '../Modal/Supplier.modal'
+import { config } from '../Modal/Import.modal'
 
 const serviceInfo = {
-    DROPDOWN_LIST: {
-        functionName: 'drop_list',
-        reqFunct: reqFunction.SUPPLIER_DROPDOWN_LIST,
-        biz: 'common',
-        object: 'dropdown_list'
+    GET_ALL: {
+        moduleName: config.moduleName,
+        screenName: config.screenName,
+        functionName: config['list'].functionName,
+        reqFunct: config['list'].reqFunct,
+        operation: config['list'].operation,
+        biz: config.biz,
+        object: config.object
+    },
+    GET_UNIT_BY_ID: {
+        moduleName: config.moduleName,
+        screenName: config.screenName,
+        functionName: config['byId'].functionName,
+        reqFunct: config['byId'].reqFunct,
+        operation: config['byId'].operation,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
+const Import_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -28,8 +40,8 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = ['venders', '%']
-        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        const inputParam = [999999999999, '%']
+        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
 
         const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
@@ -41,8 +53,11 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.SUPPLIER_DROPDOWN_LIST) {
-                    resultSupplierDropDownList(msg, cltSeqResult, reqInfoMap)
+                if (reqInfoMap.reqFunct === reqFunction.PRICE_LIST) {
+                    resultGetList(msg, cltSeqResult, reqInfoMap)
+                }
+                if (reqInfoMap.reqFunct === reqFunction.PRICE_BY_ID) {
+                    resultGetImportByID(msg, cltSeqResult, reqInfoMap)
                 }
             }
         })
@@ -53,12 +68,15 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
 
     useEffect(() => {
         if (value) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
+            sendRequest(serviceInfo.GET_UNIT_BY_ID, [value], null, true, handleTimeOut)
         }
-    }, [value, dataSource])
+    }, [value])
 
-    const resultSupplierDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultGetImportByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
         reqInfoMap.procStat = 2
         if (message['PROC_STATUS'] === 2) {
             reqInfoMap.resSucc = false
@@ -67,7 +85,28 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            setDataSource(newData.rows)
+            setValueSelect(newData.rows[0])
+        }
+    }
+
+    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        }
+        if (message['PROC_DATA']) {
+            let newData = message['PROC_DATA']
+            let newDataSource = dataSource.concat(newData.rows)
+            setDataSource(newDataSource)
+            if (newDataSource.length < newData.rowTotal) {
+                const inputParam = [newDataSource[newDataSource.length - 1].o_1, '%']
+                sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+            }
         }
     }
 
@@ -101,4 +140,4 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
     )
 }
 
-export default Supplier_Autocomplete
+export default Import_Autocomplete

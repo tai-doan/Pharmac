@@ -7,13 +7,13 @@ const tableColumn = [
     { field: 'o_6', title: 'config.warnTime.warn_time_tp', show: true, disabled: false, minWidth: 100 },
     { field: 'o_7', title: 'updateUser', show: true, disabled: false, minWidth: 100 },
     { field: 'o_8', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date' },
-    { field: 'o_9', title: 'config.unit.titleBranch', show: true, disabled: false, minWidth: 100 }
+    { field: 'o_9', title: 'titleBranch', show: true, disabled: false, minWidth: 100 }
 ]
 
 const config = {
     biz: 'common',
     moduleName: 'common',
-    screenName: 'unit-rate',
+    screenName: 'warn-time',
     object: 'conf_expiredt',
     list: {
         functionName: 'get_all',

@@ -39,13 +39,6 @@ const menuList = [
             { title: 'menu.productGroup', link: 'products/product-group', key: 'productGroup' },
         ],
     },
-    // {
-    //     title: 'menu.product',
-    //     icon: <ViewListIcon className="icon-menu"></ViewListIcon>,
-    //     link: 'product/get-list',
-    //     key: 'product',
-    //     children: [],
-    // },
     {
         title: 'menu.order',
         icon: <ReceiptIcon className="icon-menu"></ReceiptIcon>,
