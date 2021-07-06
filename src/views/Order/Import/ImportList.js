@@ -10,8 +10,12 @@ import TableRow from '@material-ui/core/TableRow'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
 import Button from '@material-ui/core/Button'
+import { Grid } from '@material-ui/core'
+import InputLabel from "@material-ui/core/InputLabel"
+import MenuItem from "@material-ui/core/MenuItem"
+import FormControl from "@material-ui/core/FormControl"
+import Select from "@material-ui/core/Select"
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
@@ -34,6 +38,7 @@ import { tableColumn, config } from './Modal/Import.modal'
 import ImportAdd from './ImportAdd';
 import ImportView from './ImportView';
 import ImportEdit from './ImportEdit'
+import { DialogTitle } from '@material-ui/core'
 
 const serviceInfo = {
     GET_ALL: {
@@ -74,6 +79,10 @@ const ImportList = () => {
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
     const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
+    const [deleteModalContent, setDeleteModalContent] = useState({
+        invoice_imp_calc_rs: '1',
+        note: ''
+    })
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
@@ -211,6 +220,12 @@ const ImportList = () => {
             dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
             setDataSource(dataSourceRef.current);
             setTotalRecords(dataSourceRef.current.length)
+            setId(0);
+            setName('')
+            setDeleteModalContent({
+                invoice_imp_calc_rs: '1',
+                note: ''
+            })
         }
     }
 
@@ -243,7 +258,7 @@ const ImportList = () => {
     const onRemove = item => {
         setShouldOpenRemoveModal(item ? true : false);
         setId(item ? item.o_1 : 0)
-        setName(item ? item.o_3 : '')
+        setName(item ? item.o_2 : '')
     }
 
     const onEdit = item => {
@@ -260,7 +275,8 @@ const ImportList = () => {
     const handleDelete = e => {
         e.preventDefault();
         idRef.current = id;
-        sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
+        const inputParam = [id, deleteModalContent.invoice_imp_calc_rs, deleteModalContent.note]
+        sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
         setId(0)
         setName('')
     }
@@ -293,7 +309,7 @@ const ImportList = () => {
         const inputParam = [
             !!dataObject.invoice_no ? dataObject.invoice_no : 'AUTO',
             dataObject.vender_id,
-            moment(dataObject.order_dt).format('YYYYMMdd'),
+            moment(dataObject.order_dt).format('YYYYMMDD'),
             dataObject.person_s,
             dataObject.person_r,
             dataObject.note
@@ -303,13 +319,19 @@ const ImportList = () => {
 
     const handleUpdate = dataObject => {
         const inputParam = [dataObject.o_1, // id
-            dataObject.o_4, // nhà cung ứng
-            moment(dataObject.o_6).format('YYYYMMdd'), // ngày tạo HĐ
-            dataObject.o_8, // người giao hàng
-            dataObject.o_9, // người nhận hàng
-            dataObject.o_11 // note
+        dataObject.o_4, // nhà cung ứng
+        moment(dataObject.o_6).format('YYYYMMDD'), // ngày tạo HĐ
+        dataObject.o_8, // người giao hàng
+        dataObject.o_9, // người nhận hàng
+        dataObject.o_11 // note
         ];
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+    }
+
+    const handleChange = e => {
+        const newModal = { ...deleteModalContent };
+        newModal[e.target.name] = e.target.value
+        setDeleteModalContent(newModal)
     }
 
     return (
@@ -427,10 +449,43 @@ const ImportList = () => {
                     setShouldOpenRemoveModal(false)
                 }}
             >
+                <DialogTitle>
+                    {t('order.import.titleCancel', { name: name })}
+                </DialogTitle>
                 <DialogContent>
-                    <DialogContentText className="m-0 text-dark">
-                        {t('order.import.titleRemove', { name: name })}
-                    </DialogContentText>
+                    <Grid container spacing={2}>
+                        <Grid item xs>
+                            <FormControl margin="dense" variant="outlined" className='w-100'>
+                                <InputLabel id="invoice_imp_calc_rs">{t('order.import.invoice_imp_calc_rs')}</InputLabel>
+                                <Select
+                                    labelId="invoice_imp_calc_rs"
+                                    id="invoice_imp_calc_rs-select"
+                                    value={deleteModalContent.invoice_imp_calc_rs || 'Y'}
+                                    onChange={handleChange}
+                                    label={t('order.import.invoice_imp_calc_rs')}
+                                    name='invoice_imp_calc_rs'
+                                >
+                                    <MenuItem value="1">{t('wrong_information')}</MenuItem>
+                                    <MenuItem value="2">{t('cancel_import')}</MenuItem>
+                                    <MenuItem value="3">{t('other_reason')}</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('order.import.note')}
+                                onChange={handleChange}
+                                value={deleteModalContent.note || ''}
+                                name='note'
+                                variant="outlined"
+                            />
+                        </Grid>
+                    </Grid>
                 </DialogContent>
                 <DialogActions>
                     <Button
