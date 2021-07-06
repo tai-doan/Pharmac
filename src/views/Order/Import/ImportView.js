@@ -88,7 +88,7 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs>
                         <TextField
                             disabled={true}
                             fullWidth={true}
@@ -102,7 +102,7 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             variant="outlined"
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs>
                         <TextField
                             disabled={true}
                             fullWidth={true}
@@ -116,7 +116,7 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             variant="outlined"
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs>
                         <Supplier_Autocomplete
                             disabled={true}
                             value={Import.o_5}
@@ -125,9 +125,10 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             label={t('menu.supplier')}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
                             <KeyboardDatePicker
+                                disabled={true}
                                 disableToolbar
                                 margin="dense"
                                 variant="inline"
@@ -135,22 +136,38 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                                 id="order_dt-picker-inline"
                                 label={t('order.import.order_dt')}
                                 value={Import.o_6 || new Date()}
-                                onChange={handleDateChange}
                                 KeyboardButtonProps={{
                                     'aria-label': 'change date',
                                 }}
                             />
                         </MuiPickersUtilsProvider>
                     </Grid>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <KeyboardDatePicker
+                                disabled={true}
+                                disableToolbar
+                                margin="dense"
+                                variant="inline"
+                                format="dd/MM/yyyy"
+                                id="input_dt-picker-inline"
+                                label={t('order.import.input_dt')}
+                                value={Import.o_7 || new Date()}
+                                KeyboardButtonProps={{
+                                    'aria-label': 'change date',
+                                }}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid>
+                    <Grid item xs>
                         <TextField
+                            disabled={true}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
                             label={t('order.import.person_s')}
-                            onChange={handleChange}
                             value={Import.o_8 || ''}
                             name='o_8'
                             variant="outlined"
@@ -160,13 +177,13 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                 <Grid container spacing={2}>
                     <Grid item xs>
                         <TextField
+                            disabled={true}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={1}
                             autoComplete="off"
                             label={t('order.import.person_r')}
-                            onChange={handleChange}
                             value={Import.o_9 || ''}
                             name='o_9'
                             variant="outlined"
@@ -174,21 +191,111 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                     </Grid>
                     <Grid item xs>
                         <TextField
+                            disabled={true}
                             fullWidth={true}
                             margin="dense"
                             multiline
                             rows={2}
                             autoComplete="off"
                             label={t('order.import.note')}
-                            onChange={handleChange}
                             value={Import.o_11 || ''}
                             name='o_11'
                             variant="outlined"
                         />
                     </Grid>
+                    <Grid item xs>
+                        <NumberFormat
+                            disabled={true}
+                            style={{ width: '100%' }}
+                            required
+                            value={Import.o_12}
+                            label={t('order.import.total_prod')}
+                            customInput={TextField}
+                            autoComplete="off"
+                            margin="dense"
+                            type="text"
+                            variant="outlined"
+                            thousandSeparator={true}
+                            inputProps={{
+                                min: 0,
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <NumberFormat
+                            disabled={true}
+                            style={{ width: '100%' }}
+                            required
+                            value={Import.o_13}
+                            label={t('order.import.invoice_val')}
+                            customInput={TextField}
+                            autoComplete="off"
+                            margin="dense"
+                            type="text"
+                            variant="outlined"
+                            thousandSeparator={true}
+                            inputProps={{
+                                min: 0,
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <NumberFormat
+                            disabled={true}
+                            style={{ width: '100%' }}
+                            required
+                            value={Import.o_14}
+                            label={t('order.import.invoice_discount')}
+                            customInput={TextField}
+                            autoComplete="off"
+                            margin="dense"
+                            type="text"
+                            variant="outlined"
+                            thousandSeparator={true}
+                            inputProps={{
+                                min: 0,
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <NumberFormat
+                            disabled={true}
+                            style={{ width: '100%' }}
+                            required
+                            value={Import.o_15}
+                            label={t('order.import.invoice_vat')}
+                            customInput={TextField}
+                            autoComplete="off"
+                            margin="dense"
+                            type="text"
+                            variant="outlined"
+                            thousandSeparator={true}
+                            inputProps={{
+                                min: 0,
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs>
+                        <NumberFormat
+                            disabled={true}
+                            style={{ width: '100%' }}
+                            required
+                            value={Import.o_16}
+                            label={t('order.import.invoice_vat')}
+                            customInput={TextField}
+                            autoComplete="off"
+                            margin="dense"
+                            type="text"
+                            variant="outlined"
+                            thousandSeparator={true}
+                            inputProps={{
+                                min: 0,
+                            }}
+                        />
+                    </Grid>
                 </Grid>
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <TextField
                             disabled={true}
                             fullWidth={true}
@@ -196,12 +303,12 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             multiline
                             autoComplete="off"
                             label={t('createdUser')}
-                            value={Import.o_12}
-                            name="o_12"
+                            value={Import.o_17}
+                            name="o_17"
                             variant="outlined"
                         />
                     </Grid>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <TextField
                             disabled={true}
                             fullWidth={true}
@@ -209,25 +316,11 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             multiline
                             autoComplete="off"
                             label={t('createdDate')}
-                            value={moment(Import.o_13, 'DDMMYYYYHHmmss').format('DD/MM/YYYY HH:mm:ss')}
-                            name="o_13"
+                            value={moment(Import.o_18, 'DDMMYYYYHHmmss').format('DD/MM/YYYY HH:mm:ss')}
+                            name="o_18"
                             variant="outlined"
                         />
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <TextField
-                        disabled={true}
-                        fullWidth={true}
-                        margin="dense"
-                        multiline
-                        rows={2}
-                        autoComplete="off"
-                        label={t('order.import.note')}
-                        value={Import.o_11 || ''}
-                        name='o_11'
-                        variant="outlined"
-                    />
                 </Grid>
             </DialogContent>
             <DialogActions>
