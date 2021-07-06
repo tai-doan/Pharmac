@@ -2,6 +2,7 @@ import React, { lazy } from 'react'
 import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 
 const ImportOrder = lazy(() => import('./ImportOrder'))
+const Import = lazy(() => import('./Import'))
 const InsImport = lazy(() => import('./InsImport'))
 const ExportOrder = lazy(() => import('./ExportOrder'))
 const InsExport = lazy(() => import('./InsExport'))
@@ -27,7 +28,7 @@ function Child() {
 
     switch (link) {
         case 'import':
-            return <ImportOrder />
+            return <Import />
         case 'ins-import':
             return <InsImport id={id || 0}/>
         case 'export':

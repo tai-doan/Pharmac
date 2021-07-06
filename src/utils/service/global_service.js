@@ -194,9 +194,9 @@ class globalService {
             }
             return null
         }
-        this.formatDate = (value, full = false) => {
+        this.formatDate = (value, formatIn, formatOut) => {
             if (!value || value === '') return ''
-            let date = moment(value, 'DDMMYYYYHHmmss').format('DD/MM/YYYY HH:mm:ss')
+            let date = moment(value, formatIn || 'DDMMYYYYHHmmss').format(formatOut ? formatOut : 'DD/MM/YYYY HH:mm:ss')
             if (date === 'Invalid Date') return ''
             return date
         }
@@ -208,6 +208,8 @@ class globalService {
                     return number.format(value)
                 case 'date':
                     return this.formatDate(value)
+                case 'dated':
+                    return this.formatDate(value, 'YYYYMMDD', 'DD/MM/YYYY')
                 default:
                     return value
             }

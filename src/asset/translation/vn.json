@@ -13,7 +13,9 @@
     "no": "Sai",
     "wrong_information": "Sai thông tin",
     "cancel_import": "Hủy nhập",
-    "other_reason":"Lý do khác",
+    "other_reason": "Lý do khác",
+    "search_information": "Thông tin tìm kiếm",
+    "search_btn": "Tìm kiếm",
     "getMoreData": "Lấy thêm dữ liệu?",
     "noData": "Không có dữ liệu",
     "save_continue": "Lưu và tiếp tục",
@@ -285,7 +287,6 @@
         },
         "import_order": {
             "title": "Báo cáo nhập hàng",
-
             "invoice_no": "Số hóa đơn",
             "invoice_stat": "Trạng thái hóa đơn: Bình thường; Đã hủy",
             "vender_nm_v": "Tên nhà cung ứng",
@@ -302,7 +303,6 @@
         },
         "export_order": {
             "title": "Báo cáo xuất hàng",
-
             "invoice_no": "Số hóa đơn",
             "invoice_stat": "Trạng thái hóa đơn: Bình thường; Đã hủy",
             "cust_nm_v": "Tên khách hàng",
@@ -329,6 +329,19 @@
             "invoice_stat_nm": "Trạng thái hóa đơn (tên)",
             "vender_id": "Nhà cung ứng (mã)",
             "vender_nm_v": "Nhà cung ứng (tên)",
+            "vender_nm": "Nhà cung ứng",
+            "order_dt": "Ngày nhập hàng",
+            "cancel_reason": "Lý do hủy",
+            "total_prod": "Tổng loại sp nhập",
+            "invoice_type": "Loại hóa đơn",
+            "invoice_val": "Tổng giá trị hđ",
+            "invoice_discount": "Tổng tiền chiết khấu",
+            "invoice_vat": "Tổng tiền thuế VAT",
+            "invoice_settl": "Tổng tiền đã thanh toán",
+            "invoice_auto": "Hoá đơn tự động",
+            "note": "Ghi chú",
+            "start_date" : "Ngày bắt đầu",
+            "end_date" : "Ngày kết thúc",
             "input_dt": "Ngày tạo hóa đơn",
             "inv_values": "Giá trị hóa đơn",
             "person_s": "Người giao hàng",
@@ -341,20 +354,17 @@
             "titleEdit": "Cập nhật đơn hàng nhập {{name}}",
             "titleRemove": "Bạn có thực sự muốn xóa đơn hàng nhập {{name}} không ?",
             "title": "Danh sách đơn hàng nhập",
-
             "invoice_no": "Tên đơn nhập",
             "vender_id": "Id nhà cung ứng",
             "person_s": "Người giao hàng",
             "person_r": "Người nhận hàng",
             "invoice_auto": "Hoán đơn tự động",
-
             "id": "Id của đơn nhập",
             "invoice_stat": "Trạng thái hóa đơn (mã)",
             "invoice_stat_nm": "Trạng thái hóa đơn (tên)",
             "vender_nm_v": "Nhà cung ứng (tên)",
             "input_dt": "Ngày tạo hóa đơn",
             "inv_values": "Giá trị hóa đơn",
-
             "id_detail": "Id của dòng dữ liệu hiện tại",
             "qr_code": "Mã qr code của sản phẩm",
             "invoice_id": "Id của đơn nhập hiện tại",
@@ -399,7 +409,6 @@
             "titleEdit": "Cập nhật đơn hàng xuất {{name}}",
             "titleRemove": "Bạn có thực sự muốn xóa đơn hàng xuất {{name}} không ?",
             "title": "Danh sách đơn hàng xuất",
-
             "id": "Id của đơn xuất",
             "invoice_no": "Số hóa đơn",
             "invoice_stat": "Trạng thái hóa đơn (mã)",
@@ -413,7 +422,6 @@
             "upd_user": "Người cập nhật TT",
             "upd_date": "Thời gian cập nhật",
             "inv_values": "Giá trị của đơn xuất",
-
             "id_detail": "Id của dòng dữ liệu hiện tại",
             "invoice-detail_id": "Id của đơn xuất hiện tại",
             "exp_tp": "Loại xuất (mã)",

@@ -12,6 +12,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
+import TextField from '@material-ui/core/TextField'
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import FormControl from "@material-ui/core/FormControl"
@@ -35,35 +36,36 @@ import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/Import.modal'
-import ImportAdd from './ImportAdd';
 import ImportView from './ImportView';
-import ImportEdit from './ImportEdit'
+import ImportEdit from './ImportEdit';
+import ImportSearch from './ImportSearch';
 import { DialogTitle } from '@material-ui/core'
+import moment from 'moment'
 
 const serviceInfo = {
     GET_ALL: {
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        biz: order.biz,
-        object: order.object
+        biz: config.biz,
+        object: config.object
     },
     CREATE: {
         functionName: config['insert'].functionName,
         reqFunct: config['insert'].reqFunct,
-        biz: order.biz,
-        object: order.object
+        biz: config.biz,
+        object: config.object
     },
     UPDATE: {
         functionName: config['update'].functionName,
         reqFunct: config['update'].reqFunct,
-        biz: order.biz,
-        object: order.object
+        biz: config.biz,
+        object: config.object
     },
     DELETE: {
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
-        biz: order.biz,
-        object: order.object
+        biz: config.biz,
+        object: config.object
     }
 }
 
@@ -72,6 +74,12 @@ const ImportList = () => {
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
+    const [searchModal, setSearchModal] = useState({
+        start_dt: moment().day(-14).format('YYYYMMDD'),
+        end_dt: moment().format('YYYYMMDD'),
+        id_status: '1',
+        vender_nm: ''
+    })
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
@@ -95,7 +103,7 @@ const ImportList = () => {
     const idRef = useRef(0)
 
     useEffect(() => {
-        getList(999999999999, '');
+        getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status, '');
         const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -129,8 +137,8 @@ const ImportList = () => {
         }
     }, [])
 
-    const getList = (lastIndex, value) => {
-        const inputParam = [lastIndex, value.trim() + '%']
+    const getList = (startdate, endDate, index, status, name) => {
+        const inputParam = [startdate, endDate, index || 999999999999, status, name.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
     }
 
@@ -179,7 +187,7 @@ const ImportList = () => {
             setId(0)
             setShouldOpenModal(saveContinue.current)
             dataSourceRef.current = [];
-            getList(999999999999, searchValue)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
         }
     }
 
@@ -199,7 +207,7 @@ const ImportList = () => {
             setId(0)
             setShouldOpenEditModal(false)
             dataSourceRef.current = [];
-            getList(999999999999, searchValue)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
         }
     }
 
@@ -246,13 +254,11 @@ const ImportList = () => {
         }
     }
 
-    const searchSubmit = value => {
-        if (value === searchRef.current) return
-        searchRef.current = value
+    const searchSubmit = searchObject => {
         dataSourceRef.current = []
-        setSearchValue(value)
+        setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(999999999999, value)
+        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999, searchObject.id_status, searchObject.vender_nm.trim())
     }
 
     const onRemove = item => {
@@ -285,7 +291,7 @@ const ImportList = () => {
         if (dataSourceRef.current.length > 0) {
             const lastIndex = dataSourceRef.current.length - 1;
             const lastID = dataSourceRef.current[lastIndex].o_1
-            getList(lastID, searchValue)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status, searchModal.vender_nm.trim())
         }
     }
 
@@ -302,19 +308,6 @@ const ImportList = () => {
     const handleCloseEditModal = value => {
         setId(0);
         setShouldOpenEditModal(value)
-    }
-
-    const handleCreate = (actionType, dataObject) => {
-        saveContinue.current = actionType
-        const inputParam = [
-            !!dataObject.invoice_no ? dataObject.invoice_no : 'AUTO',
-            dataObject.vender_id,
-            moment(dataObject.order_dt).format('YYYYMMDD'),
-            dataObject.person_s,
-            dataObject.person_r,
-            dataObject.note
-        ];
-        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleUpdate = dataObject => {
@@ -337,17 +330,17 @@ const ImportList = () => {
     return (
         <>
             <div className="align-items-center ">
-                <div className='d-flex justify-content-between mb-3'>
-                    <div className="d-flex align-items-center mr-2">
-                        <SearChComp
-                            searchSubmit={searchSubmit}
-                            setSearchVal={setSearchValue}
-                            placeholder={'products.product.search_name'}
-                        />
-                    </div>
-                    <div className='d-flex'>
-                        <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
-                        <IconButton onClick={onClickColumn}>
+                <div className='mb-3'>
+                    <ImportSearch
+                        handleSearch={searchSubmit}
+                    />
+                </div>
+                <div className='d-flex justify-content-between'>
+                    <h6 className="d-flex font-weight-bold mb-2">{t('order.import.titleList')}</h6>
+                    <div className='d-flex align-items-center'>
+                        <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
+                        <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                        <IconButton size='small' onClick={onClickColumn}>
                             <MoreVertIcon />
                         </IconButton>
 
@@ -357,13 +350,6 @@ const ImportList = () => {
                             handleClose={onCloseColumn}
                             checkColumnChange={onChangeColumnView}
                         />
-                    </div>
-                </div>
-                <div className='d-flex justify-content-between'>
-                    <h6 className="d-flex font-weight-bold mb-2">{t('order.import.titleList')}</h6>
-                    <div className='d-flex'>
-                        <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                        <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                     </div>
                 </div>
             </div>
@@ -502,14 +488,6 @@ const ImportList = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* modal add */}
-            <ImportAdd
-                id={id}
-                shouldOpenModal={shouldOpenModal}
-                handleCloseAddModal={handleCloseAddModal}
-                handleCreate={handleCreate}
-            />
 
             {/* modal edit */}
             <ImportEdit

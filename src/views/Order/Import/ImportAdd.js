@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -10,25 +10,99 @@ import { Grid } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
-    KeyboardDatePicker,
+    KeyboardDatePicker
 } from '@material-ui/pickers';
 import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
+import moment from 'moment'
+import reqFunction from '../../../utils/constan/functions';
+import glb_sv from '../../../utils/service/global_service'
+import socket_sv from '../../../utils/service/socket_service'
+import SnackBarService from '../../../utils/service/snackbar_service'
+import { requestInfo } from '../../../utils/models/requestInfo'
+import sendRequest from '../../../utils/service/sendReq'
 
-const ImportAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
+const serviceInfo = {
+    CREATE: {
+        functionName: 'insert',
+        reqFunct: reqFunction.IMPORT_CREATE,
+        biz: 'import',
+        object: 'imp_invoices'
+    },
+}
+
+const ImportAdd = ({ handleCreate }) => {
     const { t } = useTranslation()
 
-    const [Import, setImport] = useState({})
+    const [Import, setImport] = useState({
+        order_dt: moment().toString()
+    })
     const [supplierSelect, setSupplierSelect] = useState('')
+    const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const createContinue = useRef(false)
+
+    useEffect(() => {
+        const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+            if (msg) {
+                console.log('msg ra', msg)
+                const cltSeqResult = msg['REQUEST_SEQ']
+                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
+                    return
+                }
+                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
+                if (reqInfoMap == null || reqInfoMap === undefined) {
+                    return
+                }
+                if (reqInfoMap.reqFunct === reqFunction.IMPORT_CREATE) {
+                    resultCreate(msg, cltSeqResult, reqInfoMap)
+                }
+            }
+        })
+        return () => {
+            importSub.unsubscribe()
+        }
+    }, [])
 
     useEffect(() => {
         if (shouldOpenModal) {
-            setImport({})
+            setImport({ order_dt: moment().toString() })
             setSupplierSelect('')
         }
     }, [shouldOpenModal])
 
+    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        if (message['PROC_CODE'] === 'SYS000') {
+            //tạo thành công => tạo tiếp các sản phẩm thuộc hđ này
+            if (createContinue.current) {
+                setImport({ order_dt: moment().toString() })
+                setSupplierSelect('')
+                createContinue.current = false
+            } else {
+                setShouldOpenModal(false);
+            }
+        } else {
+            setShouldOpenModal(false);
+        }
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+    }
+
+    const handleCreateInvoice = () => {
+        const inputParam = [
+            !!Import.invoice_no ? Import.invoice_no : 'AUTO',
+            Import.supplier,
+            moment(Import.order_dt).format('YYYYMMDD'),
+            Import.person_s,
+            Import.person_r,
+            Import.note
+        ];
+        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
+    }
+
     const checkValidate = () => {
-        if (!!Import.vender_id && !!Import.order_dt) {
+        if (!!Import.supplier && !!Import.order_dt) {
             return false
         }
         return true
@@ -54,137 +128,142 @@ const ImportAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =
     }
 
     return (
-        <Dialog
-            fullWidth={true}
-            maxWidth="md"
-            open={shouldOpenModal}
-            onClose={e => {
-                handleCloseAddModal(false)
-            }}
-        >
-            <DialogTitle className="titleDialog pb-0">
-                {t('order.import.titleAdd')}
-            </DialogTitle>
-            <DialogContent className="pt-0">
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={4}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('order.import.invoice_no')}
-                            onChange={handleChange}
-                            value={Import.invoice_no || ''}
-                            name='invoice_no'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <Supplier_Autocomplete
-                            value={supplierSelect}
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.supplier')}
-                            onSelect={handleSelectSupplier}
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardDatePicker
-                                disableToolbar
+        <>
+            <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
+            <Dialog
+                fullWidth={true}
+                maxWidth="lg"
+                open={shouldOpenModal}
+                onClose={e => {
+                    setShouldOpenModal(false)
+                }}
+            >
+                <DialogTitle className="titleDialog pb-0">
+                    {t('order.import.titleAdd')}
+                </DialogTitle>
+                <DialogContent className="pt-0">
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
                                 margin="dense"
-                                variant="inline"
-                                format="dd/MM/yyyy"
-                                id="order_dt-picker-inline"
-                                label={t('order.import.order_dt')}
-                                value={Import.order_dt || new Date()}
-                                onChange={handleDateChange}
-                                KeyboardButtonProps={{
-                                    'aria-label': 'change date',
-                                }}
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('order.import.invoice_no')}
+                                onChange={handleChange}
+                                value={Import.invoice_no || ''}
+                                name='invoice_no'
+                                variant="outlined"
                             />
-                        </MuiPickersUtilsProvider>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <Supplier_Autocomplete
+                                value={supplierSelect}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.supplier')}
+                                onSelect={handleSelectSupplier}
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <KeyboardDatePicker
+                                    disableToolbar
+                                    margin="dense"
+                                    variant="outlined"
+                                    style={{ width: '100%' }}
+                                    inputVariant="outlined"
+                                    format="dd/MM/yyyy"
+                                    id="order_dt-picker-inline"
+                                    label={t('order.import.order_dt')}
+                                    value={Import.order_dt}
+                                    onChange={handleDateChange}
+                                    KeyboardButtonProps={{
+                                        'aria-label': 'change date',
+                                    }}
+                                />
+                            </MuiPickersUtilsProvider>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('order.import.person_s')}
+                                onChange={handleChange}
+                                value={Import.person_s || ''}
+                                name='person_s'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('order.import.person_s')}
-                            onChange={handleChange}
-                            value={Import.person_s || ''}
-                            name='person_s'
-                            variant="outlined"
-                        />
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('order.import.person_r')}
+                                onChange={handleChange}
+                                value={Import.person_r || ''}
+                                name='person_r'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={9}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                autoComplete="off"
+                                label={t('order.import.note')}
+                                onChange={handleChange}
+                                value={Import.note || ''}
+                                name='note'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('order.import.person_r')}
-                            onChange={handleChange}
-                            value={Import.person_r || ''}
-                            name='person_r'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={2}
-                            autoComplete="off"
-                            label={t('order.import.note')}
-                            onChange={handleChange}
-                            value={Import.note || ''}
-                            name='note'
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={e => {
-                        handleCloseAddModal(false);
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleCreate(false, Import);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleCreate(true, Import);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('order.save_continue')}
-                </Button>
-            </DialogActions>
-        </Dialog >
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={e => {
+                            setShouldOpenModal(false);
+                        }}
+                        variant="contained"
+                        disableElevation
+                    >
+                        {t('btn.close')}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleCreateInvoice(false, Import);
+                        }}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('btn.save')}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleCreateInvoice(true, Import);
+                            createContinue.current = true;
+                        }}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('save_continue')}
+                    </Button>
+                </DialogActions>
+            </Dialog >
+        </>
     )
 }
 
