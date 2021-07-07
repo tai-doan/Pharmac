@@ -60,7 +60,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
     }
     const handleImportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['importVAT'] = Math.round(value.floatValue)
+        newPrice['importVAT'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setPrice(newPrice)
     }
     const handlePriceChange = value => {
@@ -76,7 +76,8 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
 
     const handleExportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['exportVAT'] = Math.round(value.floatValue)
+        newPrice['exportVAT'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        console.log(newPrice)
         setPrice(newPrice)
     }
 
@@ -116,7 +117,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={Price.importPrice}
+                            value={Price.importPrice || ''}
                             label={t('config.price.importPrice')}
                             customInput={TextField}
                             autoComplete="off"
@@ -136,7 +137,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={Price.importVAT}
+                            value={Price.importVAT || ''}
                             label={t('config.price.importVAT')}
                             customInput={TextField}
                             autoComplete="off"
@@ -148,7 +149,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                             onValueChange={handleImportVATChange}
                             inputProps={{
                                 min: 0,
-                                max: 10
+                                max: 100
                             }}
                         />
                     </Grid>
@@ -156,7 +157,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={Price.price}
+                            value={Price.price || ''}
                             label={t('config.price.price')}
                             customInput={TextField}
                             autoComplete="off"
@@ -174,7 +175,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={Price.wholePrice}
+                            value={Price.wholePrice || ''}
                             label={t('config.price.wholePrice')}
                             customInput={TextField}
                             autoComplete="off"
@@ -192,7 +193,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={Price.exportVAT}
+                            value={Price.exportVAT || ''}
                             label={t('config.price.exportVAT')}
                             customInput={TextField}
                             autoComplete="off"
@@ -204,7 +205,7 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                             onValueChange={handleExportVATChange}
                             inputProps={{
                                 min: 0,
-                                max: 10
+                                max: 100
                             }}
                         />
                     </Grid>
@@ -247,6 +248,9 @@ const PriceAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) =>
                 <Button
                     onClick={() => {
                         handleCreate(true, Price);
+                        setPrice({})
+                        setProductSelect('')
+                        setUnitSelect('')
                     }}
                     variant="contained"
                     disabled={checkValidate()}

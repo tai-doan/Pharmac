@@ -9,7 +9,6 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
-import WarnTime_Autocomplete from '../WarnTime/Control/WarnTime.Autocomplete'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -17,7 +16,7 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/WarnTime.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import moment from 'moment'
+import Dictionary_Autocomplete from '../../../components/Dictionary_Autocomplete/index'
 
 const serviceInfo = {
     GET_WARN_TIME_BY_ID: {
@@ -28,7 +27,7 @@ const serviceInfo = {
     }
 }
 
-const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
+const WarnTimeEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
     const { t } = useTranslation()
 
     const [warnTime, setWarnTime] = useState({})
@@ -56,6 +55,7 @@ const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
 
     useEffect(() => {
         if (id) {
+            console.log('id? ', id)
             sendRequest(serviceInfo.GET_WARN_TIME_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
     }, [id])
@@ -70,28 +70,48 @@ const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
+            console.log('data: ', newData)
             setWarnTime(newData.rows[0])
         }
+    }
+
+    const checkValidate = () => {
+        if (!!warnTime?.o_1 && !!warnTime?.o_2 && !!warnTime?.o_4 && !!warnTime?.o_5) {
+            return false
+        }
+        return true
+    }
+
+    const handleChangeAmt = value => {
+        const newWarnTime = { ...warnTime };
+        newWarnTime['o_4'] = Math.round(value.floatValue)
+        setWarnTime(newWarnTime)
+    }
+
+    const handleChangeTimeTp = obj => {
+        const newWarnTime = { ...warnTime };
+        newWarnTime['o_5'] = !!obj ? obj?.o_1 : null
+        setWarnTime(newWarnTime)
     }
 
     return (
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenViewModal}
+            open={shouldOpenEditModal}
             onClose={e => {
-                handleCloseViewModal(false)
+                handleCloseEditModal(false)
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('config.warnTime.titleView', { name: warnTime.o_3 })}
+                {t('config.warnTime.titleEdit', { name: warnTime?.o_3 })}
             </DialogTitle>
             <DialogContent className="pt-0">
-                <Grid container spacing={2}>
+                <Grid container className="{}" spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
                             disabled={true}
-                            value={warnTime.o_3}
+                            value={warnTime?.o_3}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -99,10 +119,9 @@ const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                     </Grid>
                     <Grid item xs={6} sm={4}>
                         <NumberFormat
-                            disabled={true}
                             style={{ width: '100%' }}
                             required
-                            value={warnTime.o_6}
+                            value={warnTime?.o_4}
                             label={t('config.warnTime.warn_amt')}
                             customInput={TextField}
                             autoComplete="off"
@@ -110,68 +129,19 @@ const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             type="text"
                             variant="outlined"
                             thousandSeparator={true}
+                            onValueChange={handleChangeAmt}
                             inputProps={{
                                 min: 0,
                             }}
                         />
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <NumberFormat
-                            disabled={true}
-                            style={{ width: '100%' }}
-                            required
-                            value={warnTime.o_6}
+                        <Dictionary_Autocomplete
+                            diectionName='warn_time_tp'
+                            style={{ marginTop: 8, marginBottom: 4 }}
+                            size={'small'}
                             label={t('config.warnTime.warn_time_tp')}
-                            customInput={TextField}
-                            autoComplete="off"
-                            margin="dense"
-                            type="text"
-                            variant="outlined"
-                            thousandSeparator={true}
-                            inputProps={{
-                                min: 0,
-                            }}
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs>
-                        <TextField
-                            disabled={true}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            autoComplete="off"
-                            label={t('createdUser')}
-                            value={warnTime.o_9}
-                            name="o_9"
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs>
-                        <TextField
-                            disabled={true}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            autoComplete="off"
-                            label={t('createdDate')}
-                            value={moment(warnTime.o_10, 'DDMMYYYYHHmmss').format('DD/MM/YYYY HH:mm:ss')}
-                            name="o_10"
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs>
-                        <TextField
-                            disabled={true}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            autoComplete="off"
-                            label={t('titleBranch')}
-                            value={warnTime.o_11}
-                            name="o_11"
-                            variant="outlined"
+                            onSelect={handleChangeTimeTp}
                         />
                     </Grid>
                 </Grid>
@@ -179,16 +149,26 @@ const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
             <DialogActions>
                 <Button
                     onClick={e => {
-                        handleCloseViewModal(false);
+                        handleCloseEditModal(false);
                     }}
                     variant="contained"
                     disableElevation
                 >
                     {t('btn.close')}
                 </Button>
+                <Button
+                    onClick={() => {
+                        handleUpdate(warnTime);
+                    }}
+                    variant="contained"
+                    disabled={checkValidate()}
+                    className={checkValidate() === false ? 'bg-success text-white' : ''}
+                >
+                    {t('btn.save')}
+                </Button>
             </DialogActions>
         </Dialog >
     )
 }
 
-export default WarnTimeView
+export default WarnTimeEdit

@@ -76,7 +76,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
     }
 
     const checkValidate = () => {
-        if (!!Price.o_1 && !!Price.o_2 && !!Price.o_4 && !!Price.o_6 && !!Price.o_7 && !!Price.o_8 && !!Price.o_9 && !!Price.o_10 ) {
+        if (!!Price.o_1 && !!Price.o_2 && !!Price.o_4 && !!Price.o_6 && !!Price.o_7 && !!Price.o_8 && !!Price.o_9 && !!Price.o_10) {
             return false
         }
         return true
@@ -102,7 +102,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
     }
     const handleImportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_7'] = Math.round(value.floatValue)
+        newPrice['o_7'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setPrice(newPrice)
     }
     const handlePriceChange = value => {
@@ -118,7 +118,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
 
     const handleExportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_10'] = Math.round(value.floatValue)
+        newPrice['o_10'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setPrice(newPrice)
     }
 
@@ -190,7 +190,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                             onValueChange={handleImportVATChange}
                             inputProps={{
                                 min: 0,
-                                max: 10
+                                max: 100
                             }}
                         />
                     </Grid>
@@ -246,7 +246,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                             onValueChange={handleExportVATChange}
                             inputProps={{
                                 min: 0,
-                                max: 10
+                                max: 100
                             }}
                         />
                     </Grid>

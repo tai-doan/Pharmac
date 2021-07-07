@@ -152,6 +152,9 @@ const StoreLimitAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate 
                 <Button
                     onClick={() => {
                         handleCreate(true, StoreLimit);
+                        setStoreLimit({})
+                        setProductSelect('')
+                        setUnitSelect('')
                     }}
                     variant="contained"
                     disabled={checkValidate()}

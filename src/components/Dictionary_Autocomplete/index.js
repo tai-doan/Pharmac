@@ -2,25 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import SnackBarService from '../../../../utils/service/snackbar_service';
-import sendRequest from '../../../../utils/service/sendReq';
-import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
-import glb_sv from '../../../../utils/service/global_service'
-import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
-import { config } from '../Modal/Supplier.modal'
+import SnackBarService from '../../utils/service/snackbar_service';
+import sendRequest from '../../utils/service/sendReq';
+import reqFunction from '../../utils/constan/functions';
+import { requestInfo } from '../../utils/models/requestInfo';
+import glb_sv from '../../utils/service/global_service'
+import control_sv from '../../utils/service/control_services'
+import socket_sv from '../../utils/service/socket_service'
 
 const serviceInfo = {
     DROPDOWN_LIST: {
-        functionName: 'drop_list',
-        reqFunct: reqFunction.SUPPLIER_DROPDOWN_LIST,
+        functionName: 'dictionary',
+        reqFunct: reqFunction.DICTIONARY,
         biz: 'common',
         object: 'dropdown_list'
     }
 }
 
-const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
+const Dictionary_Autocomplete = ({ diectionName, onSelect, label, style, size, value, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -28,10 +27,10 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = ['venders', '%']
+        const inputParam = [diectionName || 'units']
         sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
 
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const dictionnarySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
@@ -41,23 +40,23 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.SUPPLIER_DROPDOWN_LIST) {
-                    resultSupplierDropDownList(msg, cltSeqResult, reqInfoMap)
+                if (reqInfoMap.reqFunct === reqFunction.DICTIONARY) {
+                    resultDictionnaryDropDownList(msg, cltSeqResult, reqInfoMap)
                 }
             }
         })
         return () => {
-            unitSub.unsubscribe()
+            dictionnarySub.unsubscribe()
         }
     }, [])
 
-    useEffect(() => {
-        if (value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
-        }
-    }, [value, dataSource])
+    // useEffect(() => {
+    //     if (value !== null || value !== undefined) {
+    //         setValueSelect(dataSource.find(x => x.o_2 === value))
+    //     }
+    // }, [value, dataSource])
 
-    const resultSupplierDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultDictionnaryDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         reqInfoMap.procStat = 2
         if (message['PROC_STATUS'] === 2) {
@@ -95,10 +94,11 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
             options={dataSource}
             value={valueSelect}
             getOptionLabel={(option) => option.o_2 || ''}
+            inputValue={value}
             style={style}
             renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }
 
-export default Supplier_Autocomplete
+export default Dictionary_Autocomplete

@@ -51,7 +51,7 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, disabled = fal
     }, [])
 
     useEffect(() => {
-        if (value) {
+        if (value !== null || value !== undefined) {
             setValueSelect(dataSource.find(x => x.o_2 === value))
         }
     }, [value, dataSource])

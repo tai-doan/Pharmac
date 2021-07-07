@@ -162,10 +162,14 @@ const ImportList = () => {
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            dataSourceRef.current = dataSourceRef.current.concat(newData.rows)
-            setDataSource(dataSourceRef.current)
             if (newData.rows.length > 0) {
-                setTotalRecords(newData.rowTotal)
+                setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
+                dataSourceRef.current = dataSourceRef.current.concat(newData.rows)
+                setDataSource(dataSourceRef.current)
+            }else{
+                dataSourceRef.current = [];
+                setDataSource([])
+                setTotalRecords(0)
             }
         }
     }
@@ -409,6 +413,12 @@ const ImportList = () => {
                                                                 >
                                                                     <VisibilityIcon fontSize="small" />
                                                                 </IconButton>
+                                                            </TableCell>
+                                                        )
+                                                    case 'o_3':
+                                                        return (
+                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                {value === '1' ? t('normal') : t('cancelled')}
                                                             </TableCell>
                                                         )
                                                     default:

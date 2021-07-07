@@ -1,9 +1,15 @@
+import moment from 'moment';
+import React from 'react';
+import Select from "@material-ui/core/Select"
+import MenuItem from "@material-ui/core/MenuItem"
 import reqFunction from '../../../../utils/constan/functions';
+import Product_Autocomplete from '../../../Products/Product/Control/Product.Autocomplete';
+import Unit_Autocomplete from '../../../Config/Unit/Control/Unit.Autocomplete';
 
 const tableColumn = [
     { field: 'action', title: 'lbl.action', show: true, disabled: true, minWidth: 100 },
     { field: 'o_2', title: 'order.import.invoice_no', show: true, disabled: true, minWidth: 200 },
-    { field: 'o_3', title: 'order.import.invoice_stat', show: true, disabled: false, minWidth: 200 },
+    { field: 'o_3', title: 'order.import.invoice_stat', show: true, disabled: false, minWidth: 200, type: 'status' },
     { field: 'o_5', title: 'order.import.vender_nm', show: true, disabled: false, minWidth: 200 },
     { field: 'o_6', title: 'order.import.order_dt', show: true, disabled: false, minWidth: 100, type: 'dated' },
     { field: 'o_7', title: 'order.import.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated' },
@@ -51,7 +57,24 @@ const config = {
     },
 }
 
+const productImportModal = {
+    invoice_id: '',
+    imp_tp: '1',
+    prod_id: null,
+    prod_name: '',
+    lot_no: '',
+    made_dt: null,
+    exp_dt: null,
+    qty: 0,
+    unit_id: null,
+    unit_name: '',
+    price: 0,
+    discount_per: 0,
+    vat_per: 0
+}
+
 export {
+    productImportModal,
     tableColumn,
     config
 }

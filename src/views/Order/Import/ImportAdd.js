@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import Select from "@material-ui/core/Select"
+import MenuItem from "@material-ui/core/MenuItem"
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -20,6 +22,11 @@ import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import sendRequest from '../../../utils/service/sendReq'
+
+import ProductImportAdd from './ProductImportAdd'
+import MaterialTableEditing from '../../../components/MaterialTableEditing/index';
+import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
+import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete';
 
 const serviceInfo = {
     CREATE: {
@@ -127,6 +134,88 @@ const ImportAdd = ({ handleCreate }) => {
         setImport(newImport)
     }
 
+    const handleAddProduct = productObject => {
+        console.log('productObject add: ', productObject)
+    }
+
+    const tableProductImportColumn = [
+        {
+            title: 'imp_tp',
+            field: 'imp_tp',
+            editComponent: props => (
+                <Select
+                    labelId="import_type"
+                    id="import_type-select"
+                    value={props.value || '1'}
+                    onChange={e => console.log('props: ', props)}
+                    label={t('order.import.import_type')}
+                    name='imp_tp'
+                >
+                    <MenuItem value="1">{t('order.import.import_type_buy')}</MenuItem>
+                    <MenuItem value="2">{t('order.import.import_type_selloff')}</MenuItem>
+                </Select>
+            )
+        },
+        {
+            title: 'menu.product',
+            field: 'prod_id',
+            editComponent: props => (
+                <Product_Autocomplete
+                    value={props.value}
+                    style={{ marginTop: 8, marginBottom: 4 }}
+                    size={'small'}
+                    label={t('menu.product')}
+                    onSelect={e => console.log(e, props)}
+                />
+            )
+        },
+        {
+            title: 'order.import.made_dt',
+            field: 'made_dt',
+            type: 'numeric',
+            editable: 'never'
+        },
+        {
+            title: 'order.import.exp_dt',
+            field: 'exp_dt',
+            type: 'numeric',
+            editable: 'never'
+        },
+        {
+            title: 'order.import.qty',
+            field: 'qty',
+            type: 'numeric'
+        },
+        {
+            title: 'menu.configUnit',
+            field: 'unit_id',
+            editComponent: props => (
+                <Unit_Autocomplete
+                    value={props.value}
+                    style={{ marginTop: 8, marginBottom: 4 }}
+                    size={'small'}
+                    label={t('menu.configUnit')}
+                    onSelect={e => props.onChange(e.target.value)}
+                />
+            )
+        },
+        {
+            title: 'order.import.price',
+            field: 'price',
+            type: 'numeric'
+        },
+        {
+            title: 'order.import.discount_per',
+            field: 'discount_per',
+            type: 'numeric'
+        },
+        {
+            title: 'order.import.vat_per',
+            field: 'vat_per',
+            type: 'numeric'
+        }
+    ]
+
     return (
         <>
             <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
@@ -229,8 +318,13 @@ const ImportAdd = ({ handleCreate }) => {
                             />
                         </Grid>
                     </Grid>
+                    {/* <MaterialTableEditing
+                        title={t('order.import.productImportList')}
+                        column={tableProductImportColumn}
+                    /> */}
                 </DialogContent>
                 <DialogActions>
+                    <ProductImportAdd handleAddProduct={handleAddProduct} />
                     <Button
                         onClick={e => {
                             setShouldOpenModal(false);

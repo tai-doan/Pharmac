@@ -69,7 +69,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 <Grid container className="{}" spacing={2}>
                     <Grid item xs={6} sm={4}>
                         <Product_Autocomplete
-                            value={productSelect}
+                            value={productSelect || ''}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
@@ -78,7 +78,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     </Grid>
                     <Grid item xs={6} sm={4}>
                         <Unit_Autocomplete
-                            value={unitSelect}
+                            value={unitSelect || ''}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}
@@ -89,7 +89,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={unitRate.rate}
+                            value={unitRate.rate || 0}
                             label={t('config.unitRate.rate')}
                             customInput={TextField}
                             autoComplete="off"
@@ -127,6 +127,9 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 </Button>
                 <Button
                     onClick={() => {
+                        setUnitRate({})
+                        setProductSelect('')
+                        setUnitSelect('')
                         handleCreate(true, unitRate);
                     }}
                     variant="contained"

@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import NumberFormat from 'react-number-format'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
+import Dictionary_Autocomplete from '../../../components/Dictionary_Autocomplete'
 
 const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
     const { t } = useTranslation()
@@ -24,7 +25,7 @@ const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
     }, [shouldOpenModal])
 
     const checkValidate = () => {
-        if (!!warnTime.product && !!warnTime.unit && !!warnTime.rate) {
+        if (!!warnTime.product && !!warnTime.warn_amt && !!warnTime.warn_time_tp) {
             return false
         }
         return true
@@ -43,9 +44,9 @@ const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
         setWarnTime(newWarnTime)
     }
 
-    const handleChangeTimeTp = value => {
+    const handleChangeTimeTp = obj => {
         const newWarnTime = { ...warnTime };
-        newWarnTime['warn_time_tp'] = Math.round(value.floatValue)
+        newWarnTime['warn_time_tp'] = !!obj ? obj?.o_1 : null
         setWarnTime(newWarnTime)
     }
 
@@ -63,20 +64,20 @@ const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <Product_Autocomplete
-                            value={productSelect}
+                            value={productSelect || ''}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.product')}
                             onSelect={handleSelectProduct}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={4}>
+                    <Grid item xs>
                         <NumberFormat
                             style={{ width: '100%' }}
                             required
-                            value={warnTime.warn_amt}
+                            value={warnTime.warn_amt || ''}
                             label={t('config.warnTime.warn_amt')}
                             customInput={TextField}
                             autoComplete="off"
@@ -90,22 +91,14 @@ const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             }}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <NumberFormat
-                            style={{ width: '100%' }}
-                            required
-                            value={warnTime.warn_time_tp}
+                    <Grid item xs>
+                        <Dictionary_Autocomplete
+                            value={warnTime.warn_time_tp || ''}
+                            diectionName='warn_time_tp'
+                            style={{ marginTop: 8, marginBottom: 4 }}
+                            size={'small'}
                             label={t('config.warnTime.warn_time_tp')}
-                            customInput={TextField}
-                            autoComplete="off"
-                            margin="dense"
-                            type="text"
-                            variant="outlined"
-                            thousandSeparator={true}
-                            onValueChange={handleChangeTimeTp}
-                            inputProps={{
-                                min: 0,
-                            }}
+                            onSelect={handleChangeTimeTp}
                         />
                     </Grid>
                 </Grid>
@@ -132,6 +125,8 @@ const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                 </Button>
                 <Button
                     onClick={() => {
+                        setWarnTime({})
+                        setProductSelect('')
                         handleCreate(true, warnTime);
                     }}
                     variant="contained"

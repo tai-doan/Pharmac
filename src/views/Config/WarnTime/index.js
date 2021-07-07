@@ -1,3 +1,3 @@
-import WarnTimeContainer from './WarnTimeContainer';
+import WarnTimeList from './WarnTimeList';
 
-export default WarnTimeContainer;
+export default WarnTimeList;

@@ -67,7 +67,7 @@ const Customer_Autocomplete = ({ onSelect, label, style, size, value, disabled =
     }, [])
 
     useEffect(() => {
-        if (value) {
+        if (value !== null || value !== undefined) {
             sendRequest(serviceInfo.GET_UNIT_BY_ID, [value], null, true, handleTimeOut)
         }
     }, [value])
