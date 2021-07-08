@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
 
 const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitNameFocus, unitNoteFocus, handleSubmit }) => {
     const { t } = useTranslation()
@@ -44,72 +45,58 @@ const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitN
                 setName('')
             }}
         >
-            <DialogTitle className="titleDialog pb-0">
-                {t(id === 0 ? 'config.unit.titleAdd' : 'config.unit.titleEdit', { name: name })}
-            </DialogTitle>
-            <DialogContent className="pt-0">
-                <TextField
-                    fullWidth={true}
-                    required
-                    autoFocus
-                    inputRef={unitNameFocus}
-                    autoComplete="off"
-                    margin="dense"
-                    label={t('config.unit.name')}
-                    onChange={handleChangeName}
-                    value={name}
-                    variant="outlined"
-                    className="uppercaseInput"
-                    onKeyPress={event => {
-                        if (event.key === 'Enter') {
-                            handleSubmit(false, name, note)
-                            setName('')
-                            setNote('')
-                        }
-                    }}
-                />
+            <Card>
+                <CardHeader title={t(id === 0 ? 'config.unit.titleAdd' : 'config.unit.titleEdit', { name: name })} />
+                <CardContent>
+                    <TextField
+                        fullWidth={true}
+                        required
+                        autoFocus
+                        inputRef={unitNameFocus}
+                        autoComplete="off"
+                        margin="dense"
+                        label={t('config.unit.name')}
+                        onChange={handleChangeName}
+                        value={name}
+                        variant="outlined"
+                        className="uppercaseInput"
+                        onKeyPress={event => {
+                            if (event.key === 'Enter') {
+                                handleSubmit(false, name, note)
+                                setName('')
+                                setNote('')
+                            }
+                        }}
+                    />
 
-                <TextField
-                    fullWidth={true}
-                    margin="dense"
-                    multiline
-                    rows={2}
-                    inputRef={unitNoteFocus}
-                    autoComplete="off"
-                    label={t('config.unit.note')}
-                    onChange={handleChangeNote}
-                    value={note || ''}
-                    variant="outlined"
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={e => {
-                        handleCloseAddModal(false);
-                        setName('');
-                        setNote('')
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleSubmit(false, name, note);
-                        setName('');
-                        setNote('')
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-                {(!id || id === 0) && (
+                    <TextField
+                        fullWidth={true}
+                        margin="dense"
+                        multiline
+                        rows={2}
+                        inputRef={unitNoteFocus}
+                        autoComplete="off"
+                        label={t('config.unit.note')}
+                        onChange={handleChangeNote}
+                        value={note || ''}
+                        variant="outlined"
+                    />
+                </CardContent>
+                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                    <Button
+                        onClick={e => {
+                            handleCloseAddModal(false);
+                            setName('');
+                            setNote('')
+                        }}
+                        variant="contained"
+                        disableElevation
+                    >
+                        {t('btn.close')}
+                    </Button>
                     <Button
                         onClick={() => {
-                            handleSubmit(true, name, note);
+                            handleSubmit(false, name, note);
                             setName('');
                             setNote('')
                         }}
@@ -117,10 +104,24 @@ const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitN
                         disabled={checkValidate()}
                         className={checkValidate() === false ? 'bg-success text-white' : ''}
                     >
-                        {t('config.save_continue')}
+                        {t('btn.save')}
                     </Button>
-                )}
-            </DialogActions>
+                    {(!id || id === 0) && (
+                        <Button
+                            onClick={() => {
+                                handleSubmit(true, name, note);
+                                setName('');
+                                setNote('')
+                            }}
+                            variant="contained"
+                            disabled={checkValidate()}
+                            className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        >
+                            {t('config.save_continue')}
+                        </Button>
+                    )}
+                </CardActions>
+            </Card>
         </Dialog >
     )
 }

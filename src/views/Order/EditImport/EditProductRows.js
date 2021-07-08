@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -18,13 +18,23 @@ import {
 } from '@material-ui/pickers';
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
-import { productImportModal } from './Modal/Import.modal'
+import { productImportModal } from '../Import/Modal/Import.modal'
 import NumberFormat from 'react-number-format'
+import moment from 'moment'
 
-const ProductImportAdd = ({ handleAddProduct }) => {
+const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
     const { t } = useTranslation()
-    const [productInfo, setProductInfo] = useState({ ...productImportModal })
+    const [productInfo, setProductInfo] = useState({ ...productData })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useEffect(() => {
+        if (productEditID !== -1 && !!productData) {
+            setShouldOpenModal(true)
+            let productDataDefault = { ...productData }
+            productDataDefault.exp_dt = moment(productDataDefault.exp_dt, 'YYYYMMDD').toString();
+            setProductInfo({ ...productDataDefault })
+        }
+    }, [productData, productEditID])
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -44,14 +54,6 @@ const ProductImportAdd = ({ handleAddProduct }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
         setProductInfo(newProductInfo)
-        if (e.target.name === 'imp_tp' && e.target.value !== '1') {
-            newProductInfo['price'] = 0;
-            newProductInfo['discount_per'] = 0
-            newProductInfo['vat_per'] = 0
-            setProductInfo(newProductInfo)
-        } else {
-            setProductInfo(newProductInfo)
-        }
     }
 
     const handleExpDateChange = date => {
@@ -74,13 +76,13 @@ const ProductImportAdd = ({ handleAddProduct }) => {
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['discount_per'] = Math.round(value.floatValue)
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['vat_per'] = Math.round(value.floatValue)
         setProductInfo(newProductInfo)
     }
 
@@ -100,7 +102,6 @@ const ProductImportAdd = ({ handleAddProduct }) => {
 
     return (
         <>
-            <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.import.productAdd')}</Button>
             <Dialog
                 fullWidth={true}
                 maxWidth="md"
@@ -110,7 +111,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
-                    {t('order.import.productAdd')}
+                    {t('order.ins_import.productEdit')}
                 </DialogTitle>
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
@@ -143,9 +144,11 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
                                 required
                                 className="uppercaseInput"
-                                autoComplete="off"
                                 label={t('order.import.lot_no')}
                                 onChange={handleChange}
                                 value={productInfo.lot_no || ''}
@@ -207,7 +210,6 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
                                 value={productInfo.price}
                                 label={t('order.import.price')}
                                 customInput={TextField}
@@ -226,7 +228,6 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
                                 value={productInfo.discount_per}
                                 label={t('order.import.discount_per')}
                                 customInput={TextField}
@@ -247,7 +248,6 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
                                 value={productInfo.vat_per}
                                 label={t('order.import.vat_per')}
                                 customInput={TextField}
@@ -279,7 +279,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                     </Button>
                     <Button
                         onClick={() => {
-                            handleAddProduct(productInfo);
+                            handleEditProduct(productInfo);
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false)
                         }}
@@ -289,21 +289,10 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                     >
                         {t('btn.save')}
                     </Button>
-                    <Button
-                        onClick={() => {
-                            handleAddProduct(productInfo);
-                            setProductInfo({ ...productImportModal })
-                        }}
-                        variant="contained"
-                        disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
-                    >
-                        {t('save_continue')}
-                    </Button>
                 </DialogActions>
             </Dialog>
         </>
     )
 }
 
-export default ProductImportAdd;
+export default EditProductRows;

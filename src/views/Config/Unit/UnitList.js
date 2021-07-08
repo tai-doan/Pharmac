@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -8,19 +7,14 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
 import Button from '@material-ui/core/Button'
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
-import SearChComp from '../../../components/_Search'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -33,6 +27,8 @@ import sendRequest from '../../../utils/service/sendReq'
 import { tableColumn, config } from './Modal/Unit.modal'
 import UnitAdd from './UnitAdd';
 import UnitView from './UnitView';
+import SearchOne from '../../../components/SearchOne'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_ALL: {
@@ -145,10 +141,14 @@ const UnitList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
+                if (reqInfoMap.inputParam[0] === 999999999999) {
+                    setTotalRecords(newData.rowTotal)
+                } else {
+                    setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
+                }
                 dataSourceRef.current = dataSourceRef.current.concat(newData.rows)
                 setDataSource(dataSourceRef.current)
-            }else{
+            } else {
                 dataSourceRef.current = [];
                 setDataSource([])
                 setTotalRecords(0)
@@ -311,111 +311,108 @@ const UnitList = () => {
 
     return (
         <>
-            <div className="align-items-center ">
-                <div className='d-flex justify-content-between mb-3'>
-                    <div className="d-flex align-items-center mr-2">
-                        <SearChComp
-                            searchSubmit={searchSubmit}
-                            setSearchVal={setSearchValue}
-                            placeholder={'config.unit.search_name'}
-                        />
-                    </div>
-                    <div className='d-flex'>
-                        <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
-                        <IconButton onClick={onClickColumn}>
+            <Card className='mb-2'>
+                <CardHeader
+                    title={t('lbl.search')}
+                    action={
+                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
                             <MoreVertIcon />
                         </IconButton>
+                    }
+                />
+                <CardContent>
+                    <SearchOne
+                        name='unit_name'
+                        label={'config.unit.search_name'}
+                        searchSubmit={searchSubmit}
+                    />
+                </CardContent>
+            </Card>
 
-                        <ColumnCtrComp
-                            anchorEl={anChorEl}
-                            columns={tableColumn}
-                            handleClose={onCloseColumn}
-                            checkColumnChange={onChangeColumnView}
-                        />
-                    </div>
-                </div>
-                <div className='d-flex justify-content-between'>
-                    <h6 className="d-flex font-weight-bold mb-2">{t('config.unit.titleList')}</h6>
-                    <div className='d-flex'>
-                        <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                        <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                    </div>
-                </div>
-            </div>
-
-            {/* table */}
-            <Paper className="mb-3">
-                <TableContainer className="tableContainer">
-                    <Table stickyHeader>
-                        <caption
-                            className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
-                                ' '
-                            )}
-                        >
-                            {t('lbl.emptyData')}
-                        </caption>
-                        <TableHead>
-                            <TableRow>
-                                {column.map(col => (
-                                    <TableCell nowrap="true"
-                                        className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
-                                        key={col.field}
-                                    >
-                                        {t(col.title)}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {dataSource.map((item, index) => {
-                                return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                                        {column.map((col, indexRow) => {
-                                            let value = item[col.field]
-                                            if (col.show) {
-                                                switch (col.field) {
-                                                    case 'action':
-                                                        return (
-                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                <IconButton
-                                                                    onClick={e => {
-                                                                        onRemove(item)
-                                                                    }}
-                                                                >
-                                                                    <DeleteIcon style={{ color: 'red' }} fontSize="small" />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    onClick={e => {
-                                                                        onEdit(item)
-                                                                    }}
-                                                                >
-                                                                    <EditIcon fontSize="small" />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    onClick={e => {
-                                                                        onView(item)
-                                                                    }}
-                                                                >
-                                                                    <VisibilityIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </TableCell>
-                                                        )
-                                                    default:
-                                                        return (
-                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                {glb_sv.formatValue(value, col['type'])}
-                                                            </TableCell>
-                                                        )
+            <ColumnCtrComp
+                anchorEl={anChorEl}
+                columns={tableColumn}
+                handleClose={onCloseColumn}
+                checkColumnChange={onChangeColumnView}
+            />
+            <Card>
+                <CardHeader
+                    title={t('config.unit.titleList')}
+                    action={
+                        <div className='d-flex align-items-center'>
+                            <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
+                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Button size="small" className='mr-1' style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
+                        </div>
+                    }
+                />
+                <CardContent>
+                    {/* table */}
+                    <TableContainer className="tableContainer">
+                        <Table stickyHeader>
+                            <caption
+                                className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
+                                    ' '
+                                )}
+                            >
+                                {t('lbl.emptyData')}
+                            </caption>
+                            <TableHead>
+                                <TableRow>
+                                    {column.map(col => (
+                                        <TableCell nowrap="true"
+                                            className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
+                                            key={col.field}
+                                        >
+                                            {t(col.title)}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {dataSource.map((item, index) => {
+                                    return (
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                            {column.map((col, indexRow) => {
+                                                let value = item[col.field]
+                                                if (col.show) {
+                                                    switch (col.field) {
+                                                        case 'action':
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    <IconButton
+                                                                        onClick={e => {
+                                                                            onRemove(item)
+                                                                        }}
+                                                                    >
+                                                                        <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                    </IconButton>
+                                                                    <IconButton
+                                                                        onClick={e => {
+                                                                            onEdit(item)
+                                                                        }}
+                                                                    >
+                                                                        <EditIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </TableCell>
+                                                            )
+                                                        default:
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    {glb_sv.formatValue(value, col['type'])}
+                                                                </TableCell>
+                                                            )
+                                                    }
                                                 }
-                                            }
-                                        })}
-                                    </TableRow>
-                                )
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
+                                            })}
+                                        </TableRow>
+                                    )
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </CardContent>
+            </Card>
 
             {/* modal delete */}
             <Dialog
@@ -424,25 +421,23 @@ const UnitList = () => {
                     setShouldOpenRemoveModal(false)
                 }}
             >
-                <DialogContent>
-                    <DialogContentText className="m-0 text-dark">
-                        {t('config.unit.titleRemove', { name: name })}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={e => {
-                            setShouldOpenRemoveModal(false)
-                        }}
-                        variant="contained"
-                        disableElevation
-                    >
-                        {t('btn.close')}
-                    </Button>
-                    <Button onClick={handleDelete} variant="contained" color="secondary">
-                        {t('btn.agree')}
-                    </Button>
-                </DialogActions>
+                <Card>
+                    <CardHeader title={t('config.unit.titleRemove', { name: name })} />
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button
+                            onClick={e => {
+                                setShouldOpenRemoveModal(false)
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                            {t('btn.agree')}
+                        </Button>
+                    </CardActions>
+                </Card>
             </Dialog>
 
             {/* modal add/edit */}

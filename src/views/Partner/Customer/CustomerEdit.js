@@ -18,6 +18,7 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Customer.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_CUSTOMER_BY_ID: {
@@ -102,319 +103,319 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 handleCloseEditModal(false)
             }}
         >
-            <DialogTitle className="titleDialog pb-0">
-                {t('partner.customer.titleEdit', { name: Customer.o_3 })}
-            </DialogTitle>
-            <DialogContent className="pt-0">
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={4}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.cust_nm_v')}
-                            onChange={handleChange}
-                            value={Customer.o_2 || ''}
-                            name='o_2'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.cust_nm_e')}
-                            onChange={handleChange}
-                            value={Customer.o_3 || ''}
-                            name='o_3'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.cust_nm_short')}
-                            onChange={handleChange}
-                            value={Customer.o_4 || ''}
-                            name='o_4'
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={6}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.address')}
-                            onChange={handleChange}
-                            value={Customer.o_5 || ''}
-                            name='o_5'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.phone')}
-                            onChange={handleChange}
-                            value={Customer.o_6 || ''}
-                            name='o_6'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.fax')}
-                            onChange={handleChange}
-                            value={Customer.o_7 || ''}
-                            name='o_7'
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.email')}
-                            onChange={handleChange}
-                            value={Customer.o_8 || ''}
-                            name='o_8'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.website')}
-                            onChange={handleChange}
-                            value={Customer.o_9 || ''}
-                            name='o_9'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.tax_cd')}
-                            onChange={handleChange}
-                            value={Customer.o_10 || ''}
-                            name='o_10'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.bank_acnt_no')}
-                            onChange={handleChange}
-                            value={Customer.o_11 || ''}
-                            name='o_11'
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.bank_acnt_nm')}
-                            onChange={handleChange}
-                            value={Customer.o_12 || ''}
-                            name='o_12'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.bank_cd')}
-                            onChange={handleChange}
-                            value={Customer.o_13 || ''}
-                            name='o_13'
-                            variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <FormControl margin="dense" variant="outlined" className='w-100'>
-                            <InputLabel id="default_yn">{t('partner.customer.default_yn')}</InputLabel>
-                            <Select
-                                labelId="default_yn"
-                                id="default_yn-select"
-                                value={Customer.o_22 || 'Y'}
+            <Card>
+                <CardHeader title={t('partner.customer.titleEdit', { name: Customer.o_3 })} />
+                <CardContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={4}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.cust_nm_v')}
                                 onChange={handleChange}
-                                label={t('partner.customer.default_yn')}
-                                name='o_22'
-                            >
-                                <MenuItem value="Y">{t('yes')}</MenuItem>
-                                <MenuItem value="N">{t('no')}</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <FormControl margin="dense" variant="outlined" className='w-100'>
-                            <InputLabel id="cust_tp">{t('partner.customer.cust_tp')}</InputLabel>
-                            <Select
-                                labelId="cust_tp"
-                                id="cust_tp-select"
-                                value={Customer.o_23 || '1'}
+                                value={Customer.o_2 || ''}
+                                name='o_2'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.cust_nm_e')}
                                 onChange={handleChange}
-                                label={t('partner.customer.cust_tp')}
-                                name='o_23'
-                            >
-                                <MenuItem value="1">{t('partner.customer.individual_customers')}</MenuItem>
-                                <MenuItem value="2">{t('partner.customer.institutional_customers')}</MenuItem>
-                            </Select>
-                        </FormControl>
+                                value={Customer.o_3 || ''}
+                                name='o_3'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.cust_nm_short')}
+                                onChange={handleChange}
+                                value={Customer.o_4 || ''}
+                                name='o_4'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            disabled={Customer.o_23 === '1'}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.agent_nm')}
-                            onChange={handleChange}
-                            value={Customer.o_15 || ''}
-                            name='o_15'
-                            variant="outlined"
-                        />
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={6}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.address')}
+                                onChange={handleChange}
+                                value={Customer.o_5 || ''}
+                                name='o_5'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.phone')}
+                                onChange={handleChange}
+                                value={Customer.o_6 || ''}
+                                name='o_6'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.fax')}
+                                onChange={handleChange}
+                                value={Customer.o_7 || ''}
+                                name='o_7'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            disabled={Customer.o_23 === '1'}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.agent_fun')}
-                            onChange={handleChange}
-                            value={Customer.o_16 || ''}
-                            name='o_16'
-                            variant="outlined"
-                        />
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.email')}
+                                onChange={handleChange}
+                                value={Customer.o_8 || ''}
+                                name='o_8'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.website')}
+                                onChange={handleChange}
+                                value={Customer.o_9 || ''}
+                                name='o_9'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.tax_cd')}
+                                onChange={handleChange}
+                                value={Customer.o_10 || ''}
+                                name='o_10'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.bank_acnt_no')}
+                                onChange={handleChange}
+                                value={Customer.o_11 || ''}
+                                name='o_11'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            disabled={Customer.o_23 === '1'}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.agent_phone')}
-                            onChange={handleChange}
-                            value={Customer.o_18 || ''}
-                            name='o_18'
-                            variant="outlined"
-                        />
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.bank_acnt_nm')}
+                                onChange={handleChange}
+                                value={Customer.o_12 || ''}
+                                name='o_12'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.bank_cd')}
+                                onChange={handleChange}
+                                value={Customer.o_13 || ''}
+                                name='o_13'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <FormControl margin="dense" variant="outlined" className='w-100'>
+                                <InputLabel id="default_yn">{t('partner.customer.default_yn')}</InputLabel>
+                                <Select
+                                    labelId="default_yn"
+                                    id="default_yn-select"
+                                    value={Customer.o_22 || 'Y'}
+                                    onChange={handleChange}
+                                    label={t('partner.customer.default_yn')}
+                                    name='o_22'
+                                >
+                                    <MenuItem value="Y">{t('yes')}</MenuItem>
+                                    <MenuItem value="N">{t('no')}</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <FormControl margin="dense" variant="outlined" className='w-100'>
+                                <InputLabel id="cust_tp">{t('partner.customer.cust_tp')}</InputLabel>
+                                <Select
+                                    labelId="cust_tp"
+                                    id="cust_tp-select"
+                                    value={Customer.o_23 || '1'}
+                                    onChange={handleChange}
+                                    label={t('partner.customer.cust_tp')}
+                                    name='o_23'
+                                >
+                                    <MenuItem value="1">{t('partner.customer.individual_customers')}</MenuItem>
+                                    <MenuItem value="2">{t('partner.customer.institutional_customers')}</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            disabled={Customer.o_23 === '1'}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={1}
-                            autoComplete="off"
-                            label={t('partner.customer.agent_email')}
-                            onChange={handleChange}
-                            value={Customer.o_19 || ''}
-                            name='o_19'
-                            variant="outlined"
-                        />
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                disabled={Customer.o_23 === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.agent_nm')}
+                                onChange={handleChange}
+                                value={Customer.o_15 || ''}
+                                name='o_15'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                disabled={Customer.o_23 === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.agent_fun')}
+                                onChange={handleChange}
+                                value={Customer.o_16 || ''}
+                                name='o_16'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                disabled={Customer.o_23 === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.agent_phone')}
+                                onChange={handleChange}
+                                value={Customer.o_18 || ''}
+                                name='o_18'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <TextField
+                                disabled={Customer.o_23 === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('partner.customer.agent_email')}
+                                onChange={handleChange}
+                                value={Customer.o_19 || ''}
+                                name='o_19'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12}>
-                        <TextField
-                            disabled={Customer.o_23 === '1'}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={2}
-                            autoComplete="off"
-                            label={t('partner.customer.agent_address')}
-                            onChange={handleChange}
-                            value={Customer.o_17 || ''}
-                            name='o_17'
-                            variant="outlined"
-                        />
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={12}>
+                            <TextField
+                                disabled={Customer.o_23 === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={2}
+                                autoComplete="off"
+                                label={t('partner.customer.agent_address')}
+                                onChange={handleChange}
+                                value={Customer.o_17 || ''}
+                                name='o_17'
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={e => {
-                        handleCloseEditModal(false);
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleUpdate(Customer);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-            </DialogActions>
+                </CardContent>
+                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                    <Button
+                        onClick={e => {
+                            handleCloseEditModal(false);
+                        }}
+                        variant="contained"
+                        disableElevation
+                    >
+                        {t('btn.close')}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleUpdate(Customer);
+                        }}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('btn.save')}
+                    </Button>
+                </CardActions>
+            </Card>
         </Dialog >
     )
 }

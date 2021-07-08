@@ -7,6 +7,12 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -19,7 +25,7 @@ import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
-import { config } from './Modal/Import.modal'
+import { config, tableProductInvoiceViewColumn } from './Modal/Import.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import moment from 'moment'
 
@@ -29,6 +35,12 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    GET_LIST_PRODUCT_INVOICE: {
+        functionName: 'get_all',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID,
+        biz: 'import',
+        object: 'imp_invoices_dt'
     }
 }
 
@@ -36,6 +48,8 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
     const { t } = useTranslation()
 
     const [Import, setImport] = useState({})
+    const [listProductInvoice, setListProductInvoice] = useState([])
+    const [columnListProduct, setColumnListProduct] = useState([...tableProductInvoiceViewColumn])
 
     useEffect(() => {
         const ImportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -51,6 +65,9 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                 if (reqInfoMap.reqFunct === reqFunction.IMPORT_BY_ID) {
                     resultGetImportByID(msg, cltSeqResult, reqInfoMap)
                 }
+                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID) {
+                    resultGetProductImportByID(msg, cltSeqResult, reqInfoMap)
+                }
             }
         })
         return () => {
@@ -60,7 +77,10 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
 
     useEffect(() => {
         if (id) {
+            setImport({})
+            setListProductInvoice([])
             sendRequest(serviceInfo.GET_IMPORT_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_LIST_PRODUCT_INVOICE, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
     }, [id])
 
@@ -74,21 +94,38 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            setImport(newData.rows[0])
+            let dataConvert = newData.rows[0]
+            dataConvert.o_6 = moment(dataConvert.o_6).toString();
+            dataConvert.o_7 = moment(dataConvert.o_7).toString();
+            setImport(dataConvert)
+        }
+    }
+
+    const resultGetProductImportByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        reqInfoMap.procStat = 2
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        }
+        if (message['PROC_DATA']) {
+            let newData = message['PROC_DATA']
+            setListProductInvoice(newData.rows)
         }
     }
 
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="md"
+            maxWidth="lg"
             open={shouldOpenViewModal}
             onClose={e => {
                 handleCloseViewModal(false)
             }}
         >
             <DialogTitle className="titleDialog pb-0">
-                {t('order.import.titleView', { name: Import.o_3 })}
+                {t('order.import.titleView', { name: Import.o_2 })}
             </DialogTitle>
             <DialogContent className="pt-0">
                 <Grid container spacing={2}>
@@ -136,6 +173,8 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                                 disableToolbar
                                 margin="dense"
                                 variant="inline"
+                                inputVariant="outlined"
+                                style={{ width: '100%' }}
                                 format="dd/MM/yyyy"
                                 id="order_dt-picker-inline"
                                 label={t('order.import.order_dt')}
@@ -146,8 +185,6 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             />
                         </MuiPickersUtilsProvider>
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
                     <Grid item xs={6} sm={3}>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
                             <KeyboardDatePicker
@@ -156,6 +193,8 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                                 margin="dense"
                                 variant="inline"
                                 format="dd/MM/yyyy"
+                                inputVariant="outlined"
+                                style={{ width: '100%' }}
                                 id="input_dt-picker-inline"
                                 label={t('order.import.input_dt')}
                                 value={Import.o_7 || new Date()}
@@ -194,22 +233,6 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                         />
                     </Grid>
                     <Grid item xs={6} sm={3}>
-                        <TextField
-                            disabled={true}
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            rows={2}
-                            autoComplete="off"
-                            label={t('order.import.note')}
-                            value={Import.o_11 || ''}
-                            name='o_11'
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={6}>
                         <NumberFormat
                             disabled={true}
                             style={{ width: '100%' }}
@@ -227,7 +250,9 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                </Grid>
+                <Grid container spacing={2}>
+                    <Grid item xs>
                         <NumberFormat
                             disabled={true}
                             style={{ width: '100%' }}
@@ -245,7 +270,7 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={6} sm={3}>
+                    <Grid item xs>
                         <NumberFormat
                             disabled={true}
                             style={{ width: '100%' }}
@@ -263,8 +288,6 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             }}
                         />
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
                     <Grid item xs>
                         <NumberFormat
                             disabled={true}
@@ -301,6 +324,8 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             }}
                         />
                     </Grid>
+                </Grid>
+                <Grid container spacing={2}>
                     <Grid item xs>
                         <TextField
                             disabled={true}
@@ -327,6 +352,77 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                             variant="outlined"
                         />
                     </Grid>
+                    <Grid item xs={6} sm={6}>
+                        <TextField
+                            disabled={true}
+                            fullWidth={true}
+                            margin="dense"
+                            multiline
+                            autoComplete="off"
+                            label={t('order.import.note')}
+                            value={Import.o_11 || ''}
+                            name='o_11'
+                            variant="outlined"
+                        />
+                    </Grid>
+                </Grid>
+                <Grid container spacing={1}>
+                    <TableContainer className="tableContainer">
+                        <Table stickyHeader>
+                            <caption
+                                className={['text-center text-danger border-bottom', listProductInvoice?.length > 0 ? 'd-none' : ''].join(
+                                    ' '
+                                )}
+                            >
+                                {t('lbl.emptyData')}
+                            </caption>
+                            <TableHead>
+                                <TableRow>
+                                    {columnListProduct?.map(col => (
+                                        <TableCell nowrap="true"
+                                            className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
+                                            key={col.field}
+                                        >
+                                            {t(col.title)}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {listProductInvoice?.map((item, index) => {
+                                    return (
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                            {columnListProduct.map((col, indexRow) => {
+                                                let value = item[col.field]
+                                                if (col.show) {
+                                                    switch (col.field) {
+                                                        case 'stt':
+                                                            return (
+                                                                <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
+                                                                    {index + 1}
+                                                                </TableCell>
+                                                            )
+                                                        case 'o_3':
+                                                            return (
+                                                                <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
+                                                                    {value === '1' ? t('order.import.import_type_buy') : t('order.import.import_type_selloff')}
+                                                                </TableCell>
+                                                            )
+                                                        default:
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    {glb_sv.formatValue(value, col['type'])}
+                                                                </TableCell>
+                                                            )
+                                                    }
+                                                }
+                                            })}
+                                        </TableRow>
+                                    )
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </Grid>
             </DialogContent>
             <DialogActions>

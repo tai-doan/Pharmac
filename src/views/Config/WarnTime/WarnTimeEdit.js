@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import NumberFormat from 'react-number-format'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
@@ -17,6 +14,7 @@ import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/WarnTime.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import Dictionary_Autocomplete from '../../../components/Dictionary_Autocomplete/index'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_WARN_TIME_BY_ID: {
@@ -103,70 +101,71 @@ const WarnTimeEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 handleCloseEditModal(false)
             }}
         >
-            <DialogTitle className="titleDialog pb-0">
-                {t('config.warnTime.titleEdit', { name: warnTime?.o_3 })}
-            </DialogTitle>
-            <DialogContent className="pt-0">
-                <Grid container className="{}" spacing={2}>
-                    <Grid item xs={6} sm={4}>
-                        <Product_Autocomplete
-                            disabled={true}
-                            value={warnTime?.o_3}
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.product')}
-                        />
+            <Card>
+                <CardHeader title={t('config.warnTime.titleEdit', { name: warnTime?.o_3 })} />
+                <CardContent>
+                    <Grid container className="{}" spacing={2}>
+                        <Grid item xs={6} sm={4}>
+                            <Product_Autocomplete
+                                disabled={true}
+                                value={warnTime?.o_3}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.product')}
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={warnTime?.o_4}
+                                label={t('config.warnTime.warn_amt')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                onValueChange={handleChangeAmt}
+                                inputProps={{
+                                    min: 0,
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <Dictionary_Autocomplete
+                                value={warnTime.o_6 || ''}
+                                diectionName='warn_time_tp'
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('config.warnTime.warn_time_tp')}
+                                onSelect={handleChangeTimeTp}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <NumberFormat
-                            style={{ width: '100%' }}
-                            required
-                            value={warnTime?.o_4}
-                            label={t('config.warnTime.warn_amt')}
-                            customInput={TextField}
-                            autoComplete="off"
-                            margin="dense"
-                            type="text"
-                            variant="outlined"
-                            thousandSeparator={true}
-                            onValueChange={handleChangeAmt}
-                            inputProps={{
-                                min: 0,
-                            }}
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <Dictionary_Autocomplete
-                            diectionName='warn_time_tp'
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('config.warnTime.warn_time_tp')}
-                            onSelect={handleChangeTimeTp}
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={e => {
-                        handleCloseEditModal(false);
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleUpdate(warnTime);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-            </DialogActions>
+                </CardContent>
+                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                    <Button
+                        onClick={e => {
+                            handleCloseEditModal(false);
+                        }}
+                        variant="contained"
+                        disableElevation
+                    >
+                        {t('btn.close')}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleUpdate(warnTime);
+                        }}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('btn.save')}
+                    </Button>
+                </CardActions>
+            </Card>
         </Dialog >
     )
 }

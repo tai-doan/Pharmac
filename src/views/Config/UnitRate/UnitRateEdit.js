@@ -8,6 +8,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
 import sendRequest from '../../../utils/service/sendReq'
@@ -95,70 +96,70 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 handleCloseEditModal(false)
             }}
         >
-            <DialogTitle className="titleDialog pb-0">
-                {t('config.unitRate.titleEdit', { name: unitRate.o_3 })}
-            </DialogTitle>
-            <DialogContent className="pt-0">
-                <Grid container className="{}" spacing={2}>
-                    <Grid item xs={6} sm={4}>
-                        <Product_Autocomplete
-                            disabled={true}
-                            value={unitRate.o_3}
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.product')}
-                        />
+            <Card>
+                <CardHeader title={t('config.unitRate.titleEdit', { name: unitRate.o_3 })} />
+                <CardContent>
+                    <Grid container className="{}" spacing={2}>
+                        <Grid item xs={6} sm={4}>
+                            <Product_Autocomplete
+                                disabled={true}
+                                value={unitRate.o_3}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.product')}
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <Unit_Autocomplete
+                                disabled={true}
+                                value={unitRate.o_5}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={unitRate.o_6}
+                                label={t('config.unitRate.rate')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                onValueChange={handleChange}
+                                inputProps={{
+                                    min: 0,
+                                }}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <Unit_Autocomplete
-                            disabled={true}
-                            value={unitRate.o_5}
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.configUnit')}
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={4}>
-                        <NumberFormat
-                            style={{ width: '100%' }}
-                            required
-                            value={unitRate.o_6}
-                            label={t('config.unitRate.rate')}
-                            customInput={TextField}
-                            autoComplete="off"
-                            margin="dense"
-                            type="text"
-                            variant="outlined"
-                            thousandSeparator={true}
-                            onValueChange={handleChange}
-                            inputProps={{
-                                min: 0,
-                            }}
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={e => {
-                        handleCloseEditModal(false);
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleUpdate(unitRate);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-            </DialogActions>
+                </CardContent>
+                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                    <Button
+                        onClick={e => {
+                            handleCloseEditModal(false);
+                        }}
+                        variant="contained"
+                        disableElevation
+                    >
+                        {t('btn.close')}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleUpdate(unitRate);
+                        }}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('btn.save')}
+                    </Button>
+                </CardActions>
+            </Card>
         </Dialog >
     )
 }

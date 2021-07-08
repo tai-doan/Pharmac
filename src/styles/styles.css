@@ -163,3 +163,25 @@ button:focus {
 .search-area-action button {
     margin-right: 5px;
 }
+
+.MuiCardHeader-root, .MuiCardContent-root, .MuiCardActions-root {
+    padding: 10px 1rem !important;
+}
+
+.MuiCardHeader-root {
+    background-color: #e1e3e4;
+}
+
+.MuiCardHeader-root .MuiCardHeader-title{
+    font-size: 1rem;
+}
+.MuiCardHeader-action {
+    margin: -5px auto !important;
+}
+.MuiCardActions-root {
+    border-top: 1px solid #dfdfdf;
+}
+.MuiInputBase-root.MuiOutlinedInput-root.Mui-disabled.Mui-disabled.MuiOutlinedInput-marginDense {
+    background: #dfdfdf94;
+    color: rgb(0 0 0 / 73%)
+}

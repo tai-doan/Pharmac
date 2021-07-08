@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router'
 import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -20,7 +21,7 @@ import Select from "@material-ui/core/Select"
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
+import ReplayIcon from '@material-ui/icons/Replay';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -71,6 +72,7 @@ const serviceInfo = {
 
 const ImportList = () => {
     const { t } = useTranslation()
+    const history = useHistory()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
@@ -166,7 +168,7 @@ const ImportList = () => {
                 setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
                 dataSourceRef.current = dataSourceRef.current.concat(newData.rows)
                 setDataSource(dataSourceRef.current)
-            }else{
+            } else {
                 dataSourceRef.current = [];
                 setDataSource([])
                 setTotalRecords(0)
@@ -397,11 +399,12 @@ const ImportList = () => {
                                                                         onRemove(item)
                                                                     }}
                                                                 >
-                                                                    <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                    <ReplayIcon style={{ color: 'red' }} fontSize="small" />
                                                                 </IconButton>
                                                                 <IconButton
                                                                     onClick={e => {
-                                                                        onEdit(item)
+                                                                        // onEdit(item)
+                                                                        history.push('/page/order/edit-import', { id: item.o_1 })
                                                                     }}
                                                                 >
                                                                     <EditIcon fontSize="small" />
@@ -419,6 +422,12 @@ const ImportList = () => {
                                                         return (
                                                             <TableCell nowrap="true" key={indexRow} align={col.align}>
                                                                 {value === '1' ? t('normal') : t('cancelled')}
+                                                            </TableCell>
+                                                        )
+                                                    case 'o_10':
+                                                        return (
+                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                {item['o_3'] === '2' ? value : ''}
                                                             </TableCell>
                                                         )
                                                     default:

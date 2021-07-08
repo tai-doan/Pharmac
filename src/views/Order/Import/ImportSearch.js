@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom';
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Accordion from '@material-ui/core/Accordion'
@@ -140,7 +141,12 @@ const ImportSearch = ({ handleSearch }) => {
             <AccordionDetails className="pt-0 pb-0">
                 <div className='d-flex search-area-action'>
                     <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
-                    <ImportAdd />
+                    {/* <ImportAdd /> */}
+                    <Link to="/page/order/ins-import" className="normalLink">
+                        <Button variant="contained" size="small" style={{ backgroundColor: 'green', color: '#fff' }}>
+                            {t('btn.add')}
+                        </Button>
+                    </Link>
                 </div>
             </AccordionDetails>
         </Accordion>

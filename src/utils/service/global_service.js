@@ -206,6 +206,9 @@ class globalService {
                 case 'number':
                     var number = new Intl.NumberFormat()
                     return number.format(value)
+                case 'currency':
+                    var number = new Intl.NumberFormat()
+                    return number.format(value)
                 case 'date':
                     return this.formatDate(value)
                 case 'dated':

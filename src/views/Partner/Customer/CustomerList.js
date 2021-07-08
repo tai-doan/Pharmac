@@ -34,6 +34,8 @@ import { tableColumn, config } from './Modal/Customer.modal'
 import CustomerAdd from './CustomerAdd';
 import CustomerView from './CustomerView';
 import CustomerEdit from './CustomerEdit'
+import SearchOne from '../../../components/SearchOne'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_ALL: {
@@ -147,10 +149,14 @@ const CustomerList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
+                if (reqInfoMap.inputParam[0] === 999999999999) {
+                    setTotalRecords(newData.rowTotal)
+                } else {
+                    setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
+                }
                 dataSourceRef.current = dataSourceRef.current.concat(newData.rows)
                 setDataSource(dataSourceRef.current)
-            }else{
+            } else {
                 dataSourceRef.current = [];
                 setDataSource([])
                 setTotalRecords(0)
@@ -347,112 +353,107 @@ const CustomerList = () => {
 
     return (
         <>
-            <div className="align-items-center ">
-                <div className='d-flex justify-content-between mb-3'>
-                    <div className="d-flex align-items-center mr-2">
-                        <SearChComp
-                            searchSubmit={searchSubmit}
-                            setSearchVal={setSearchValue}
-                            placeholder={'partner.customer.search_name'}
-                        />
-                    </div>
-                    <div className='d-flex'>
-                        <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
-                        <IconButton onClick={onClickColumn}>
+            <Card className='mb-2'>
+                <CardHeader
+                    title={t('lbl.search')}
+                    action={
+                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
                             <MoreVertIcon />
                         </IconButton>
-
-                        <ColumnCtrComp
-                            anchorEl={anChorEl}
-                            columns={tableColumn}
-                            handleClose={onCloseColumn}
-                            checkColumnChange={onChangeColumnView}
-                        />
-                    </div>
-                </div>
-                <div className='d-flex justify-content-between'>
-                    <h6 className="d-flex font-weight-bold mb-2">{t('partner.customer.titleList')}</h6>
-                    <div className='d-flex'>
-                        <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                        <Chip size="small" deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                    </div>
-                </div>
-            </div>
-
-            {/* table */}
-            <Paper className="mb-3">
-                <TableContainer className="tableContainer">
-                    <Table stickyHeader>
-                        <caption
-                            className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
-                                ' '
-                            )}
-                        >
-                            {t('lbl.emptyData')}
-                        </caption>
-                        <TableHead>
-                            <TableRow>
-                                {column.map(col => (
-                                    <TableCell
-                                        nowrap="true"
-                                        className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
-                                        key={col.field}
-                                    >
-                                        {t(col.title)}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {dataSource.map((item, index) => {
-                                return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                                        {column.map((col, indexRow) => {
-                                            let value = item[col.field]
-                                            if (col.show) {
-                                                switch (col.field) {
-                                                    case 'action':
-                                                        return (
-                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                <IconButton
-                                                                    onClick={e => {
-                                                                        onRemove(item)
-                                                                    }}
-                                                                >
-                                                                    <DeleteIcon style={{ color: 'red' }} fontSize="small" />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    onClick={e => {
-                                                                        onEdit(item)
-                                                                    }}
-                                                                >
-                                                                    <EditIcon fontSize="small" />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    onClick={e => {
-                                                                        onView(item)
-                                                                    }}
-                                                                >
-                                                                    <VisibilityIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </TableCell>
-                                                        )
-                                                    default:
-                                                        return (
-                                                            <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                {glb_sv.formatValue(value, col['type'])}
-                                                            </TableCell>
-                                                        )
+                    }
+                />
+                <CardContent>
+                    <SearchOne
+                        name='supplier_name'
+                        label={'partner.customer.search_name'}
+                        searchSubmit={searchSubmit}
+                    />
+                </CardContent>
+            </Card>
+            <ColumnCtrComp
+                anchorEl={anChorEl}
+                columns={tableColumn}
+                handleClose={onCloseColumn}
+                checkColumnChange={onChangeColumnView}
+            />
+            <Card>
+                <CardHeader
+                    title={t('partner.customer.titleList')}
+                    action={
+                        <div className='d-flex align-items-center'>
+                            <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
+                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Button size="small" className='mr-1' style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
+                        </div>
+                    }
+                />
+                <CardContent>
+                    <TableContainer className="tableContainer">
+                        <Table stickyHeader>
+                            <caption
+                                className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
+                                    ' '
+                                )}
+                            >
+                                {t('lbl.emptyData')}
+                            </caption>
+                            <TableHead>
+                                <TableRow>
+                                    {column.map(col => (
+                                        <TableCell
+                                            nowrap="true"
+                                            className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
+                                            key={col.field}
+                                        >
+                                            {t(col.title)}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {dataSource.map((item, index) => {
+                                    return (
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                            {column.map((col, indexRow) => {
+                                                let value = item[col.field]
+                                                if (col.show) {
+                                                    switch (col.field) {
+                                                        case 'action':
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    <IconButton
+                                                                        onClick={e => {
+                                                                            onRemove(item)
+                                                                        }}
+                                                                    >
+                                                                        <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                    </IconButton>
+                                                                    <IconButton
+                                                                        onClick={e => {
+                                                                            onEdit(item)
+                                                                        }}
+                                                                    >
+                                                                        <EditIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </TableCell>
+                                                            )
+                                                        default:
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    {glb_sv.formatValue(value, col['type'])}
+                                                                </TableCell>
+                                                            )
+                                                    }
                                                 }
-                                            }
-                                        })}
-                                    </TableRow>
-                                )
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
+                                            })}
+                                        </TableRow>
+                                    )
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </CardContent>
+            </Card>
 
             {/* modal delete */}
             <Dialog
@@ -461,25 +462,23 @@ const CustomerList = () => {
                     setShouldOpenRemoveModal(false)
                 }}
             >
-                <DialogContent>
-                    <DialogContentText className="m-0 text-dark">
-                        {t('partner.customer.titleRemove', { name: name })}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={e => {
-                            setShouldOpenRemoveModal(false)
-                        }}
-                        variant="contained"
-                        disableElevation
-                    >
-                        {t('btn.close')}
-                    </Button>
-                    <Button onClick={handleDelete} variant="contained" color="secondary">
-                        {t('btn.agree')}
-                    </Button>
-                </DialogActions>
+                <Card>
+                    <CardHeader title={t('partner.customer.titleRemove', { name: name })} />
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button
+                            onClick={e => {
+                                setShouldOpenRemoveModal(false)
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                            {t('btn.agree')}
+                        </Button>
+                    </CardActions>
+                </Card>
             </Dialog>
 
             {/* modal add */}
@@ -496,13 +495,6 @@ const CustomerList = () => {
                 shouldOpenEditModal={shouldOpenEditModal}
                 handleCloseEditModal={handleCloseEditModal}
                 handleUpdate={handleUpdate}
-            />
-
-            {/* modal view */}
-            <CustomerView
-                id={id}
-                shouldOpenViewModal={shouldOpenViewModal}
-                handleCloseViewModal={handleCloseViewModal}
             />
         </>
     )

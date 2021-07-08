@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router'
 import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -7,34 +8,18 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import TextField from '@material-ui/core/TextField'
-import InputLabel from "@material-ui/core/InputLabel"
-import MenuItem from "@material-ui/core/MenuItem"
-import FormControl from "@material-ui/core/FormControl"
-import Select from "@material-ui/core/Select"
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
-import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import NumberFormat from 'react-number-format'
-import AutorenewIcon from '@material-ui/icons/Autorenew';
-import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
-import ColumnCtrComp from '../../../components/_ColumnCtr'
-import SearChComp from '../../../components/_Search'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -45,31 +30,55 @@ import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableListAddColumn, invoiceImportModal } from './Modal/InsImport.Modal'
-import { DialogTitle } from '@material-ui/core'
 import moment from 'moment'
 import ProductImportAdd from '../Import/ProductImportAdd'
 
-import InsImportContainer from './InsImportContainer';
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 
 const serviceInfo = {
-    CREATE_INVOICE: {
-        functionName: 'insert',
-        reqFunct: reqFunction.IMPORT_CREATE,
+    GET_INVOICE_BY_ID: {
+        functionName: 'get_by_id',
+        reqFunct: reqFunction.IMPORT_BY_ID,
         biz: 'import',
         object: 'imp_invoices'
+    },
+    UPDATE_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.IMPORT_UPDATE,
+        biz: 'import',
+        object: 'imp_invoices'
+    },
+    GET_ALL_PRODUCT_BY_INVOICE_ID: {
+        functionName: 'get_all',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID,
+        biz: 'import',
+        object: 'imp_invoices_dt'
     },
     ADD_PRODUCT_TO_INVOICE: {
         functionName: 'insert',
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_CREATE,
         biz: 'import',
         object: 'imp_invoices_dt'
+    },
+    UPDATE_PRODUCT_TO_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE,
+        biz: 'import',
+        object: 'imp_invoices_dt'
+    },
+    DELETE_PRODUCT_TO_INVOICE: {
+        functionName: 'delete',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_DELETE,
+        biz: 'import',
+        object: 'imp_invoices_dt'
     }
 }
 
-const ProductImport = ({ }) => {
+const EditImport = ({ }) => {
     const { t } = useTranslation()
+    const history = useHistory()
+    const { id } = history?.location?.state || { id: 0 }
     const [Import, setImport] = useState({ ...invoiceImportModal })
     const [supplierSelect, setSupplierSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
@@ -92,8 +101,8 @@ const ProductImport = ({ }) => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.IMPORT_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
+                    case reqFunction.IMPORT_BY_ID:
+                        resultGetInvoiceByID(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.PRODUCT_IMPORT_INVOICE_CREATE:
                         resultAddProductToInvoice(msg, cltSeqResult, reqInfoMap)
@@ -103,6 +112,11 @@ const ProductImport = ({ }) => {
                 }
             }
         })
+
+        if (id !== 0) {
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], e => console.log(e), true, handleTimeOut)
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+        }
         return () => {
             importSub.unsubscribe()
         }
@@ -113,7 +127,7 @@ const ProductImport = ({ }) => {
         SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultGetInvoiceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -126,32 +140,8 @@ const ProductImport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             let newData = message['PROC_DATA']
-            if (!!newData.rows[0].o_1) {
-                newInvoiceId.current = newData.rows[0].o_1
-                for (let i = 0; i < dataSourceRef.current.length; i++) {
-                    const item = dataSourceRef.current[i];
-                    const inputParam = [
-                        newData.rows[0].o_1,
-                        item.imp_tp,
-                        item.prod_id,
-                        item.lot_no,
-                        item.made_dt,
-                        item.exp_dt,
-                        item.qty,
-                        item.unit_id,
-                        item.price,
-                        item.discount_per,
-                        item.vat_per
-                    ]
-                    sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
-                    if (i === dataSourceRef.current.length - 1) {
-                        dataSourceRef.current = [];
-                        setDataSource([])
-                        setImport({ ...invoiceImportModal })
-                        setSupplierSelect('')
-                    }
-                }
-            }
+            setImport(newData.rows[0])
+            handleSelectSupplier(newData.rows[0].o_5)
         }
     }
 
@@ -235,7 +225,7 @@ const ProductImport = ({ }) => {
             Import.person_r,
             Import.note
         ];
-        sendRequest(serviceInfo.CREATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.GET_INVOICE_BY_ID, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     return (
@@ -341,8 +331,8 @@ const ProductImport = ({ }) => {
                         rows={1}
                         autoComplete="off"
                         label={t('order.import.invoice_no')}
-                        onChange={handleChange}
-                        value={Import.invoice_no || ''}
+                        disabled={true}
+                        value={Import?.o_2 || ''}
                         name='invoice_no'
                         variant="outlined"
                     />
@@ -485,4 +475,4 @@ const ProductImport = ({ }) => {
     )
 }
 
-export default ProductImport
+export default EditImport
