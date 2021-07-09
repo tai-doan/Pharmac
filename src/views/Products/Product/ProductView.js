@@ -111,7 +111,7 @@ const ProductView = ({ id, productNameFocus, shouldOpenModal, handleCloseViewMod
 
         < Dialog
             fullWidth={true}
-            maxWidth="lg"
+            maxWidth="md"
             open={shouldOpenModal}
             onClose={(e) => {
                 handleCloseViewModal(false)

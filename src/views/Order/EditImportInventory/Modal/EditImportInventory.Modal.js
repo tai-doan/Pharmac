@@ -2,8 +2,6 @@ import moment from 'moment';
 
 const productImportModal = {
     invoice_id: '',
-    imp_tp: 'Y',
-    imp_tp_nm: '',
     prod_id: null,
     prod_name: '',
     lot_no: '',
@@ -12,12 +10,10 @@ const productImportModal = {
     qty: 0,
     unit_id: null,
     unit_name: '',
-    price: 0,
-    discount_per: 0,
-    vat_per: 0
+    price: 0
 }
 
-const invoiceImportModal = {
+const invoiceImportInventoryModal = {
     invoice_id: null,
     order_dt: moment().toString(),
     supplier: null,
@@ -29,17 +25,14 @@ const invoiceImportModal = {
 
 const tableListEditColumn = [
     { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100, align: 'center' },
-    { field: 'o_4', title: 'order.ins_import.imp_tp_nm', show: true, disabled: true, minWidth: 100 },
-    { field: 'o_6', title: 'order.ins_import.prod_nm', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_7', title: 'order.ins_import.lot_no', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_9', title: 'order.ins_import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated', align: 'center' },
-    { field: 'o_10', title: 'order.ins_import.qty', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_12', title: 'order.ins_import.unit_nm', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_13', title: 'order.ins_import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_14', title: 'order.ins_import.vat_per', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_15', title: 'order.ins_import.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_16', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
-    { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
+    { field: 'o_4', title: 'order.ins_import.prod_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_5', title: 'order.ins_import.lot_no', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_7', title: 'order.ins_import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated', align: 'center' },
+    { field: 'o_8', title: 'order.ins_import.qty', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_10', title: 'order.ins_import.unit_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_11', title: 'order.ins_import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_12', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
+    { field: 'o_13', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
     { field: 'action', title: 'btn.delete', show: true, disabled: false, minWidth: 100, align: 'center' }
 ]
 
@@ -60,6 +53,6 @@ const tableListAddColumn = [
 export {
     tableListAddColumn,
     tableListEditColumn,
-    invoiceImportModal,
+    invoiceImportInventoryModal,
     productImportModal
 }

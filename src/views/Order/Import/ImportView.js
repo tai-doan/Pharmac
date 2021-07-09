@@ -118,7 +118,7 @@ const ImportView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="lg"
+            maxWidth="md"
             open={shouldOpenViewModal}
             onClose={e => {
                 handleCloseViewModal(false)

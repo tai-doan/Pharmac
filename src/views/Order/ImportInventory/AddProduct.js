@@ -21,7 +21,7 @@ import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productImportModal } from './Modal/Import.modal'
 import NumberFormat from 'react-number-format'
 
-const ProductImportAdd = ({ handleAddProduct }) => {
+const AddProduct = ({ handleAddProduct }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
@@ -306,4 +306,4 @@ const ProductImportAdd = ({ handleAddProduct }) => {
     )
 }
 
-export default ProductImportAdd;
+export default AddProduct;

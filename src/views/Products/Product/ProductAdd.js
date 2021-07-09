@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -26,6 +23,7 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Product.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -124,65 +122,63 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
     }
 
     return (
-
-        < Dialog
+        <Dialog
             fullWidth={true}
-            maxWidth="lg"
+            maxWidth="md"
             open={shouldOpenModal}
             onClose={(e) => {
                 handleCloseAddModal(false)
                 setProduct({})
             }}
         >
-            <DialogTitle className="titleDialog pb-0">
-                {t(id === 0 ? 'products.product.titleAdd' : 'products.product.titleEdit', { name: product.name })}
-            </DialogTitle>
-            <DialogContent className={' pt-0'}>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
-                        <Tooltip placement="top" title={t('product.tooltip.productCode')} arrow>
+            <Card>
+                <CardHeader title={t('products.product.titleAdd')} />
+                <CardContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <Tooltip placement="top" title={t('product.tooltip.productCode')} arrow>
+                                <TextField
+                                    fullWidth={true}
+                                    autoComplete="off"
+                                    margin="dense"
+                                    label={t('products.product.code')}
+                                    onChange={handleChange}
+                                    value={product.code}
+                                    name="code"
+                                    variant="outlined"
+                                    className="uppercaseInput"
+                                />
+                            </Tooltip>
+                        </Grid>
+
+                        <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
+                                required
+                                autoFocus
                                 autoComplete="off"
                                 margin="dense"
-                                label={t('products.product.code')}
+                                label={t('products.product.name')}
                                 onChange={handleChange}
-                                value={product.code}
-                                name="code"
+                                value={product.name}
+                                inputRef={productNameFocus}
+                                name="name"
                                 variant="outlined"
                                 className="uppercaseInput"
                             />
-                        </Tooltip>
-                    </Grid>
+                        </Grid>
 
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            required
-                            autoFocus
-                            autoComplete="off"
-                            margin="dense"
-                            label={t('products.product.name')}
-                            onChange={handleChange}
-                            value={product.name}
-                            inputRef={productNameFocus}
-                            name="name"
-                            variant="outlined"
-                            className="uppercaseInput"
-                        />
-                    </Grid>
+                        <Grid item xs={6} sm={3}>
+                            <ProductGroup_Autocomplete
+                                value={product.o_2}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.productGroup')}
+                                onSelect={handleSelectProductGroup}
+                            />
+                        </Grid>
 
-                    <Grid item xs={6} sm={3}>
-                        <ProductGroup_Autocomplete
-                            value={product.o_2}
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.productGroup')}
-                            onSelect={handleSelectProductGroup}
-                        />
-                    </Grid>
-
-                    {/* <Grid item xs={6} sm={3}>
+                        {/* <Grid item xs={6} sm={3}>
                         <Product_Autocomplete
                             value={product.o_2}
                             style={{ marginTop: 8, marginBottom: 4 }}
@@ -192,211 +188,210 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                         />
                     </Grid> */}
 
-                    <Grid item xs={6} sm={3}>
-                        <Unit_Autocomplete
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.configUnit')}
-                            onSelect={handleSelectUnit}
-                        />
+                        <Grid item xs={6} sm={3}>
+                            <Unit_Autocomplete
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                                onSelect={handleSelectUnit}
+                            />
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={3}>
-                        <Tooltip placement="top" title={t('product.tooltip.barcode')} arrow>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6} sm={3}>
+                            <Tooltip placement="top" title={t('product.tooltip.barcode')} arrow>
+                                <TextField
+                                    fullWidth={true}
+                                    autoComplete="off"
+                                    margin="dense"
+                                    label={t('products.product.barcode')}
+                                    onChange={handleChange}
+                                    value={product.barcode}
+                                    name="barcode"
+                                    variant="outlined"
+                                />
+                            </Tooltip>
+                        </Grid>
+
+                        <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
-                                autoComplete="off"
                                 margin="dense"
-                                label={t('products.product.barcode')}
+                                multiline
+                                autoComplete="off"
+                                label={t('products.product.packing')}
                                 onChange={handleChange}
-                                value={product.barcode}
-                                name="barcode"
+                                value={product.packing}
+                                name="packing"
                                 variant="outlined"
                             />
-                        </Tooltip>
+                        </Grid>
+
+                        <Grid item xs={6} sm={6}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                autoComplete="off"
+                                label={t('products.product.content')}
+                                onChange={handleChange}
+                                value={product.content}
+                                name="content"
+                                variant="outlined"
+                            />
+                        </Grid>
                     </Grid>
 
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            autoComplete="off"
-                            label={t('products.product.packing')}
-                            onChange={handleChange}
-                            value={product.packing}
-                            name="packing"
-                            variant="outlined"
-                        />
-                    </Grid>
-
-                    <Grid item xs={6} sm={6}>
-                        <TextField
-                            fullWidth={true}
-                            margin="dense"
-                            multiline
-                            autoComplete="off"
-                            label={t('products.product.content')}
-                            onChange={handleChange}
-                            value={product.content}
-                            name="content"
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
-
-                <Accordion expanded={isExpanded} onChange={handleChangeExpand}>
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1bh-content"
-                        id="panel1bh-header"
-                        height="50px"
+                    <Accordion expanded={isExpanded} onChange={handleChangeExpand}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1bh-content"
+                            id="panel1bh-header"
+                            height="50px"
+                        >
+                            <Typography className={''}>{t('product.infoExpand')}</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails className="pt-0 pb-0">
+                            <Grid container className={''} spacing={2}>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.designate')}
+                                        onChange={handleChange}
+                                        value={product.designate}
+                                        name="designate"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.contraind')}
+                                        onChange={handleChange}
+                                        value={product.contraind}
+                                        name="contraind"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </AccordionDetails>
+                        <AccordionDetails className="pt-0 pb-0">
+                            <Grid container className="{}" spacing={2}>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.dosage')}
+                                        onChange={handleChange}
+                                        value={product.dosage}
+                                        name="dosage"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.manufact')}
+                                        onChange={handleChange}
+                                        value={product.manufact}
+                                        name="manufact"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </AccordionDetails>
+                        <AccordionDetails className="pt-0 pb-0">
+                            <Grid container className={''} spacing={2}>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.interact')}
+                                        onChange={handleChange}
+                                        value={product.interact}
+                                        name="interact"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.storages')}
+                                        onChange={handleChange}
+                                        value={product.storages}
+                                        name="storages"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </AccordionDetails>
+                        <AccordionDetails className="pt-0">
+                            <Grid container className="{}" spacing={2}>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.effect')}
+                                        onChange={handleChange}
+                                        value={product.effect}
+                                        name="effect"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6} md={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        autoComplete="off"
+                                        label={t('products.product.overdose')}
+                                        onChange={handleChange}
+                                        value={product.overdose}
+                                        name="overdose"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </AccordionDetails>
+                    </Accordion>
+                </CardContent>
+                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                    <Button
+                        onClick={(e) => {
+                            handleCloseAddModal(false)
+                            setProduct({})
+                        }}
+                        variant="contained"
+                        disableElevation
                     >
-                        <Typography className={''}>{t('product.infoExpand')}</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className="pt-0 pb-0">
-                        <Grid container className={''} spacing={2}>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.designate')}
-                                    onChange={handleChange}
-                                    value={product.designate}
-                                    name="designate"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.contraind')}
-                                    onChange={handleChange}
-                                    value={product.contraind}
-                                    name="contraind"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                    </AccordionDetails>
-                    <AccordionDetails className="pt-0 pb-0">
-                        <Grid container className="{}" spacing={2}>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.dosage')}
-                                    onChange={handleChange}
-                                    value={product.dosage}
-                                    name="dosage"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.manufact')}
-                                    onChange={handleChange}
-                                    value={product.manufact}
-                                    name="manufact"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                    </AccordionDetails>
-                    <AccordionDetails className="pt-0 pb-0">
-                        <Grid container className={''} spacing={2}>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.interact')}
-                                    onChange={handleChange}
-                                    value={product.interact}
-                                    name="interact"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.storages')}
-                                    onChange={handleChange}
-                                    value={product.storages}
-                                    name="storages"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                    </AccordionDetails>
-                    <AccordionDetails className="pt-0">
-                        <Grid container className="{}" spacing={2}>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.effect')}
-                                    onChange={handleChange}
-                                    value={product.effect}
-                                    name="effect"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6} md={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    autoComplete="off"
-                                    label={t('products.product.overdose')}
-                                    onChange={handleChange}
-                                    value={product.overdose}
-                                    name="overdose"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                    </AccordionDetails>
-                </Accordion>
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={(e) => {
-                        handleCloseAddModal(false)
-                        setProduct({})
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => handleCreate(false, product)}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-                {(!id || id === 0) && (
+                        {t('btn.close')}
+                    </Button>
+                    <Button
+                        onClick={() => handleCreate(false, product)}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('btn.save')}
+                    </Button>
                     <Button
                         onClick={() => handleCreate(true, product)}
                         variant="contained"
@@ -405,8 +400,8 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                     >
                         {t('save_continue')}
                     </Button>
-                )}
-            </DialogActions>
+                </CardActions>
+            </Card>
         </Dialog >
     )
 }

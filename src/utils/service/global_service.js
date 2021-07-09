@@ -195,7 +195,7 @@ class globalService {
             return null
         }
         this.formatDate = (value, formatIn, formatOut) => {
-            if (!value || value === '') return ''
+            if (!value || value === '' || value === null) return ''
             let date = moment(value, formatIn || 'DDMMYYYYHHmmss').format(formatOut ? formatOut : 'DD/MM/YYYY HH:mm:ss')
             if (date === 'Invalid Date') return ''
             return date

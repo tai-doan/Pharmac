@@ -78,7 +78,7 @@ const ProductGroupView = ({ id, shouldOpenModal, handleCloseViewModal }) => {
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="lg"
+            maxWidth="md"
             open={shouldOpenModal}
             onClose={e => {
                 handleCloseViewModal(false)

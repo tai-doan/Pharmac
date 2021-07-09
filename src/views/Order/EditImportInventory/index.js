@@ -10,12 +10,6 @@ import TableRow from '@material-ui/core/TableRow'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import TextField from '@material-ui/core/TextField'
-import DateFnsUtils from '@date-io/date-fns';
-import {
-    MuiPickersUtilsProvider,
-    KeyboardDatePicker
-} from '@material-ui/pickers';
-import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -28,12 +22,12 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableListEditColumn, invoiceImportModal } from './Modal/InsImport.Modal'
+import { tableListEditColumn, invoiceImportInventoryModal } from './Modal/EditImportInventory.Modal'
 import moment from 'moment'
-import AddProduct from '../Import/AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
+import AddProduct from '../InsImportInventory/AddProduct'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
 
 const serviceInfo = {
@@ -41,53 +35,43 @@ const serviceInfo = {
         functionName: 'get_by_id',
         reqFunct: reqFunction.IMPORT_BY_ID,
         biz: 'import',
-        object: 'imp_invoices'
-    },
-    UPDATE_INVOICE: {
-        functionName: 'update',
-        reqFunct: reqFunction.IMPORT_UPDATE,
-        biz: 'import',
-        object: 'imp_invoices'
+        object: 'imp_inventory'
     },
     GET_ALL_PRODUCT_BY_INVOICE_ID: {
         functionName: 'get_all',
         reqFunct: reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID,
         biz: 'import',
-        object: 'imp_invoices_dt'
+        object: 'imp_inventory_dt'
     },
     ADD_PRODUCT_TO_INVOICE: {
         functionName: 'insert',
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_CREATE,
         biz: 'import',
-        object: 'imp_invoices_dt'
+        object: 'imp_inventory_dt'
     },
     UPDATE_PRODUCT_TO_INVOICE: {
         functionName: 'update',
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE,
         biz: 'import',
-        object: 'imp_invoices_dt'
+        object: 'imp_inventory_dt'
     },
     DELETE_PRODUCT_TO_INVOICE: {
         functionName: 'delete',
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_DELETE,
         biz: 'import',
-        object: 'imp_invoices_dt'
+        object: 'imp_inventory_dt'
     }
 }
 
-const EditImport = ({ }) => {
+const EditImportInventory = ({ }) => {
     const { t } = useTranslation()
     const history = useHistory()
     const { id } = history?.location?.state || 0
-    const [Import, setImport] = useState({ ...invoiceImportModal })
-    const [supplierSelect, setSupplierSelect] = useState('')
+    const [ImportInventory, setImportInventory] = useState({ ...invoiceImportInventoryModal })
     const [dataSource, setDataSource] = useState([])
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
-
-    const newInvoiceId = useRef(-1)
-    const dataSourceRef = useRef([])
 
     useEffect(() => {
         const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -128,10 +112,6 @@ const EditImport = ({ }) => {
         }
     }, [])
 
-    useEffect(() => {
-        console.log('import data: ', Import)
-    }, [Import])
-
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
@@ -149,19 +129,17 @@ const EditImport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             let newData = message['PROC_DATA']
-            let dataImport = {
+            let dataImportInventory = {
                 invoice_id: newData.rows[0].o_1,
                 invoice_no: newData.rows[0].o_2,
                 invoice_stat: newData.rows[0].o_3,
-                supplier: newData.rows[0].o_5,
-                order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
-                person_s: newData.rows[0].o_8,
-                person_r: newData.rows[0].o_9,
-                cancel_reason: newData.rows[0].o_10,
-                note: newData.rows[0].o_11
+                total_prod: newData.rows[0].o_4,
+                total_val: newData.rows[0].o_5,
+                cancel_reason: newData.rows[0].o_6,
+                note: newData.rows[0].o_7,
+                input_dt: moment(newData.rows[0].o_8, 'YYYYMMDD').toString()
             }
-            setSupplierSelect(newData.rows[0].o_5)
-            setImport(dataImport)
+            setImportInventory(dataImportInventory)
         }
     }
 
@@ -193,27 +171,8 @@ const EditImport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [ImportInventory.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
         }
-    }
-
-    const handleSelectSupplier = obj => {
-        const newImport = { ...Import };
-        newImport['supplier'] = !!obj ? obj?.o_1 : null
-        setSupplierSelect(!!obj ? obj?.o_2 : '')
-        setImport(newImport)
-    }
-
-    const handleDateChange = date => {
-        const newImport = { ...Import };
-        newImport['order_dt'] = date;
-        setImport(newImport)
-    }
-
-    const handleChange = e => {
-        const newImport = { ...Import };
-        newImport[e.target.name] = e.target.value
-        setImport(newImport)
     }
 
     const handleAddProduct = productObject => {
@@ -222,17 +181,14 @@ const EditImport = ({ }) => {
             return
         }
         const inputParam = [
-            Import.invoice_id,
-            productObject.imp_tp,
+            ImportInventory.invoice_id,
             productObject.prod_id,
             productObject.lot_no,
-            productObject.made_dt,
-            moment(productObject.exp_dt).format('YYYYMMDD'),
-            productObject.qty,
             productObject.unit_id,
+            productObject.qty,
+            productObject.made_dt ? moment(productObject.made_dt).format('YYYYMMDD') : '',
+            productObject.exp_dt ? moment(productObject.exp_dt).format('YYYYMMDD') : '',
             productObject.price,
-            productObject.discount_per,
-            productObject.vat_per
         ]
         sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -244,13 +200,10 @@ const EditImport = ({ }) => {
             return
         }
         const inputParam = [
-            Import.invoice_id,
+            ImportInventory.invoice_id,
             productEditID,
-            productObject.imp_tp,
             productObject.qty,
-            productObject.price,
-            productObject.discount_per,
-            productObject.vat_per
+            productObject.price
         ]
         sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
         setProductEditData({})
@@ -267,28 +220,11 @@ const EditImport = ({ }) => {
     }
 
     const checkValidate = () => {
-        console.log(dataSource, Import)
-        if (dataSource.length > 0 && !!Import.supplier && !!Import.order_dt) {
+        console.log(dataSource, ImportInventory)
+        if (dataSource.length > 0 && !!ImportInventory.supplier && !!ImportInventory.order_dt) {
             return false
         }
         return true
-    }
-
-    const handleUpdateInvoice = () => {
-        if (!Import.invoice_id) {
-            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
-            return
-        }
-        //bắn event update invoice
-        const inputParam = [
-            Import.invoice_id,
-            Import.supplier,
-            moment(Import.order_dt).format('YYYYMMDD'),
-            Import.person_s,
-            Import.person_r,
-            Import.note
-        ];
-        sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const onDoubleClickRow = rowData => {
@@ -403,34 +339,10 @@ const EditImport = ({ }) => {
                                 autoComplete="off"
                                 label={t('order.import.invoice_no')}
                                 disabled={true}
-                                value={Import.invoice_no || ''}
+                                value={ImportInventory.invoice_no || ''}
                                 name='invoice_no'
                                 variant="outlined"
                             />
-                            <Supplier_Autocomplete
-                                value={supplierSelect || ''}
-                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                size={'small'}
-                                label={t('menu.supplier')}
-                                onSelect={handleSelectSupplier}
-                            />
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <KeyboardDatePicker
-                                    disableToolbar
-                                    margin="dense"
-                                    variant="outlined"
-                                    style={{ width: '100%' }}
-                                    inputVariant="outlined"
-                                    format="dd/MM/yyyy"
-                                    id="order_dt-picker-inline"
-                                    label={t('order.import.order_dt')}
-                                    value={Import.order_dt}
-                                    onChange={handleDateChange}
-                                    KeyboardButtonProps={{
-                                        'aria-label': 'change date',
-                                    }}
-                                />
-                            </MuiPickersUtilsProvider>
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
@@ -492,30 +404,7 @@ const EditImport = ({ }) => {
                                 disabled={true}
                             />
                             <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_s')}
-                                onChange={handleChange}
-                                value={Import.person_s || ''}
-                                name='person_s'
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_r')}
-                                onChange={handleChange}
-                                value={Import.person_r || ''}
-                                name='person_r'
-                                variant="outlined"
-                            />
-                            <TextField
+                                disabled={true}
                                 fullWidth={true}
                                 margin="dense"
                                 multiline
@@ -523,23 +412,10 @@ const EditImport = ({ }) => {
                                 rows={2}
                                 rowsMax={5}
                                 label={t('order.import.note')}
-                                onChange={handleChange}
-                                value={Import.note || ''}
+                                value={ImportInventory.note || ''}
                                 name='note'
                                 variant="outlined"
                             />
-                        </Grid>
-                        <Grid container spacing={1} className='mt-2'>
-                            <Button
-                                onClick={() => {
-                                    handleUpdateInvoice();
-                                }}
-                                variant="contained"
-                                disabled={checkValidate()}
-                                className={checkValidate() === false ? 'bg-success text-white' : ''}
-                            >
-                                {t('btn.update')}
-                            </Button>
                         </Grid>
                     </CardContent>
                 </Card>
@@ -548,4 +424,4 @@ const EditImport = ({ }) => {
     )
 }
 
-export default EditImport
+export default EditImportInventory

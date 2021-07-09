@@ -11,8 +11,8 @@ const tableColumn = [
     { field: 'o_2', title: 'order.import.invoice_no', show: true, disabled: true, minWidth: 200 },
     { field: 'o_3', title: 'order.import.invoice_stat', show: true, disabled: false, minWidth: 200, type: 'status' },
     { field: 'o_5', title: 'order.import.vender_nm', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_6', title: 'order.import.order_dt', show: true, disabled: false, minWidth: 100, type: 'dated' },
-    { field: 'o_7', title: 'order.import.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated' },
+    { field: 'o_6', title: 'order.import.order_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
+    { field: 'o_7', title: 'order.import.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     { field: 'o_8', title: 'order.import.person_s', show: true, disabled: false, minWidth: 200 },
     { field: 'o_9', title: 'order.import.person_r', show: true, disabled: false, minWidth: 200 },
     { field: 'o_10', title: 'order.import.cancel_reason', show: true, disabled: false, minWidth: 100 },
@@ -23,7 +23,7 @@ const tableColumn = [
     { field: 'o_15', title: 'order.import.invoice_vat', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_16', title: 'order.import.invoice_settl', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_17', title: 'updateUser', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_18', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date' }
+    { field: 'o_18', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]
 
 const config = {
@@ -78,14 +78,14 @@ const tableProductInvoiceViewColumn = [
     { field: 'o_4', title: 'order.ins_import.imp_tp_nm', show: true, disabled: true, minWidth: 100 },
     { field: 'o_6', title: 'order.ins_import.prod_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'o_7', title: 'order.ins_import.lot_no', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_9', title: 'order.ins_import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated' },
+    { field: 'o_9', title: 'order.ins_import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated', align: 'center' },
     { field: 'o_10', title: 'order.ins_import.qty', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_12', title: 'order.ins_import.unit_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'o_13', title: 'order.ins_import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_14', title: 'order.ins_import.vat_per', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_15', title: 'order.ins_import.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_16', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
-    { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' }
+    { field: 'o_16', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date', align: 'center' },
+    { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]
 
 export {

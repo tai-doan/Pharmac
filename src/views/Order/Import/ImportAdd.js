@@ -23,7 +23,7 @@ import SnackBarService from '../../../utils/service/snackbar_service'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import sendRequest from '../../../utils/service/sendReq'
 
-import ProductImportAdd from './ProductImportAdd'
+import AddProduct from './AddProduct'
 import MaterialTableEditing from '../../../components/MaterialTableEditing/index';
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete';
@@ -221,7 +221,7 @@ const ImportAdd = ({ handleCreate }) => {
             <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
             <Dialog
                 fullWidth={true}
-                maxWidth="lg"
+                maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
@@ -324,7 +324,7 @@ const ImportAdd = ({ handleCreate }) => {
                     /> */}
                 </DialogContent>
                 <DialogActions>
-                    <ProductImportAdd handleAddProduct={handleAddProduct} />
+                    <AddProduct handleAddProduct={handleAddProduct} />
                     <Button
                         onClick={e => {
                             setShouldOpenModal(false);

@@ -46,7 +46,7 @@ const menuList = [
         key: 'order',
         children: [
             { title: 'menu.importOrder', link: 'order/import', key: 'importOrder' },
-            { title: 'menu.importinven', link: 'order/import-inven', key: 'importinven' },
+            { title: 'menu.importinven', link: 'order/import-inventory', key: 'importinventory' },
             { title: 'menu.exportOrder', link: 'order/export', key: 'exportOrder' },
             { title: 'menu.exportRepay', link: 'order/export-repay', key: 'exportRepay' },
             { title: 'menu.exportDestroy', link: 'order/export-destroy', key: 'exportDestroy' },

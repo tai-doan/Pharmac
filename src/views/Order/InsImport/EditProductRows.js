@@ -107,6 +107,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                 maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
+                    handleEditProduct(null)
                     setShouldOpenModal(false)
                 }}
             >
@@ -269,6 +270,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                 <DialogActions>
                     <Button
                         onClick={e => {
+                            handleEditProduct(null)
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false);
                         }}

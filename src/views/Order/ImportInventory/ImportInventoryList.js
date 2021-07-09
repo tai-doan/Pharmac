@@ -36,8 +36,8 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, config } from './Modal/Import.modal'
-import ImportSearch from './ImportSearch';
+import { tableColumn, config } from './Modal/ImportInventory.modal'
+import ImportInventorySearch from './ImportInventorySearch';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
@@ -69,7 +69,7 @@ const serviceInfo = {
     }
 }
 
-const ImportList = () => {
+const ImportInventoryList = () => {
     const { t } = useTranslation()
     const history = useHistory()
     const [anChorEl, setAnChorEl] = useState(null)
@@ -96,8 +96,8 @@ const ImportList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const import_SendReqFlag = useRef(false)
-    const import_ProcTimeOut = useRef(null)
+    const importInventory_SendReqFlag = useRef(false)
+    const importInventory_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const saveContinue = useRef(false)
@@ -105,7 +105,7 @@ const ImportList = () => {
 
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status, '');
-        const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const importInventorySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
@@ -134,12 +134,12 @@ const ImportList = () => {
             }
         })
         return () => {
-            importSub.unsubscribe()
+            importInventorySub.unsubscribe()
         }
     }, [])
 
-    const getList = (startdate, endDate, index, status, name) => {
-        const inputParam = [startdate, endDate, index || 999999999999, status, name.trim() + '%']
+    const getList = (startdate, endDate, index, status) => {
+        const inputParam = [startdate, endDate, index || 999999999999, status]
         sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
     }
 
@@ -151,7 +151,7 @@ const ImportList = () => {
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        import_SendReqFlag.current = false
+        importInventory_SendReqFlag.current = false
         setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -181,7 +181,7 @@ const ImportList = () => {
 
     const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        import_SendReqFlag.current = false
+        importInventory_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -196,13 +196,13 @@ const ImportList = () => {
             setId(0)
             setShouldOpenModal(saveContinue.current)
             dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
         }
     }
 
     const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        import_SendReqFlag.current = false
+        importInventory_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -216,13 +216,13 @@ const ImportList = () => {
             setId(0)
             setShouldOpenEditModal(false)
             dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
         }
     }
 
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        import_SendReqFlag.current = false
+        importInventory_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -267,7 +267,7 @@ const ImportList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999, searchObject.id_status, searchObject.vender_nm.trim())
+        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999, searchObject.id_status)
     }
 
     const onRemove = item => {
@@ -300,7 +300,7 @@ const ImportList = () => {
         if (dataSourceRef.current.length > 0) {
             const lastIndex = dataSourceRef.current.length - 1;
             const lastID = dataSourceRef.current[lastIndex].o_1
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status, searchModal.vender_nm.trim())
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status)
         }
     }
 
@@ -348,7 +348,7 @@ const ImportList = () => {
                     }
                 />
                 <CardContent>
-                    <ImportSearch
+                    <ImportInventorySearch
                         handleSearch={searchSubmit}
                     />
                 </CardContent>
@@ -361,12 +361,12 @@ const ImportList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.import.titleList')}
+                    title={t('order.importInventory.titleList')}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                            <Link to="/page/order/ins-import" className="normalLink">
+                            <Link to="/page/order/ins-importInventory" className="normalLink">
                                 <Button variant="contained" size="small" style={{ backgroundColor: 'green', color: '#fff' }}>
                                     {t('btn.add')}
                                 </Button>
@@ -417,7 +417,7 @@ const ImportList = () => {
                                                                     <IconButton
                                                                         onClick={e => {
                                                                             // onEdit(item)
-                                                                            history.push('/page/order/edit-import', { id: item.o_1 })
+                                                                            history.push('/page/order/edit-importInventory', { id: item.o_1 })
                                                                         }}
                                                                     >
                                                                         <EditIcon fontSize="small" />
@@ -462,18 +462,18 @@ const ImportList = () => {
                 }}
             >
                 <Card>
-                    <CardHeader title={t('order.import.titleCancel', { name: name })} />
+                    <CardHeader title={t('order.importInventory.titleCancel', { name: name })} />
                     <CardContent>
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="invoice_imp_calc_rs">{t('order.import.invoice_imp_calc_rs')}</InputLabel>
+                                    <InputLabel id="invoice_imp_calc_rs">{t('order.importInventory.invoice_imp_calc_rs')}</InputLabel>
                                     <Select
                                         labelId="invoice_imp_calc_rs"
                                         id="invoice_imp_calc_rs-select"
                                         value={deleteModalContent.invoice_imp_calc_rs || 'Y'}
                                         onChange={handleChange}
-                                        label={t('order.import.invoice_imp_calc_rs')}
+                                        label={t('order.importInventory.invoice_imp_calc_rs')}
                                         name='invoice_imp_calc_rs'
                                     >
                                         <MenuItem value="1">{t('wrong_information')}</MenuItem>
@@ -489,7 +489,7 @@ const ImportList = () => {
                                     multiline
                                     rows={1}
                                     autoComplete="off"
-                                    label={t('order.import.note')}
+                                    label={t('order.importInventory.note')}
                                     onChange={handleChange}
                                     value={deleteModalContent.note || ''}
                                     name='note'
@@ -519,4 +519,4 @@ const ImportList = () => {
     )
 }
 
-export default ImportList
+export default ImportInventoryList

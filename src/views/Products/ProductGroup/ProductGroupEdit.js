@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import sendRequest from '../../../utils/service/sendReq';
@@ -14,6 +11,7 @@ import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service';
 import { config } from './Modal/ProductGroup.modal'
+import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_PRODUCT_GROUP_BY_ID: {
@@ -100,65 +98,65 @@ const ProductGroupEdit = ({ id, shouldOpenModal, handleCloseEditModal, productGr
                 handleCloseEditModal(false)
             }}
         >
-            <DialogTitle className="titleDialog pb-0">
-                {t('products.productGroup.titleEdit', { name: productGroup?.o_2 })}
-            </DialogTitle>
-            <DialogContent className="pt-0">
-                <TextField
-                    fullWidth={true}
-                    required
-                    autoFocus
-                    inputRef={productGroupNameFocus}
-                    autoComplete="off"
-                    margin="dense"
-                    label={t('products.productGroup.name')}
-                    onChange={handleChange}
-                    value={productGroup.o_2 || ''}
-                    name='o_2'
-                    variant="outlined"
-                    className="uppercaseInput"
-                    onKeyPress={event => {
-                        if (event.key === 'Enter') {
-                            handleUpdate(false, productGroup)
-                        }
-                    }}
-                />
+            <Card>
+                <CardHeader title={t('products.productGroup.titleEdit', { name: productGroup?.o_2 })} />
+                <CardContent>
+                    <TextField
+                        fullWidth={true}
+                        required
+                        autoFocus
+                        inputRef={productGroupNameFocus}
+                        autoComplete="off"
+                        margin="dense"
+                        label={t('products.productGroup.name')}
+                        onChange={handleChange}
+                        value={productGroup.o_2 || ''}
+                        name='o_2'
+                        variant="outlined"
+                        className="uppercaseInput"
+                        onKeyPress={event => {
+                            if (event.key === 'Enter') {
+                                handleUpdate(false, productGroup)
+                            }
+                        }}
+                    />
 
-                <TextField
-                    fullWidth={true}
-                    margin="dense"
-                    multiline
-                    rows={2}
-                    inputRef={productGroupNoteFocus}
-                    autoComplete="off"
-                    label={t('products.productGroup.note')}
-                    onChange={handleChange}
-                    value={productGroup.o_3 || ''}
-                    name='o_3'
-                    variant="outlined"
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button
-                    onClick={e => {
-                        handleCloseEditModal(false);
-                    }}
-                    variant="contained"
-                    disableElevation
-                >
-                    {t('btn.close')}
-                </Button>
-                <Button
-                    onClick={() => {
-                        handleUpdate(false, productGroup);
-                    }}
-                    variant="contained"
-                    disabled={checkValidate()}
-                    className={checkValidate() === false ? 'bg-success text-white' : ''}
-                >
-                    {t('btn.save')}
-                </Button>
-            </DialogActions>
+                    <TextField
+                        fullWidth={true}
+                        margin="dense"
+                        multiline
+                        rows={2}
+                        inputRef={productGroupNoteFocus}
+                        autoComplete="off"
+                        label={t('products.productGroup.note')}
+                        onChange={handleChange}
+                        value={productGroup.o_3 || ''}
+                        name='o_3'
+                        variant="outlined"
+                    />
+                </CardContent>
+                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                    <Button
+                        onClick={e => {
+                            handleCloseEditModal(false);
+                        }}
+                        variant="contained"
+                        disableElevation
+                    >
+                        {t('btn.close')}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleUpdate(false, productGroup);
+                        }}
+                        variant="contained"
+                        disabled={checkValidate()}
+                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                    >
+                        {t('btn.save')}
+                    </Button>
+                </CardActions>
+            </Card>
         </Dialog >
     )
 }

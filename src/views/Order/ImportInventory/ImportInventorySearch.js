@@ -20,14 +20,13 @@ import {
 } from '@material-ui/pickers';
 import moment from 'moment'
 
-const ImportSearch = ({ handleSearch }) => {
+const ImportInventorySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().day(-14).toString(),
         end_dt: moment().toString(),
-        id_status: '1',
-        vender_nm: ''
+        id_status: '1'
     })
     const [isExpanded, setIsExpanded] = useState(true)
 
@@ -100,7 +99,7 @@ const ImportSearch = ({ handleSearch }) => {
                         <Select
                             labelId="status"
                             id="status-select"
-                            value={searchModal.id_status || 'Y'}
+                            value={searchModal.id_status || '1'}
                             onChange={handleChange}
                             label={t('order.import.invoice_type')}
                             name='id_status'
@@ -109,21 +108,6 @@ const ImportSearch = ({ handleSearch }) => {
                             <MenuItem value="2">{t('cancelled')}</MenuItem>
                         </Select>
                     </FormControl>
-                </Grid>
-                <Grid item xs>
-                    <TextField
-                        fullWidth={true}
-                        margin="dense"
-                        autoComplete="off"
-                        label={t('order.import.vender_nm')}
-                        onChange={handleChange}
-                        onKeyPress={key => {
-                            if (key.which === 13) return handleSearch(searchModal)
-                        }}
-                        value={searchModal.vender_nm}
-                        name='vender_nm'
-                        variant="outlined"
-                    />
                 </Grid>
             </Grid>
             <Grid container spacing={1}>
@@ -135,4 +119,4 @@ const ImportSearch = ({ handleSearch }) => {
     )
 }
 
-export default ImportSearch;
+export default ImportInventorySearch;
