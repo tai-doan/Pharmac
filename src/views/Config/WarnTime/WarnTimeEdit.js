@@ -13,7 +13,7 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/WarnTime.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import Dictionary_Autocomplete from '../../../components/Dictionary_Autocomplete/index'
+import Dictionary from '../../../components/Dictionary/index'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
@@ -133,7 +133,7 @@ const WarnTimeEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
-                            <Dictionary_Autocomplete
+                            <Dictionary
                                 value={warnTime.o_6 || ''}
                                 diectionName='warn_time_tp'
                                 style={{ marginTop: 8, marginBottom: 4 }}

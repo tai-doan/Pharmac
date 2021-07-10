@@ -228,7 +228,7 @@
             "agent_address": "Địa chỉ",
             "agent_phone": "Điện thoại",
             "agent_email": "Email",
-            "default_yn": "Khách hàng mặc định khi tạo hóa đơn xuất"
+            "default_yn": "KH mặc định"
         },
         "supplier": {
             "search_name": "Tìm theo tên nhà cung ứng",
@@ -250,12 +250,13 @@
             "bank_acnt_no": "Số tài khoản NH",
             "bank_acnt_nm": "Tên chủ tài khoản",
             "bank_nm": "Tên ngân hàng",
+            "bank_cd": "Ngân hàng",
             "agent_nm": "Tên người đại diện",
             "agent_fun": "Chức vụ",
             "agent_address": "Địa chỉ",
             "agent_phone": "Điện thoại",
             "agent_email": "Email",
-            "default_yn": "Nhà cung ứng mặc định khi tạo một hóa đơn nhập"
+            "default_yn": "NCU mặc định"
         }
     },
     "report": {

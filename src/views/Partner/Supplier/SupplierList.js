@@ -429,6 +429,12 @@ const SupplierList = () => {
                                                                     </IconButton>
                                                                 </TableCell>
                                                             )
+                                                        case 'o_22':
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    {value === 'Y' ? t('yes') : t('no')}
+                                                                </TableCell>
+                                                            )
                                                         default:
                                                             return (
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>

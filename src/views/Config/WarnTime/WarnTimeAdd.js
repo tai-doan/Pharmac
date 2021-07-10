@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import NumberFormat from 'react-number-format'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
-import Dictionary_Autocomplete from '../../../components/Dictionary_Autocomplete'
+import Dictionary from '../../../components/Dictionary'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
@@ -89,7 +89,7 @@ const WarnTimeAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             />
                         </Grid>
                         <Grid item xs>
-                            <Dictionary_Autocomplete
+                            <Dictionary
                                 value={warnTime.warn_time_tp || ''}
                                 diectionName='warn_time_tp'
                                 style={{ marginTop: 8, marginBottom: 4 }}

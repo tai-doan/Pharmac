@@ -16,6 +16,7 @@ import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Supplier.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import Dictionary from '../../../components/Dictionary'
 
 const serviceInfo = {
     GET_CUSTOMER_BY_ID: {
@@ -79,9 +80,9 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
         return true
     }
 
-    const handleSelectUnit = obj => {
+    const handleSelectBank = obj => {
         const newSupplier = { ...Supplier };
-        newSupplier['o_4'] = !!obj ? obj?.o_1 : null
+        newSupplier['o_13'] = !!obj ? obj?.o_1 : null
         setSupplier(newSupplier)
     }
 
@@ -265,7 +266,13 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
-                            <TextField
+                            <Dictionary
+                                diectionName='bank_cd'
+                                onSelect={handleSelectBank}
+                                label={t('partner.supplier.bank_cd')}
+                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                            />
+                            {/* <TextField
                                 fullWidth={true}
                                 margin="dense"
                                 multiline
@@ -276,7 +283,7 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_13 || ''}
                                 name='o_13'
                                 variant="outlined"
-                            />
+                            /> */}
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <FormControl margin="dense" variant="outlined" className='w-100'>

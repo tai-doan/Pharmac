@@ -10,6 +10,7 @@ import Select from "@material-ui/core/Select"
 import { Grid } from '@material-ui/core'
 import { defaultModalAdd } from './Modal/Customer.modal';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import Dictionary from '../../../components/Dictionary'
 
 const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
     const { t } = useTranslation()
@@ -52,6 +53,12 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
     const handleChange = e => {
         const newCustomer = { ...Customer };
         newCustomer[e.target.name] = e.target.value
+        setCustomer(newCustomer)
+    }
+
+    const handleSelectBank = obj => {
+        const newCustomer = { ...Customer };
+        newCustomer['bank_cd'] = !!obj ? obj?.o_1 : null
         setCustomer(newCustomer)
     }
 
@@ -229,7 +236,13 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
-                            <TextField
+                            <Dictionary
+                                diectionName='bank_cd'
+                                onSelect={handleSelectBank}
+                                label={t('partner.supplier.bank_cd')}
+                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                            />
+                            {/* <TextField
                                 fullWidth={true}
                                 margin="dense"
                                 multiline
@@ -240,7 +253,7 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                                 value={Customer.bank_cd || ''}
                                 name='bank_cd'
                                 variant="outlined"
-                            />
+                            /> */}
                         </Grid>
                         <Grid item xs={6} sm={3}>
                             <FormControl margin="dense" variant="outlined" className='w-100'>
