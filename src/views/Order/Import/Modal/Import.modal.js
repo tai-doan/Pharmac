@@ -75,20 +75,63 @@ const productImportModal = {
 
 const tableProductInvoiceViewColumn = [
     { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100 },
-    { field: 'o_4', title: 'order.ins_import.imp_tp_nm', show: true, disabled: true, minWidth: 100 },
-    { field: 'o_6', title: 'order.ins_import.prod_nm', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_7', title: 'order.ins_import.lot_no', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_9', title: 'order.ins_import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated', align: 'center' },
-    { field: 'o_10', title: 'order.ins_import.qty', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_12', title: 'order.ins_import.unit_nm', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_13', title: 'order.ins_import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_14', title: 'order.ins_import.vat_per', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_15', title: 'order.ins_import.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_4', title: 'order.import.imp_tp_nm', show: true, disabled: true, minWidth: 100 },
+    { field: 'o_6', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_7', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_9', title: 'order.import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated', align: 'center' },
+    { field: 'o_10', title: 'order.import.qty', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_12', title: 'order.import.unit_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_13', title: 'order.import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_14', title: 'order.import.vat_per', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_15', title: 'order.import.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_16', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date', align: 'center' },
     { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]
 
+const invoiceImportModal = {
+    invoice_id: null,
+    order_dt: moment().toString(),
+    supplier: null,
+    invoice_no: '',
+    person_s: '',
+    person_r: '',
+    note: ''
+}
+
+const tableListAddColumn = [
+    { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100, align: 'center' },
+    { field: 'imp_tp', title: 'order.import.imp_tp_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'prod_nm', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'lot_no', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100 },
+    { field: 'exp_dt', title: 'order.import.exp_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'right' },
+    { field: 'qty', title: 'order.import.qty', show: true, disabled: true, minWidth: 100, align: 'right' },
+    { field: 'unit_nm', title: 'order.import.unit_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'price', title: 'order.import.price', show: true, disabled: false, minWidth: 100, align: 'right' },
+    { field: 'vat_per', title: 'order.import.vat_per', show: true, disabled: false, minWidth: 100, align: 'right' },
+    { field: 'discount_per', title: 'order.import.discount_per', show: true, disabled: false, minWidth: 100, align: 'right' },
+    { field: 'action', title: 'btn.delete', show: true, disabled: false, minWidth: 100, align: 'center' },
+]
+
+const tableListEditColumn = [
+    { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100, align: 'center' },
+    { field: 'o_4', title: 'order.import.imp_tp_nm', show: true, disabled: true, minWidth: 100 },
+    { field: 'o_6', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_7', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_9', title: 'order.import.exp_dt', show: true, disabled: true, minWidth: 100, type: 'dated', align: 'center' },
+    { field: 'o_10', title: 'order.import.qty', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_12', title: 'order.import.unit_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_13', title: 'order.import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_14', title: 'order.import.vat_per', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_15', title: 'order.import.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_16', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
+    { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
+    { field: 'action', title: 'btn.delete', show: true, disabled: false, minWidth: 100, align: 'center' }
+]
+
 export {
+    invoiceImportModal,
+    tableListAddColumn,
+    tableListEditColumn,
     tableProductInvoiceViewColumn,
     productImportModal,
     tableColumn,

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -9,8 +8,6 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import TextField from '@material-ui/core/TextField'
@@ -22,11 +19,9 @@ import AutorenewIcon from '@material-ui/icons/Autorenew';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import ReplayIcon from '@material-ui/icons/Replay';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
-import SearChComp from '../../../components/_Search'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -36,8 +31,8 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, config } from './Modal/ImportInventory.modal'
-import ImportInventorySearch from './ImportInventorySearch';
+import { tableColumn, config } from './Modal/ExportRepay.modal'
+import ExportRepaySearch from './ExportRepaySearch';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
@@ -69,7 +64,7 @@ const serviceInfo = {
     }
 }
 
-const ImportInventoryList = () => {
+const ExportRepayList = () => {
     const { t } = useTranslation()
     const history = useHistory()
     const [anChorEl, setAnChorEl] = useState(null)
@@ -89,15 +84,15 @@ const ImportInventoryList = () => {
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
     const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [deleteModalContent, setDeleteModalContent] = useState({
-        reason: '1',
+        invoice_imp_calc_rs: '1',
         note: ''
     })
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const importInventory_SendReqFlag = useRef(false)
-    const importInventory_ProcTimeOut = useRef(null)
+    const exportRepay_SendReqFlag = useRef(false)
+    const exportRepay_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const saveContinue = useRef(false)
@@ -105,7 +100,7 @@ const ImportInventoryList = () => {
 
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status, '');
-        const importInventorySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const exportRepaySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
@@ -116,16 +111,16 @@ const ImportInventoryList = () => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.IMPORT_LIST:
+                    case reqFunction.EXPORT_REPAY_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.IMPORT_CREATE:
+                    case reqFunction.EXPORT_REPAY_CREATE:
                         resultCreate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.IMPORT_UPDATE:
+                    case reqFunction.EXPORT_REPAY_UPDATE:
                         resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.IMPORT_DELETE:
+                    case reqFunction.EXPORT_REPAY_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
                         break
                     default:
@@ -134,13 +129,13 @@ const ImportInventoryList = () => {
             }
         })
         return () => {
-            importInventorySub.unsubscribe()
+            exportRepaySub.unsubscribe()
         }
     }, [])
 
-    const getList = (startdate, endDate, index, status) => {
-        const inputParam = [startdate, endDate, index || 999999999999, status]
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+    const getList = (startdate, endDate, index, status, name) => {
+        const inputParam = [startdate, endDate, index || 999999999999, status, name.trim() + '%']
+        sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -151,7 +146,7 @@ const ImportInventoryList = () => {
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        importInventory_SendReqFlag.current = false
+        exportRepay_SendReqFlag.current = false
         setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
@@ -181,7 +176,7 @@ const ImportInventoryList = () => {
 
     const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        importInventory_SendReqFlag.current = false
+        exportRepay_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -196,13 +191,13 @@ const ImportInventoryList = () => {
             setId(0)
             setShouldOpenModal(saveContinue.current)
             dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
         }
     }
 
     const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        importInventory_SendReqFlag.current = false
+        exportRepay_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -216,13 +211,13 @@ const ImportInventoryList = () => {
             setId(0)
             setShouldOpenEditModal(false)
             dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
         }
     }
 
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        importInventory_SendReqFlag.current = false
+        exportRepay_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -240,7 +235,7 @@ const ImportInventoryList = () => {
             setId(0);
             setName('')
             setDeleteModalContent({
-                reason: '1',
+                invoice_imp_calc_rs: '1',
                 note: ''
             })
         }
@@ -267,7 +262,7 @@ const ImportInventoryList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999, searchObject.id_status)
+        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999, searchObject.id_status, searchObject.supplier.trim())
     }
 
     const onRemove = item => {
@@ -276,21 +271,10 @@ const ImportInventoryList = () => {
         setName(item ? item.o_2 : '')
     }
 
-    const onEdit = item => {
-        setShouldOpenEditModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-        idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
-    }
-
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         e.preventDefault();
         idRef.current = id;
-        const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
+        const inputParam = [id, deleteModalContent.invoice_imp_calc_rs, deleteModalContent.note]
         sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
         setId(0)
         setName('')
@@ -300,34 +284,8 @@ const ImportInventoryList = () => {
         if (dataSourceRef.current.length > 0) {
             const lastIndex = dataSourceRef.current.length - 1;
             const lastID = dataSourceRef.current[lastIndex].o_1
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status, searchModal.vender_nm.trim())
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleUpdate = dataObject => {
-        const inputParam = [dataObject.o_1, // id
-        dataObject.o_4, // nhà cung ứng
-        moment(dataObject.o_6).format('YYYYMMDD'), // ngày tạo HĐ
-        dataObject.o_8, // người giao hàng
-        dataObject.o_9, // người nhận hàng
-        dataObject.o_11 // note
-        ];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleChange = e => {
@@ -348,7 +306,7 @@ const ImportInventoryList = () => {
                     }
                 />
                 <CardContent>
-                    <ImportInventorySearch
+                    <ExportRepaySearch
                         handleSearch={searchSubmit}
                     />
                 </CardContent>
@@ -361,12 +319,12 @@ const ImportInventoryList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.importInventory.titleList')}
+                    title={t('order.exportRepay.titleList')}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                            <Link to="/page/order/ins-importInventory" className="normalLink">
+                            <Link to="/page/order/ins-exportRepay" className="normalLink">
                                 <Button variant="contained" size="small" style={{ backgroundColor: 'green', color: '#fff' }}>
                                     {t('btn.add')}
                                 </Button>
@@ -416,8 +374,7 @@ const ImportInventoryList = () => {
                                                                     </IconButton>
                                                                     <IconButton
                                                                         onClick={e => {
-                                                                            // onEdit(item)
-                                                                            history.push('/page/order/edit-importInventory', { id: item.o_1 })
+                                                                            history.push('/page/order/edit-exportRepay', { id: item.o_1 })
                                                                         }}
                                                                     >
                                                                         <EditIcon fontSize="small" />
@@ -430,7 +387,7 @@ const ImportInventoryList = () => {
                                                                     {value === '1' ? t('normal') : t('cancelled')}
                                                                 </TableCell>
                                                             )
-                                                        case 'o_6':
+                                                        case 'o_9':
                                                             return (
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>
                                                                     {item['o_3'] === '2' ? value : ''}
@@ -462,22 +419,22 @@ const ImportInventoryList = () => {
                 }}
             >
                 <Card>
-                    <CardHeader title={t('order.importInventory.titleCancel', { name: name })} />
+                    <CardHeader title={t('order.exportRepay.titleCancel', { name: name })} />
                     <CardContent>
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="reason">{t('order.importInventory.reason')}</InputLabel>
+                                    <InputLabel id="invoice_imp_calc_rs">{t('order.exportRepay.invoice_imp_calc_rs')}</InputLabel>
                                     <Select
-                                        labelId="reason"
-                                        id="reason-select"
-                                        value={deleteModalContent.reason || 'Y'}
+                                        labelId="invoice_imp_calc_rs"
+                                        id="invoice_imp_calc_rs-select"
+                                        value={deleteModalContent.invoice_imp_calc_rs || 'Y'}
                                         onChange={handleChange}
-                                        label={t('order.importInventory.reason')}
-                                        name='reason'
+                                        label={t('order.exportRepay.invoice_imp_calc_rs')}
+                                        name='invoice_imp_calc_rs'
                                     >
                                         <MenuItem value="1">{t('wrong_information')}</MenuItem>
-                                        <MenuItem value="2">{t('cancel_import')}</MenuItem>
+                                        <MenuItem value="2">{t('cancel_exportRepay')}</MenuItem>
                                         <MenuItem value="3">{t('other_reason')}</MenuItem>
                                     </Select>
                                 </FormControl>
@@ -489,7 +446,7 @@ const ImportInventoryList = () => {
                                     multiline
                                     rows={1}
                                     autoComplete="off"
-                                    label={t('order.importInventory.note')}
+                                    label={t('order.exportRepay.note')}
                                     onChange={handleChange}
                                     value={deleteModalContent.note || ''}
                                     name='note'
@@ -519,4 +476,4 @@ const ImportInventoryList = () => {
     )
 }
 
-export default ImportInventoryList
+export default ExportRepayList

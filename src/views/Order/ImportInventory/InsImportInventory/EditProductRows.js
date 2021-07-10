@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -16,15 +16,25 @@ import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
-import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
-import { productImportModal } from './Modal/ImportInventory.modal'
+import Product_Autocomplete from '../../../Products/Product/Control/Product.Autocomplete'
+import Unit_Autocomplete from '../../../Config/Unit/Control/Unit.Autocomplete'
+import { productImportModal } from '../Modal/ImportInventory.modal'
 import NumberFormat from 'react-number-format'
+import moment from 'moment'
 
-const AddProduct = ({ handleAddProduct }) => {
+const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
     const { t } = useTranslation()
-    const [productInfo, setProductInfo] = useState({ ...productImportModal })
+    const [productInfo, setProductInfo] = useState({ ...productData })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useEffect(() => {
+        if (productEditID !== -1 && !!productData) {
+            setShouldOpenModal(true)
+            let productDataDefault = { ...productData }
+            productDataDefault.exp_dt = moment(productDataDefault.exp_dt, 'YYYYMMDD').toString();
+            setProductInfo({ ...productDataDefault })
+        }
+    }, [productData, productEditID])
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -44,14 +54,6 @@ const AddProduct = ({ handleAddProduct }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
         setProductInfo(newProductInfo)
-        if (e.target.name === 'imp_tp' && e.target.value !== '1') {
-            newProductInfo['price'] = 0;
-            newProductInfo['discount_per'] = 0
-            newProductInfo['vat_per'] = 0
-            setProductInfo(newProductInfo)
-        } else {
-            setProductInfo(newProductInfo)
-        }
     }
 
     const handleExpDateChange = date => {
@@ -74,13 +76,13 @@ const AddProduct = ({ handleAddProduct }) => {
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['discount_per'] = Math.round(value.floatValue)
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['vat_per'] = Math.round(value.floatValue)
         setProductInfo(newProductInfo)
     }
 
@@ -100,33 +102,33 @@ const AddProduct = ({ handleAddProduct }) => {
 
     return (
         <>
-            <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.import.productAdd')}</Button>
             <Dialog
                 fullWidth={true}
                 maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
+                    handleEditProduct(null)
                     setShouldOpenModal(false)
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
-                    {t('order.import.productAdd')}
+                    {t('order.importInventory.productEdit')}
                 </DialogTitle>
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
                         <Grid item xs>
                             <FormControl margin="dense" variant="outlined" className='w-100'>
-                                <InputLabel id="import_type">{t('order.import.import_type')}</InputLabel>
+                                <InputLabel id="import_type">{t('order.importInventory.import_type')}</InputLabel>
                                 <Select
                                     labelId="import_type"
                                     id="import_type-select"
                                     value={productInfo.imp_tp || '1'}
                                     onChange={handleChange}
-                                    label={t('order.import.import_type')}
+                                    label={t('order.importInventory.import_type')}
                                     name='imp_tp'
                                 >
-                                    <MenuItem value="1">{t('order.import.import_type_buy')}</MenuItem>
-                                    <MenuItem value="2">{t('order.import.import_type_selloff')}</MenuItem>
+                                    <MenuItem value="1">{t('order.importInventory.import_type_buy')}</MenuItem>
+                                    <MenuItem value="2">{t('order.importInventory.import_type_selloff')}</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -143,10 +145,12 @@ const AddProduct = ({ handleAddProduct }) => {
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
                                 required
                                 className="uppercaseInput"
-                                autoComplete="off"
-                                label={t('order.import.lot_no')}
+                                label={t('order.importInventory.lot_no')}
                                 onChange={handleChange}
                                 value={productInfo.lot_no || ''}
                                 name='lot_no'
@@ -165,7 +169,7 @@ const AddProduct = ({ handleAddProduct }) => {
                                     inputVariant="outlined"
                                     format="dd/MM/yyyy"
                                     id="exp_dt-picker-inline"
-                                    label={t('order.import.exp_dt')}
+                                    label={t('order.importInventory.exp_dt')}
                                     value={productInfo.exp_dt}
                                     onChange={handleExpDateChange}
                                     KeyboardButtonProps={{
@@ -179,7 +183,7 @@ const AddProduct = ({ handleAddProduct }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.qty}
-                                label={t('order.import.qty')}
+                                label={t('order.importInventory.qty')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -207,9 +211,8 @@ const AddProduct = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
                                 value={productInfo.price}
-                                label={t('order.import.price')}
+                                label={t('order.importInventory.price')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -226,9 +229,8 @@ const AddProduct = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
                                 value={productInfo.discount_per}
-                                label={t('order.import.discount_per')}
+                                label={t('order.importInventory.discount_per')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -247,9 +249,8 @@ const AddProduct = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
                                 value={productInfo.vat_per}
-                                label={t('order.import.vat_per')}
+                                label={t('order.importInventory.vat_per')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -269,6 +270,7 @@ const AddProduct = ({ handleAddProduct }) => {
                 <DialogActions>
                     <Button
                         onClick={e => {
+                            handleEditProduct(null)
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false);
                         }}
@@ -279,7 +281,7 @@ const AddProduct = ({ handleAddProduct }) => {
                     </Button>
                     <Button
                         onClick={() => {
-                            handleAddProduct(productInfo);
+                            handleEditProduct(productInfo);
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false)
                         }}
@@ -289,21 +291,10 @@ const AddProduct = ({ handleAddProduct }) => {
                     >
                         {t('btn.save')}
                     </Button>
-                    <Button
-                        onClick={() => {
-                            handleAddProduct(productInfo);
-                            setProductInfo({ ...productImportModal })
-                        }}
-                        variant="contained"
-                        disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
-                    >
-                        {t('save_continue')}
-                    </Button>
                 </DialogActions>
             </Dialog>
         </>
     )
 }
 
-export default AddProduct;
+export default EditProductRows;

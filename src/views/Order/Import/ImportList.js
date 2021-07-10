@@ -89,7 +89,7 @@ const ImportList = () => {
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
     const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [deleteModalContent, setDeleteModalContent] = useState({
-        invoice_imp_calc_rs: '1',
+        reason: '1',
         note: ''
     })
     const [id, setId] = useState(0)
@@ -240,7 +240,7 @@ const ImportList = () => {
             setId(0);
             setName('')
             setDeleteModalContent({
-                invoice_imp_calc_rs: '1',
+                reason: '1',
                 note: ''
             })
         }
@@ -276,21 +276,10 @@ const ImportList = () => {
         setName(item ? item.o_2 : '')
     }
 
-    const onEdit = item => {
-        setShouldOpenEditModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-        idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
-    }
-
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         e.preventDefault();
         idRef.current = id;
-        const inputParam = [id, deleteModalContent.invoice_imp_calc_rs, deleteModalContent.note]
+        const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
         sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
         setId(0)
         setName('')
@@ -302,32 +291,6 @@ const ImportList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status, searchModal.vender_nm.trim())
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleUpdate = dataObject => {
-        const inputParam = [dataObject.o_1, // id
-        dataObject.o_4, // nhà cung ứng
-        moment(dataObject.o_6).format('YYYYMMDD'), // ngày tạo HĐ
-        dataObject.o_8, // người giao hàng
-        dataObject.o_9, // người nhận hàng
-        dataObject.o_11 // note
-        ];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleChange = e => {
@@ -467,14 +430,14 @@ const ImportList = () => {
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="invoice_imp_calc_rs">{t('order.import.invoice_imp_calc_rs')}</InputLabel>
+                                    <InputLabel id="reason">{t('order.import.reason')}</InputLabel>
                                     <Select
-                                        labelId="invoice_imp_calc_rs"
-                                        id="invoice_imp_calc_rs-select"
-                                        value={deleteModalContent.invoice_imp_calc_rs || 'Y'}
+                                        labelId="reason"
+                                        id="reason-select"
+                                        value={deleteModalContent.reason || 'Y'}
                                         onChange={handleChange}
-                                        label={t('order.import.invoice_imp_calc_rs')}
-                                        name='invoice_imp_calc_rs'
+                                        label={t('order.import.reason')}
+                                        name='reason'
                                     >
                                         <MenuItem value="1">{t('wrong_information')}</MenuItem>
                                         <MenuItem value="2">{t('cancel_import')}</MenuItem>

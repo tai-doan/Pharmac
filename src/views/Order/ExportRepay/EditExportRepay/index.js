@@ -28,7 +28,7 @@ import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 
-import { tableListEditColumn, invoiceExportModal } from '../Modal/Export.modal'
+import { tableListEditColumn, invoiceExportRepayModal } from '../Modal/ExportRepay.modal'
 import moment from 'moment'
 import AddProduct from '../AddProduct'
 
@@ -39,55 +39,55 @@ import { Card, CardHeader, CardContent } from '@material-ui/core'
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
         functionName: 'get_by_id',
-        reqFunct: reqFunction.EXPORT_BY_ID,
+        reqFunct: reqFunction.EXPORT_REPAY_BY_ID,
         biz: 'export',
-        object: 'exp_invoices'
+        object: 'exp_repay'
     },
     UPDATE_INVOICE: {
         functionName: 'update',
-        reqFunct: reqFunction.EXPORT_UPDATE,
+        reqFunct: reqFunction.EXPORT_REPAY_UPDATE,
         biz: 'export',
-        object: 'exp_invoices'
+        object: 'exp_repay'
     },
-    GET_ALL_PRODUCT_BY_EXPORT_ID: {
+    GET_ALL_PRODUCT_BY_EXPORT_REPAY_ID: {
         functionName: 'get_all',
-        reqFunct: reqFunction.GET_ALL_PRODUCT_BY_EXPORT_ID,
+        reqFunct: reqFunction.GET_ALL_PRODUCT_BY_EXPORT_REPAY_ID,
         biz: 'export',
-        object: 'exp_invoices_dt'
+        object: 'exp_repay_dt'
     },
     ADD_PRODUCT_TO_INVOICE: {
         functionName: 'insert',
-        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_CREATE,
+        reqFunct: reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_CREATE,
         biz: 'export',
-        object: 'exp_invoices_dt'
+        object: 'exp_repay_dt'
     },
     UPDATE_PRODUCT_TO_INVOICE: {
         functionName: 'update',
-        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_UPDATE,
+        reqFunct: reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_UPDATE,
         biz: 'export',
-        object: 'exp_invoices_dt'
+        object: 'exp_repay_dt'
     },
     DELETE_PRODUCT_TO_INVOICE: {
         functionName: 'delete',
-        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_DELETE,
+        reqFunct: reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_DELETE,
         biz: 'export',
-        object: 'exp_invoices_dt'
+        object: 'exp_repay_dt'
     }
 }
 
-const EditExport = ({ }) => {
+const EditExportRepay = ({ }) => {
     const { t } = useTranslation()
     const history = useHistory()
     const { id } = history?.location?.state || 0
-    const [Export, setExport] = useState({ ...invoiceExportModal })
-    const [customerSelect, setCustomerSelect] = useState('')
+    const [ExportRepay, setExportRepay] = useState({ ...invoiceExportRepayModal })
+    const [supplierSelect, setSupplierSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
 
     useEffect(() => {
-        const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const exportRepaySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
@@ -98,19 +98,19 @@ const EditExport = ({ }) => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.EXPORT_BY_ID:
+                    case reqFunction.EXPORT_REPAY_BY_ID:
                         resultGetInvoiceByID(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.EXPORT_UPDATE:
+                    case reqFunction.EXPORT_REPAY_UPDATE:
                         resultUpdateInvoice(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.PRODUCT_EXPORT_INVOICE_CREATE:
+                    case reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_CREATE:
                         resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.GET_ALL_PRODUCT_BY_EXPORT_ID:
+                    case reqFunction.GET_ALL_PRODUCT_BY_EXPORT_REPAY_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.PRODUCT_EXPORT_INVOICE_UPDATE:
+                    case reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_UPDATE:
                         resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
                     default:
@@ -121,10 +121,10 @@ const EditExport = ({ }) => {
 
         if (id !== 0) {
             sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], e => console.log(e), true, handleTimeOut)
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_REPAY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
         return () => {
-            exportSub.unsubscribe()
+            exportRepaySub.unsubscribe()
         }
     }, [])
 
@@ -145,20 +145,20 @@ const EditExport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             let newData = message['PROC_DATA']
-            let dataExport = {
+            let dataExportRepay = {
                 invoice_id: newData.rows[0].o_1,
                 invoice_no: newData.rows[0].o_2,
                 invoice_stat: newData.rows[0].o_3,
-                customer_id: newData.rows[0].o_4,
-                customer: newData.rows[0].o_5,
+                supplier_id: newData.rows[0].o_4,
+                supplier: newData.rows[0].o_5,
                 order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
                 input_dt: moment(newData.rows[0].o_7, 'YYYYMMDD').toString(),
                 staff_exp: newData.rows[0].o_8,
                 cancel_reason: newData.rows[0].o_9,
                 note: newData.rows[0].o_10
             }
-            setCustomerSelect(newData.rows[0].o_5)
-            setExport(dataExport)
+            setSupplierSelect(newData.rows[0].o_5)
+            setExportRepay(dataExportRepay)
         }
     }
 
@@ -190,7 +190,7 @@ const EditExport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_ID, [Export.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_REPAY_ID, [ExportRepay.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
         }
     }
 
@@ -211,22 +211,22 @@ const EditExport = ({ }) => {
     }
 
     const handleSelectSupplier = obj => {
-        const newExport = { ...Export };
-        newExport['customer_id'] = !!obj ? obj?.o_1 : null
-        setCustomerSelect(!!obj ? obj?.o_2 : '')
-        setExport(newExport)
+        const newExportRepay = { ...ExportRepay };
+        newExportRepay['supplier_id'] = !!obj ? obj?.o_1 : null
+        setSupplierSelect(!!obj ? obj?.o_2 : '')
+        setExportRepay(newExportRepay)
     }
 
     const handleDateChange = date => {
-        const newExport = { ...Export };
-        newExport['order_dt'] = date;
-        setExport(newExport)
+        const newExportRepay = { ...ExportRepay };
+        newExportRepay['order_dt'] = date;
+        setExportRepay(newExportRepay)
     }
 
     const handleChange = e => {
-        const newExport = { ...Export };
-        newExport[e.target.name] = e.target.value
-        setExport(newExport)
+        const newExportRepay = { ...ExportRepay };
+        newExportRepay[e.target.name] = e.target.value
+        setExportRepay(newExportRepay)
     }
 
     const handleAddProduct = productObject => {
@@ -235,8 +235,7 @@ const EditExport = ({ }) => {
             return
         }
         const inputParam = [
-            Export.invoice_id,
-            productObject.exp_tp,
+            ExportRepay.invoice_id,
             productObject.prod_id,
             productObject.lot_no,
             productObject.qty,
@@ -255,11 +254,9 @@ const EditExport = ({ }) => {
             return
         }
         const inputParam = [
-            Export.invoice_id,
+            ExportRepay.invoice_id,
             productEditID,
-            productObject.exp_tp,
             productObject.qty,
-            productObject.unit_id,
             productObject.price,
             productObject.discount_per,
             productObject.vat_per
@@ -279,24 +276,24 @@ const EditExport = ({ }) => {
     }
 
     const checkValidate = () => {
-        if (dataSource.length > 0 && !!Export.customer_id && !!Export.order_dt) {
+        if (dataSource.length > 0 && !!ExportRepay.supplier_id && !!ExportRepay.order_dt) {
             return false
         }
         return true
     }
 
     const handleUpdateInvoice = () => {
-        if (!Export.invoice_id) {
+        if (!ExportRepay.invoice_id) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         }
         //bắn event update invoice
         const inputParam = [
-            Export.invoice_id,
-            Export.customer_id,
-            moment(Export.order_dt).format('YYYYMMDD'),
-            Export.staff_exp,
-            Export.note
+            ExportRepay.invoice_id,
+            ExportRepay.supplier_id,
+            moment(ExportRepay.order_dt).format('YYYYMMDD'),
+            ExportRepay.staff_exp,
+            ExportRepay.note
         ];
         sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -315,7 +312,7 @@ const EditExport = ({ }) => {
             <Grid item md={9} xs={12}>
                 <Card>
                     {/* <div className='d-flex justify-content-between align-items-center mr-2'>
-                        <Link to="/page/order/export" className="normalLink">
+                        <Link to="/page/order/exportRepay" className="normalLink">
                             <Button variant="contained" size="small">
                                 {t('btn.back')}
                             </Button>
@@ -323,7 +320,7 @@ const EditExport = ({ }) => {
                         
                     </div> */}
                     <CardHeader
-                        title={t('order.export.productExportList')}
+                        title={t('order.exportRepay.productExportRepayList')}
                         action={
                             <AddProduct handleAddProduct={handleAddProduct} />
                         }
@@ -379,7 +376,7 @@ const EditExport = ({ }) => {
                                                             case 'exp_tp':
                                                                 return (
                                                                     <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
-                                                                        {value === '1' ? t('order.export.export_type_buy') : t('order.export.export_type_selloff')}
+                                                                        {value === '1' ? t('order.exportRepay.exportRepay_type_buy') : t('order.exportRepay.exportRepay_type_selloff')}
                                                                     </TableCell>
                                                                 )
                                                             default:
@@ -402,7 +399,7 @@ const EditExport = ({ }) => {
             </Grid>
             <Grid item md={3} xs={12}>
                 <Card>
-                    <CardHeader title={t('order.export.invoice_info')} />
+                    <CardHeader title={t('order.exportRepay.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
                             <TextField
@@ -411,18 +408,18 @@ const EditExport = ({ }) => {
                                 multiline
                                 rows={1}
                                 autoComplete="off"
-                                label={t('order.export.invoice_no')}
+                                label={t('order.exportRepay.invoice_no')}
                                 disabled={true}
-                                value={Export.invoice_no || ''}
+                                value={ExportRepay.invoice_no || ''}
                                 name='invoice_no'
                                 variant="outlined"
                             />
                             <Dictionary_Autocomplete
-                                diectionName='customers'
-                                value={customerSelect || ''}
+                                diectionName='venders'
+                                value={supplierSelect || ''}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                 size={'small'}
-                                label={t('menu.customer')}
+                                label={t('menu.supplier')}
                                 onSelect={handleSelectSupplier}
                             />
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -434,8 +431,8 @@ const EditExport = ({ }) => {
                                     inputVariant="outlined"
                                     format="dd/MM/yyyy"
                                     id="order_dt-picker-inline"
-                                    label={t('order.export.order_dt')}
-                                    value={Export.order_dt}
+                                    label={t('order.exportRepay.order_dt')}
+                                    value={ExportRepay.order_dt}
                                     onChange={handleDateChange}
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
@@ -448,7 +445,7 @@ const EditExport = ({ }) => {
                                 value={dataSource.reduce(function (acc, obj) {
                                     return acc + Math.round(obj.o_7 * obj.o_10)
                                 }, 0) || 0}
-                                label={t('order.export.invoice_val')}
+                                label={t('order.exportRepay.invoice_val')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -463,7 +460,7 @@ const EditExport = ({ }) => {
                                 value={dataSource.reduce(function (acc, obj) {
                                     return acc + Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10))
                                 }, 0) || 0}
-                                label={t('order.export.invoice_discount')}
+                                label={t('order.exportRepay.invoice_discount')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -478,7 +475,7 @@ const EditExport = ({ }) => {
                                 value={dataSource.reduce(function (acc, obj) {
                                     return acc + Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10))
                                 }, 0) || 0}
-                                label={t('order.export.invoice_vat')}
+                                label={t('order.exportRepay.invoice_vat')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -493,7 +490,7 @@ const EditExport = ({ }) => {
                                 value={dataSource.reduce(function (acc, obj) {
                                     return acc + Math.round(Math.round(obj.o_7 * obj.o_10) - Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10)) - Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10)))
                                 }, 0) || 0}
-                                label={t('order.export.invoice_needpay')}
+                                label={t('order.exportRepay.invoice_needpay')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -506,9 +503,9 @@ const EditExport = ({ }) => {
                                 fullWidth={true}
                                 margin="dense"
                                 autoComplete="off"
-                                label={t('order.export.staff_exp')}
+                                label={t('order.exportRepay.staff_exp')}
                                 onChange={handleChange}
-                                value={Export.staff_exp || ''}
+                                value={ExportRepay.staff_exp || ''}
                                 name='staff_exp'
                                 variant="outlined"
                             />
@@ -519,9 +516,9 @@ const EditExport = ({ }) => {
                                 autoComplete="off"
                                 rows={2}
                                 rowsMax={5}
-                                label={t('order.export.note')}
+                                label={t('order.exportRepay.note')}
                                 onChange={handleChange}
-                                value={Export.note || ''}
+                                value={ExportRepay.note || ''}
                                 name='note'
                                 variant="outlined"
                             />
@@ -545,4 +542,4 @@ const EditExport = ({ }) => {
     )
 }
 
-export default EditExport
+export default EditExportRepay
