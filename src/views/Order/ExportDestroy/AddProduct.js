@@ -152,7 +152,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                                     >
                                         <MenuItem value="1">{t('order.exportDestroy.cancel_by_out_of_date')}</MenuItem>
                                         <MenuItem value="2">{t('order.exportDestroy.cancel_by_lost_goods')}</MenuItem>
-                                        <MenuItem value="3">{t('order.exportDestroy.exportDestroy_type_selloff')}</MenuItem>
+                                        <MenuItem value="3">{t('order.exportDestroy.cancel_by_inventory_balance')}</MenuItem>
                                         <MenuItem value="4">{t('other_reason')}</MenuItem>
                                     </Select>
                                 </FormControl>
