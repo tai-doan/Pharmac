@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -9,8 +8,6 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import { Grid } from '@material-ui/core'
 import TextField from '@material-ui/core/TextField'
@@ -22,11 +19,9 @@ import AutorenewIcon from '@material-ui/icons/Autorenew';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import ReplayIcon from '@material-ui/icons/Replay';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
-import SearChComp from '../../../components/_Search'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -74,7 +69,6 @@ const ImportInventoryList = () => {
     const history = useHistory()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
-    const [searchValue, setSearchValue] = useState('')
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().day(-14).format('YYYYMMDD'),
         end_dt: moment().format('YYYYMMDD'),
@@ -84,10 +78,7 @@ const ImportInventoryList = () => {
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
-    const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [deleteModalContent, setDeleteModalContent] = useState({
         reason: '1',
         note: ''
@@ -97,10 +88,7 @@ const ImportInventoryList = () => {
     const [processing, setProcessing] = useState(false)
 
     const importInventory_SendReqFlag = useRef(false)
-    const importInventory_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
-    const searchRef = useRef('')
-    const saveContinue = useRef(false)
     const idRef = useRef(0)
 
     useEffect(() => {
@@ -194,7 +182,6 @@ const ImportInventoryList = () => {
         } else {
             setName('')
             setId(0)
-            setShouldOpenModal(saveContinue.current)
             dataSourceRef.current = [];
             getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
         }
@@ -214,7 +201,6 @@ const ImportInventoryList = () => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             setId(0)
-            setShouldOpenEditModal(false)
             dataSourceRef.current = [];
             getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
         }
@@ -276,17 +262,6 @@ const ImportInventoryList = () => {
         setName(item ? item.o_2 : '')
     }
 
-    const onEdit = item => {
-        setShouldOpenEditModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-        idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
-    }
-
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         e.preventDefault();
         idRef.current = id;
@@ -302,32 +277,6 @@ const ImportInventoryList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), lastID, searchModal.id_status)
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleUpdate = dataObject => {
-        const inputParam = [dataObject.o_1, // id
-        dataObject.o_4, // nhà cung ứng
-        moment(dataObject.o_6).format('YYYYMMDD'), // ngày tạo HĐ
-        dataObject.o_8, // người giao hàng
-        dataObject.o_9, // người nhận hàng
-        dataObject.o_11 // note
-        ];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleChange = e => {
