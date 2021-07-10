@@ -3,9 +3,11 @@ import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 
 const Import = lazy(() => import('./Import'))
 const InsImport = lazy(() => import('./InsImport'))
-const ExportOrder = lazy(() => import('./ExportOrder'))
-const InsExport = lazy(() => import('./InsExport'))
 const EditImport = lazy(() => import('./EditImport'))
+const Export = lazy(() => import('./Export'))
+const InsExport = lazy(() => import('./Export/InsExport'))
+const EditExport = lazy(() => import('./Export/EditExport'))
+const ExportOrder = lazy(() => import('./ExportOrder'))
 
 const ImportInventory = lazy(() => import('./ImportInventory'))
 const InsImportInventory = lazy(() => import('./InsImportInventory'))
@@ -40,9 +42,11 @@ function Child() {
         case 'edit-importInventory':
             return <EditImportInventory />
         case 'export':
-            return <ExportOrder />
+            return <Export />
         case 'ins-export':
             return <InsExport />
+        case 'edit-export':
+            return <EditExport />
         default:
             break
     }

@@ -12,7 +12,7 @@ import socket_sv from '../../utils/service/socket_service'
 
 const serviceInfo = {
     DROPDOWN_LIST: {
-        functionName: 'dictionary',
+        functionName: 'drop_list',
         reqFunct: reqFunction.DICTIONARY,
         biz: 'common',
         object: 'dropdown_list'
@@ -27,7 +27,7 @@ const Dictionary_Autocomplete = ({ diectionName, onSelect, label, style, size, v
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = [diectionName || 'units']
+        const inputParam = [diectionName || 'units', '%']
         sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
 
         const dictionnarySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -50,11 +50,11 @@ const Dictionary_Autocomplete = ({ diectionName, onSelect, label, style, size, v
         }
     }, [])
 
-    // useEffect(() => {
-    //     if (value !== null || value !== undefined) {
-    //         setValueSelect(dataSource.find(x => x.o_2 === value))
-    //     }
-    // }, [value, dataSource])
+    useEffect(() => {
+        if (value !== null || value !== undefined) {
+            setValueSelect(dataSource.find(x => x.o_2 === value))
+        }
+    }, [value, dataSource])
 
     const resultDictionnaryDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)

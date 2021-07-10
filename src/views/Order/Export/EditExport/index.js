@@ -15,22 +15,22 @@ import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
+import Dictionary_Autocomplete from '../../../../components/Dictionary_Autocomplete'
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import glb_sv from '../../../utils/service/global_service'
-import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
-import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
-import sendRequest from '../../../utils/service/sendReq'
+import glb_sv from '../../../../utils/service/global_service'
+import control_sv from '../../../../utils/service/control_services'
+import socket_sv from '../../../../utils/service/socket_service'
+import SnackBarService from '../../../../utils/service/snackbar_service'
+import { requestInfo } from '../../../../utils/models/requestInfo'
+import reqFunction from '../../../../utils/constan/functions';
+import sendRequest from '../../../../utils/service/sendReq'
 
-import { tableListEditColumn, invoiceImportModal } from './Modal/InsImport.Modal'
+import { tableListEditColumn, invoiceExportModal } from '../Modal/Export.modal'
 import moment from 'moment'
-import AddProduct from '../Import/AddProduct'
+import AddProduct from '../AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
@@ -39,58 +39,55 @@ import { Card, CardHeader, CardContent } from '@material-ui/core'
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
         functionName: 'get_by_id',
-        reqFunct: reqFunction.IMPORT_BY_ID,
-        biz: 'import',
-        object: 'imp_invoices'
+        reqFunct: reqFunction.EXPORT_BY_ID,
+        biz: 'export',
+        object: 'exp_invoices'
     },
     UPDATE_INVOICE: {
         functionName: 'update',
-        reqFunct: reqFunction.IMPORT_UPDATE,
-        biz: 'import',
-        object: 'imp_invoices'
+        reqFunct: reqFunction.EXPORT_UPDATE,
+        biz: 'export',
+        object: 'exp_invoices'
     },
     GET_ALL_PRODUCT_BY_INVOICE_ID: {
         functionName: 'get_all',
         reqFunct: reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID,
-        biz: 'import',
-        object: 'imp_invoices_dt'
+        biz: 'export',
+        object: 'exp_invoices_dt'
     },
     ADD_PRODUCT_TO_INVOICE: {
         functionName: 'insert',
-        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_CREATE,
-        biz: 'import',
-        object: 'imp_invoices_dt'
+        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_CREATE,
+        biz: 'export',
+        object: 'exp_invoices_dt'
     },
     UPDATE_PRODUCT_TO_INVOICE: {
         functionName: 'update',
-        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE,
-        biz: 'import',
-        object: 'imp_invoices_dt'
+        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_UPDATE,
+        biz: 'export',
+        object: 'exp_invoices_dt'
     },
     DELETE_PRODUCT_TO_INVOICE: {
         functionName: 'delete',
-        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_DELETE,
-        biz: 'import',
-        object: 'imp_invoices_dt'
+        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_DELETE,
+        biz: 'export',
+        object: 'exp_invoices_dt'
     }
 }
 
-const EditImport = ({ }) => {
+const EditExport = ({ }) => {
     const { t } = useTranslation()
     const history = useHistory()
     const { id } = history?.location?.state || 0
-    const [Import, setImport] = useState({ ...invoiceImportModal })
-    const [supplierSelect, setSupplierSelect] = useState('')
+    const [Export, setExport] = useState({ ...invoiceExportModal })
+    const [customerSelect, setCustomerSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
 
-    const newInvoiceId = useRef(-1)
-    const dataSourceRef = useRef([])
-
     useEffect(() => {
-        const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
@@ -101,19 +98,19 @@ const EditImport = ({ }) => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.IMPORT_BY_ID:
+                    case reqFunction.EXPORT_BY_ID:
                         resultGetInvoiceByID(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_CREATE:
-                        resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.IMPORT_UPDATE:
+                    case reqFunction.EXPORT_UPDATE:
                         resultUpdateInvoice(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.PRODUCT_EXPORT_INVOICE_CREATE:
+                        resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
+                    case reqFunction.PRODUCT_EXPORT_INVOICE_UPDATE:
                         resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
                     default:
@@ -127,13 +124,9 @@ const EditImport = ({ }) => {
             sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
         return () => {
-            importSub.unsubscribe()
+            exportSub.unsubscribe()
         }
     }, [])
-
-    useEffect(() => {
-        console.log('import data: ', Import)
-    }, [Import])
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
@@ -152,19 +145,20 @@ const EditImport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             let newData = message['PROC_DATA']
-            let dataImport = {
+            let dataExport = {
                 invoice_id: newData.rows[0].o_1,
                 invoice_no: newData.rows[0].o_2,
                 invoice_stat: newData.rows[0].o_3,
-                supplier: newData.rows[0].o_5,
+                customer_id: newData.rows[0].o_4,
+                customer: newData.rows[0].o_5,
                 order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
-                person_s: newData.rows[0].o_8,
-                person_r: newData.rows[0].o_9,
-                cancel_reason: newData.rows[0].o_10,
-                note: newData.rows[0].o_11
+                input_dt: moment(newData.rows[0].o_7, 'YYYYMMDD').toString(),
+                staff_exp: newData.rows[0].o_8,
+                cancel_reason: newData.rows[0].o_9,
+                note: newData.rows[0].o_10
             }
-            setSupplierSelect(newData.rows[0].o_5)
-            setImport(dataImport)
+            setCustomerSelect(newData.rows[0].o_5)
+            setExport(dataExport)
         }
     }
 
@@ -196,7 +190,7 @@ const EditImport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Export.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
         }
     }
 
@@ -212,27 +206,27 @@ const EditImport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            // sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            
         }
     }
 
     const handleSelectSupplier = obj => {
-        const newImport = { ...Import };
-        newImport['supplier'] = !!obj ? obj?.o_1 : null
-        setSupplierSelect(!!obj ? obj?.o_2 : '')
-        setImport(newImport)
+        const newExport = { ...Export };
+        newExport['customer_id'] = !!obj ? obj?.o_1 : null
+        setCustomerSelect(!!obj ? obj?.o_2 : '')
+        setExport(newExport)
     }
 
     const handleDateChange = date => {
-        const newImport = { ...Import };
-        newImport['order_dt'] = date;
-        setImport(newImport)
+        const newExport = { ...Export };
+        newExport['order_dt'] = date;
+        setExport(newExport)
     }
 
     const handleChange = e => {
-        const newImport = { ...Import };
-        newImport[e.target.name] = e.target.value
-        setImport(newImport)
+        const newExport = { ...Export };
+        newExport[e.target.name] = e.target.value
+        setExport(newExport)
     }
 
     const handleAddProduct = productObject => {
@@ -241,12 +235,10 @@ const EditImport = ({ }) => {
             return
         }
         const inputParam = [
-            Import.invoice_id,
-            productObject.imp_tp,
+            Export.invoice_id,
+            productObject.exp_tp,
             productObject.prod_id,
             productObject.lot_no,
-            productObject.made_dt,
-            moment(productObject.exp_dt).format('YYYYMMDD'),
             productObject.qty,
             productObject.unit_id,
             productObject.price,
@@ -263,10 +255,11 @@ const EditImport = ({ }) => {
             return
         }
         const inputParam = [
-            Import.invoice_id,
+            Export.invoice_id,
             productEditID,
-            productObject.imp_tp,
+            productObject.exp_tp,
             productObject.qty,
+            productObject.unit_id,
             productObject.price,
             productObject.discount_per,
             productObject.vat_per
@@ -286,26 +279,24 @@ const EditImport = ({ }) => {
     }
 
     const checkValidate = () => {
-        console.log(dataSource, Import)
-        if (dataSource.length > 0 && !!Import.supplier && !!Import.order_dt) {
+        if (dataSource.length > 0 && !!Export.customer_id && !!Export.order_dt) {
             return false
         }
         return true
     }
 
     const handleUpdateInvoice = () => {
-        if (!Import.invoice_id) {
+        if (!Export.invoice_id) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         }
         //bắn event update invoice
         const inputParam = [
-            Import.invoice_id,
-            Import.supplier,
-            moment(Import.order_dt).format('YYYYMMDD'),
-            Import.person_s,
-            Import.person_r,
-            Import.note
+            Export.invoice_id,
+            Export.customer_id,
+            moment(Export.order_dt).format('YYYYMMDD'),
+            Export.staff_exp,
+            Export.note
         ];
         sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -324,7 +315,7 @@ const EditImport = ({ }) => {
             <Grid item md={9} xs={12}>
                 <Card>
                     {/* <div className='d-flex justify-content-between align-items-center mr-2'>
-                        <Link to="/page/order/import" className="normalLink">
+                        <Link to="/page/order/export" className="normalLink">
                             <Button variant="contained" size="small">
                                 {t('btn.back')}
                             </Button>
@@ -332,7 +323,7 @@ const EditImport = ({ }) => {
                         
                     </div> */}
                     <CardHeader
-                        title={t('order.import.productImportList')}
+                        title={t('order.export.productExportList')}
                         action={
                             <AddProduct handleAddProduct={handleAddProduct} />
                         }
@@ -385,10 +376,10 @@ const EditImport = ({ }) => {
                                                                         {index + 1}
                                                                     </TableCell>
                                                                 )
-                                                            case 'imp_tp':
+                                                            case 'exp_tp':
                                                                 return (
                                                                     <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
-                                                                        {value === '1' ? t('order.import.import_type_buy') : t('order.import.import_type_selloff')}
+                                                                        {value === '1' ? t('order.export.export_type_buy') : t('order.export.export_type_selloff')}
                                                                     </TableCell>
                                                                 )
                                                             default:
@@ -411,7 +402,7 @@ const EditImport = ({ }) => {
             </Grid>
             <Grid item md={3} xs={12}>
                 <Card>
-                    <CardHeader title={t('order.import.invoice_info')} />
+                    <CardHeader title={t('order.export.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
                             <TextField
@@ -420,17 +411,18 @@ const EditImport = ({ }) => {
                                 multiline
                                 rows={1}
                                 autoComplete="off"
-                                label={t('order.import.invoice_no')}
+                                label={t('order.export.invoice_no')}
                                 disabled={true}
-                                value={Import.invoice_no || ''}
+                                value={Export.invoice_no || ''}
                                 name='invoice_no'
                                 variant="outlined"
                             />
-                            <Supplier_Autocomplete
-                                value={supplierSelect || ''}
+                            <Dictionary_Autocomplete
+                                diectionName='customers'
+                                value={customerSelect || ''}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                 size={'small'}
-                                label={t('menu.supplier')}
+                                label={t('menu.customer')}
                                 onSelect={handleSelectSupplier}
                             />
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -442,8 +434,8 @@ const EditImport = ({ }) => {
                                     inputVariant="outlined"
                                     format="dd/MM/yyyy"
                                     id="order_dt-picker-inline"
-                                    label={t('order.import.order_dt')}
-                                    value={Import.order_dt}
+                                    label={t('order.export.order_dt')}
+                                    value={Export.order_dt}
                                     onChange={handleDateChange}
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
@@ -454,9 +446,9 @@ const EditImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_10 * obj.o_13)
+                                    return acc + Math.round(obj.o_7 * obj.o_10)
                                 }, 0) || 0}
-                                label={t('order.import.invoice_val')}
+                                label={t('order.export.invoice_val')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -469,9 +461,9 @@ const EditImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13))
+                                    return acc + Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10))
                                 }, 0) || 0}
-                                label={t('order.import.invoice_discount')}
+                                label={t('order.export.invoice_discount')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -484,9 +476,9 @@ const EditImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_14 / 100 * (obj.o_10 * obj.o_13))
+                                    return acc + Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10))
                                 }, 0) || 0}
-                                label={t('order.import.invoice_vat')}
+                                label={t('order.export.invoice_vat')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -499,9 +491,9 @@ const EditImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.o_10 * obj.o_13) - Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13)) - Math.round(obj.o_14 / 100 * (obj.o_10 * obj.o_13)))
+                                    return acc + Math.round(Math.round(obj.o_7 * obj.o_10) - Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10)) - Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10)))
                                 }, 0) || 0}
-                                label={t('order.import.invoice_needpay')}
+                                label={t('order.export.invoice_needpay')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -513,25 +505,11 @@ const EditImport = ({ }) => {
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
-                                label={t('order.import.person_s')}
+                                label={t('order.export.staff_exp')}
                                 onChange={handleChange}
-                                value={Import.person_s || ''}
-                                name='person_s'
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_r')}
-                                onChange={handleChange}
-                                value={Import.person_r || ''}
-                                name='person_r'
+                                value={Export.staff_exp || ''}
+                                name='staff_exp'
                                 variant="outlined"
                             />
                             <TextField
@@ -541,9 +519,9 @@ const EditImport = ({ }) => {
                                 autoComplete="off"
                                 rows={2}
                                 rowsMax={5}
-                                label={t('order.import.note')}
+                                label={t('order.export.note')}
                                 onChange={handleChange}
-                                value={Import.note || ''}
+                                value={Export.note || ''}
                                 name='note'
                                 variant="outlined"
                             />
@@ -567,4 +545,4 @@ const EditImport = ({ }) => {
     )
 }
 
-export default EditImport
+export default EditExport
