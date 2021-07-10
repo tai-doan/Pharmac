@@ -208,9 +208,6 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                     }}
                                 />
                             </Grid>
-
-                        </Grid>
-                        <Grid container spacing={2}>
                             <Grid item xs>
                                 <NumberFormat
                                     style={{ width: '100%' }}

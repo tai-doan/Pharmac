@@ -44,14 +44,6 @@ const AddProduct = ({ handleAddProduct }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
         setProductInfo(newProductInfo)
-        if (e.target.name === 'imp_tp' && e.target.value !== '1') {
-            newProductInfo['price'] = 0;
-            newProductInfo['discount_per'] = 0
-            newProductInfo['vat_per'] = 0
-            setProductInfo(newProductInfo)
-        } else {
-            setProductInfo(newProductInfo)
-        }
     }
 
     const handleExpDateChange = date => {
@@ -69,18 +61,6 @@ const AddProduct = ({ handleAddProduct }) => {
     const handlePriceChange = value => {
         const newProductInfo = { ...productInfo };
         newProductInfo['price'] = Math.round(value.floatValue)
-        setProductInfo(newProductInfo)
-    }
-
-    const handleDiscountChange = value => {
-        const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
-        setProductInfo(newProductInfo)
-    }
-
-    const handleVATChange = value => {
-        const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
@@ -115,22 +95,6 @@ const AddProduct = ({ handleAddProduct }) => {
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <FormControl margin="dense" variant="outlined" className='w-100'>
-                                <InputLabel id="import_type">{t('order.import.import_type')}</InputLabel>
-                                <Select
-                                    labelId="import_type"
-                                    id="import_type-select"
-                                    value={productInfo.imp_tp || '1'}
-                                    onChange={handleChange}
-                                    label={t('order.import.import_type')}
-                                    name='imp_tp'
-                                >
-                                    <MenuItem value="1">{t('order.import.import_type_buy')}</MenuItem>
-                                    <MenuItem value="2">{t('order.import.import_type_selloff')}</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs>
                             <Product_Autocomplete
                                 value={productInfo.prod_nm}
                                 style={{ marginTop: 8, marginBottom: 4 }}
@@ -151,6 +115,15 @@ const AddProduct = ({ handleAddProduct }) => {
                                 value={productInfo.lot_no || ''}
                                 name='lot_no'
                                 variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <Unit_Autocomplete
+                                value={productInfo.unit_nm || ''}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                                onSelect={handleSelectUnit}
                             />
                         </Grid>
                     </Grid>
@@ -178,7 +151,7 @@ const AddProduct = ({ handleAddProduct }) => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                value={productInfo.qty}
+                                value={productInfo.qty || 0}
                                 label={t('order.import.qty')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -193,22 +166,10 @@ const AddProduct = ({ handleAddProduct }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <Unit_Autocomplete
-                                value={productInfo.unit_nm || ''}
-                                style={{ marginTop: 8, marginBottom: 4 }}
-                                size={'small'}
-                                label={t('menu.configUnit')}
-                                onSelect={handleSelectUnit}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs>
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                disabled={productInfo.imp_tp !== '1'}
-                                value={productInfo.price}
+                                value={productInfo.price || 0}
                                 label={t('order.import.price')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -219,48 +180,6 @@ const AddProduct = ({ handleAddProduct }) => {
                                 onValueChange={handlePriceChange}
                                 inputProps={{
                                     min: 0,
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs>
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                disabled={productInfo.imp_tp !== '1'}
-                                value={productInfo.discount_per}
-                                label={t('order.import.discount_per')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                suffix="%"
-                                thousandSeparator={true}
-                                onValueChange={handleDiscountChange}
-                                inputProps={{
-                                    min: 0,
-                                    max: 100
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs>
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                disabled={productInfo.imp_tp !== '1'}
-                                value={productInfo.vat_per}
-                                label={t('order.import.vat_per')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                suffix="%"
-                                thousandSeparator={true}
-                                onValueChange={handleVATChange}
-                                inputProps={{
-                                    min: 0,
-                                    max: 100
                                 }}
                             />
                         </Grid>

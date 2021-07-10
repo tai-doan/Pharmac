@@ -47,7 +47,6 @@ const config = {
 
 const productImportModal = {
     invoice_id: '',
-    imp_tp: '1',
     prod_id: null,
     prod_nm: '',
     lot_no: '',
@@ -56,18 +55,11 @@ const productImportModal = {
     qty: 0,
     unit_id: null,
     unit_nm: '',
-    price: 0,
-    discount_per: 0,
-    vat_per: 0
+    price: 0
 }
 
 const invoiceImportInventoryModal = {
-    invoice_id: null,
-    order_dt: moment().toString(),
-    supplier: null,
     invoice_no: '',
-    person_s: '',
-    person_r: '',
     note: ''
 }
 

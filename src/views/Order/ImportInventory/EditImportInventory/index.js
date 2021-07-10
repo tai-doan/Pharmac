@@ -347,54 +347,9 @@ const EditImportInventory = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_10 * obj.o_13)
+                                    return acc + Math.round(obj.o_8 * obj.o_11)
                                 }, 0) || 0}
                                 label={t('order.import.invoice_val')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13))
-                                }, 0) || 0}
-                                label={t('order.import.invoice_discount')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_14 / 100 * (obj.o_10 * obj.o_13))
-                                }, 0) || 0}
-                                label={t('order.import.invoice_vat')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.o_10 * obj.o_13) - Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13)) - Math.round(obj.o_14 / 100 * (obj.o_10 * obj.o_13)))
-                                }, 0) || 0}
-                                label={t('order.import.invoice_needpay')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
