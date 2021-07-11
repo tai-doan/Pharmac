@@ -15,6 +15,8 @@ import NumberFormat from 'react-number-format'
 
 import ProductGroup_Autocomplete from '../ProductGroup/Control/ProductGroup.Autocomplete'
 import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
+import UnitAdd_Autocomplete from '../../Config/Unit/Control/UnitAdd.Autocomplete'
+import ProductGroupAdd_Autocomplete from '../ProductGroup/Control/ProductGroupAdd.Autocomplete'
 import Product_Autocomplete from './Control/Product.Autocomplete'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
@@ -168,33 +170,35 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                             />
                         </Grid>
 
-                        <Grid item xs={6} sm={3}>
+                        <Grid item xs={6} sm={3} className='d-flex align-items-center'>
+                            {/* <ProductGroupAdd_Autocomplete
+                                size={'small'}
+                                label={t('menu.productGroup')}
+                                onSelect={handleSelectProductGroup}
+                                onCreate={id => setProduct({ ...product, ...{ productGroup: id } })}
+                            /> */}
                             <ProductGroup_Autocomplete
                                 value={product.o_2}
-                                style={{ marginTop: 8, marginBottom: 4 }}
+                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                 size={'small'}
                                 label={t('menu.productGroup')}
                                 onSelect={handleSelectProductGroup}
                             />
                         </Grid>
 
-                        {/* <Grid item xs={6} sm={3}>
-                        <Product_Autocomplete
-                            value={product.o_2}
-                            style={{ marginTop: 8, marginBottom: 4 }}
-                            size={'small'}
-                            label={t('menu.product')}
-                            onSelect={handleSelectProductGroup}
-                        />
-                    </Grid> */}
-
-                        <Grid item xs={6} sm={3}>
-                            <Unit_Autocomplete
+                        <Grid item xs={6} sm={3} className='d-flex align-items-center'>
+                            <UnitAdd_Autocomplete
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                                onSelect={handleSelectUnit}
+                                onCreate={id => setProduct({ ...product, ...{ unit: id } })}
+                            />
+                            {/* <Unit_Autocomplete
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}
                                 label={t('menu.configUnit')}
                                 onSelect={handleSelectUnit}
-                            />
+                            /> */}
                         </Grid>
                     </Grid>
                     <Grid container spacing={2}>

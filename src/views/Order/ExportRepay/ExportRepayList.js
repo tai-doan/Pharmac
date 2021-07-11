@@ -84,7 +84,7 @@ const ExportRepayList = () => {
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
     const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [deleteModalContent, setDeleteModalContent] = useState({
-        invoice_imp_calc_rs: '1',
+        reason: '1',
         note: ''
     })
     const [id, setId] = useState(0)
@@ -235,7 +235,7 @@ const ExportRepayList = () => {
             setId(0);
             setName('')
             setDeleteModalContent({
-                invoice_imp_calc_rs: '1',
+                reason: '1',
                 note: ''
             })
         }
@@ -274,7 +274,7 @@ const ExportRepayList = () => {
     const handleDelete = e => {
         e.preventDefault();
         idRef.current = id;
-        const inputParam = [id, deleteModalContent.invoice_imp_calc_rs, deleteModalContent.note]
+        const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
         sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
         setId(0)
         setName('')
@@ -424,14 +424,14 @@ const ExportRepayList = () => {
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="invoice_imp_calc_rs">{t('order.exportRepay.invoice_imp_calc_rs')}</InputLabel>
+                                    <InputLabel id="reason">{t('order.exportRepay.reason')}</InputLabel>
                                     <Select
-                                        labelId="invoice_imp_calc_rs"
-                                        id="invoice_imp_calc_rs-select"
-                                        value={deleteModalContent.invoice_imp_calc_rs || 'Y'}
+                                        labelId="reason"
+                                        id="reason-select"
+                                        value={deleteModalContent.reason || 'Y'}
                                         onChange={handleChange}
-                                        label={t('order.exportRepay.invoice_imp_calc_rs')}
-                                        name='invoice_imp_calc_rs'
+                                        label={t('order.exportRepay.reason')}
+                                        name='reason'
                                     >
                                         <MenuItem value="1">{t('wrong_information')}</MenuItem>
                                         <MenuItem value="2">{t('cancel_exportRepay')}</MenuItem>

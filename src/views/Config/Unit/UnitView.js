@@ -22,7 +22,7 @@ const UnitView = ({ Bname, Bnote, shouldOpenModal, handleCloseViewModal}) => {
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="md"
+            maxWidth="sm"
             open={shouldOpenModal}
             onClose={e => {
                 handleCloseViewModal(false)

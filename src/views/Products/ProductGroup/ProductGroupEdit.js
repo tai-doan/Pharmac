@@ -92,7 +92,7 @@ const ProductGroupEdit = ({ id, shouldOpenModal, handleCloseEditModal, productGr
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="md"
+            maxWidth="sm"
             open={shouldOpenModal}
             onClose={e => {
                 handleCloseEditModal(false)

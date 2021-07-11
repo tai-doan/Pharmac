@@ -163,6 +163,7 @@ const EditExportRepay = ({ }) => {
     }
 
     const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        console.log('resultGetProductByInvoiceID: ', message)
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return

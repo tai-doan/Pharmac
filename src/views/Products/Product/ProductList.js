@@ -295,35 +295,30 @@ const ProductList = () => {
     }
 
     const handleCreate = (actionType, dataObject) => {
-        let data = [], newObject = {}
-        newObject = {
-            ...dataObject,
-            code: dataObject.code.trim() === '' ? 'AUTO' : dataObject.code.trim()
-        }
-        data = data.concat([
-            newObject.productGroup,
-            newObject.code,
-            newObject.name,
-            newObject.barcode,
-            newObject.unit,
-            newObject.content,
-            newObject.contraind,
-            newObject.designate,
-            newObject.dosage,
-            newObject.interact,
-            newObject.manufact,
-            newObject.effect,
-            newObject.overdose,
-            newObject.storages,
-            newObject.packing
-        ])
+        const inputParam = [
+            dataObject.productGroup,
+            dataObject.code.trim() === '' ? 'AUTO' : dataObject.code.trim(),
+            dataObject.name,
+            dataObject.barcode,
+            dataObject.unit,
+            dataObject.content,
+            dataObject.contraind,
+            dataObject.designate,
+            dataObject.dosage,
+            dataObject.interact,
+            dataObject.manufact,
+            dataObject.effect,
+            dataObject.overdose,
+            dataObject.storages,
+            dataObject.packing
+        ]
         saveContinue.current = actionType
-        sendRequest(serviceInfo.CREATE, data, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleEdit = newData => {
         let data = Object.keys(newData).map(key => newData[key])
-        data.pop(); // xóa mã sp cuối cùng
+        data.splice(-2); // xóa mã sp + tên units
         sendRequest(serviceInfo.UPDATE, data, e => console.log(e), true, handleTimeOut)
     }
 

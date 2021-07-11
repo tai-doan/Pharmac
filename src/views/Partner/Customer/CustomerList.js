@@ -91,7 +91,6 @@ const CustomerList = () => {
         getList(999999999999, '');
         const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
-                console.log('Customer msg ', msg)
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
                     return

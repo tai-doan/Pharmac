@@ -12,7 +12,7 @@ import Grid from '@material-ui/core/Grid'
 import Tooltip from '@material-ui/core/Tooltip'
 
 import ProductGroup_Autocomplete from '../ProductGroup/Control/ProductGroup.Autocomplete'
-import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
+import UnitAdd_Autocomplete from '../../Config/Unit/Control/UnitAdd.Autocomplete'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -21,6 +21,7 @@ import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Product.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -94,7 +95,8 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                 o_13: newData.rows[0].o_14, // overdose
                 o_14: newData.rows[0].o_16, // storages
                 o_15: newData.rows[0].o_15, // packing
-                o_16: newData.rows[0].o_4 // code
+                o_16: newData.rows[0].o_4, // code
+                o_17: newData.rows[0].o_18 // unit name
             }
             setProduct(newConvertData)
         }
@@ -187,13 +189,21 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                             />
                         </Grid>
 
-                        <Grid item xs={6} sm={3}>
-                            <Unit_Autocomplete
-                                value={product.o_5}
+                        <Grid item xs={6} sm={3} className='d-flex align-items-center'>
+                            {/* <Unit_Autocomplete
+                                value={product.o_17}
+                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                                onSelect={handleSelectUnit}
+                            /> */}
+                            <UnitAdd_Autocomplete
+                                value={product.o_17}
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}
                                 label={t('menu.configUnit')}
                                 onSelect={handleSelectUnit}
+                                onCreate={id => setProduct({ ...product, ...{ o_5: id } })}
                             />
                         </Grid>
                     </Grid>

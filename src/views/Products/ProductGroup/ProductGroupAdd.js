@@ -41,7 +41,7 @@ const ProductGroupAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModa
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="md"
+            maxWidth="sm"
             open={shouldOpenModal}
             onClose={e => {
                 handleCloseAddModal(false)

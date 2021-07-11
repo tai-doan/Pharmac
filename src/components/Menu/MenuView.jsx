@@ -65,7 +65,7 @@ const menuList = [
     {
         title: 'menu.settlement',
         icon: <AttachMoneyIcon className="icon-menu"></AttachMoneyIcon>,
-        link: 'partner',
+        link: 'settlement',
         key: 'settlement',
         children: [
             { title: 'menu.settlImp', link: 'settlement/settlImp', key: 'settlImp' },
