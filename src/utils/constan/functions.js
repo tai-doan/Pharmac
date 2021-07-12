@@ -5,6 +5,7 @@ export default {
     UNIT_DROPDOWN_LIST: 'UNIT_DROPDOWN_LIST',
     SUPPLIER_DROPDOWN_LIST: 'SUPPLIER_DROPDOWN_LIST',
     LOT_NO_BY_PRODUCT: 'LOT_NO_BY_PRODUCT',
+    REPORT_IMPORT_TIME: 'REPORT_IMPORT_TIME',
     //-- Lấy danh sách sản phẩm
     GET_PROD_LIST: 'GET_PROD_LIST',
     //-- Lấy thông tin 1 sản phẩm

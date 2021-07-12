@@ -6,13 +6,14 @@ const Inventory = lazy(() => import('./Inventory'))
 const WarnInventory = lazy(() => import('./WarnInventory'))
 const ImportOrder = lazy(() => import('./Import'))
 const ExportOrder = lazy(() => import('./Export'))
+const ImportTime = lazy(() => import('./ImportTime'))
 
 const ReportView = () => {
     return (
         <>
             <Switch>
                 <Route path="/page/report/:link" children={<Child />} />
-                <Redirect to={{ pathname: './report/warn-exp', state: { from: '/' } }} />
+                <Redirect to={{ pathname: './report/import-time', state: { from: '/' } }} />
             </Switch>
         </>
     )
@@ -23,6 +24,8 @@ function Child() {
     let { link } = useParams()
 
     switch (link) {
+        case 'import-time':
+            return <ImportTime />
         case 'warn-exp':
             return <WarnExp />
         case 'inventory':

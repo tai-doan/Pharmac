@@ -1,3 +1,3 @@
-import ExportContainer from './ExportContainer';
+import ExportList from './ExportList';
 
-export default ExportContainer;
+export default ExportList;
