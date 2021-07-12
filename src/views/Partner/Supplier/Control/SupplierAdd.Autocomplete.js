@@ -23,7 +23,7 @@ const serviceInfo = {
     CREATE_SUPPLIER: {
         functionName: 'insert',
         reqFunct: reqFunction.SUPPLIER_CREATE,
-        biz: 'common',
+        biz: 'import',
         object: 'venders'
     }
 }
@@ -102,7 +102,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
             let data = message['PROC_DATA']
             idCreated.current = data.rows[0].o_1;
             onCreate(data.rows[0].o_1)
-            setSupplierInfo({ name: '', note: '' })
+            setSupplierInfo({ ...defaultModalAdd })
             setShouldOpenModal(false)
             // Lấy dữ liệu mới nhất
             const inputParam = ['venders', '%']
@@ -205,8 +205,8 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
+                                    required={true}
+                                    className="uppercaseInput"
                                     autoComplete="off"
                                     label={t('partner.supplier.vender_nm_v')}
                                     onChange={handleChange}
@@ -219,8 +219,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
+                                    className="uppercaseInput"
                                     autoComplete="off"
                                     label={t('partner.supplier.vender_nm_e')}
                                     onChange={handleChange}
@@ -233,8 +232,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
+                                    className="uppercaseInput"
                                     autoComplete="off"
                                     label={t('partner.supplier.vender_nm_short')}
                                     onChange={handleChange}
@@ -249,8 +247,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.address')}
                                     onChange={handleChange}
@@ -263,8 +259,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.phone')}
                                     onChange={handleChange}
@@ -277,8 +271,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.fax')}
                                     onChange={handleChange}
@@ -293,8 +285,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.email')}
                                     onChange={handleChange}
@@ -307,8 +297,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.website')}
                                     onChange={handleChange}
@@ -321,8 +309,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.tax_cd')}
                                     onChange={handleChange}
@@ -335,8 +321,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.bank_acnt_no')}
                                     onChange={handleChange}
@@ -351,8 +335,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.bank_acnt_nm')}
                                     onChange={handleChange}
@@ -392,8 +374,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={supplierInfo.vender_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.agent_nm')}
                                     onChange={handleChange}
@@ -407,8 +387,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={supplierInfo.vender_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.agent_fun')}
                                     onChange={handleChange}
@@ -422,8 +400,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={supplierInfo.vender_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.agent_phone')}
                                     onChange={handleChange}
@@ -437,8 +413,6 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={supplierInfo.vender_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.supplier.agent_email')}
                                     onChange={handleChange}

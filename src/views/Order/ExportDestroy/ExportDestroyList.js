@@ -380,12 +380,6 @@ const ExportDestroyList = () => {
                                                                     {value === '1' ? t('normal') : t('cancelled')}
                                                                 </TableCell>
                                                             )
-                                                        case 'o_7':
-                                                            return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                    {item['o_3'] === '2' ? value : ''}
-                                                                </TableCell>
-                                                            )
                                                         default:
                                                             return (
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>

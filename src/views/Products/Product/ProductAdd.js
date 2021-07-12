@@ -171,19 +171,19 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                         </Grid>
 
                         <Grid item xs={6} sm={3} className='d-flex align-items-center'>
-                            {/* <ProductGroupAdd_Autocomplete
+                            <ProductGroupAdd_Autocomplete
                                 size={'small'}
                                 label={t('menu.productGroup')}
                                 onSelect={handleSelectProductGroup}
                                 onCreate={id => setProduct({ ...product, ...{ productGroup: id } })}
-                            /> */}
-                            <ProductGroup_Autocomplete
+                            />
+                            {/* <ProductGroup_Autocomplete
                                 value={product.o_2}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                 size={'small'}
                                 label={t('menu.productGroup')}
                                 onSelect={handleSelectProductGroup}
-                            />
+                            /> */}
                         </Grid>
 
                         <Grid item xs={6} sm={3} className='d-flex align-items-center'>

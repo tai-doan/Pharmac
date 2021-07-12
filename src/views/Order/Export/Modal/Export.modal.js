@@ -63,7 +63,8 @@ const productExportModal = {
     unit_nm: '',
     price: 0,
     discount_per: 0,
-    vat_per: 0
+    vat_per: 0,
+    quantity_in_stock: null
 }
 
 const tableListAddColumn = [

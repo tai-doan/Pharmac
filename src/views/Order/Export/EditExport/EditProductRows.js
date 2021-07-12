@@ -120,7 +120,14 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
     const handleChange = e => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
-        setProductInfo(newProductInfo)
+        if (e.target.name === 'exp_tp' && e.target.value !== '1') {
+            newProductInfo['price'] = 0;
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = 0
+            setProductInfo(newProductInfo)
+        } else {
+            setProductInfo(newProductInfo)
+        }
     }
 
     const handleQuantityChange = value => {
@@ -137,13 +144,13 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue)
+        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue)
+        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
@@ -173,7 +180,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
-                    {t('order.ins_export.productEdit')}
+                    {t('order.export.productEdit')}
                 </DialogTitle>
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
@@ -204,6 +211,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                         </Grid>
                         <Grid item xs>
                             <Unit_Autocomplete
+                                disabled={true}
                                 value={productInfo.unit_nm || ''}
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}

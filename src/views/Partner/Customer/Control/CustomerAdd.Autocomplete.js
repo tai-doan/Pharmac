@@ -23,7 +23,7 @@ const serviceInfo = {
     CREATE_CUSTOMER: {
         functionName: 'insert',
         reqFunct: reqFunction.CUSTOMER_CREATE,
-        biz: 'common',
+        biz: 'export',
         object: 'customers'
     }
 }
@@ -39,7 +39,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
     const idCreated = useRef(-1)
 
     useEffect(() => {
-        const inputParam = ['venders', '%']
+        const inputParam = ['customers', '%']
         sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, null, true, handleTimeOut)
 
         const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -102,10 +102,10 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
             let data = message['PROC_DATA']
             idCreated.current = data.rows[0].o_1;
             onCreate(data.rows[0].o_1)
-            setCustomerInfo({ name: '', note: '' })
+            setCustomerInfo({ ...defaultModalAdd  })
             setShouldOpenModal(false)
             // Lấy dữ liệu mới nhất
-            const inputParam = ['venders', '%']
+            const inputParam = ['customers', '%']
             sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
         }
     }
@@ -125,7 +125,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
     }
 
     const checkValidate = () => {
-        if (!!customerInfo.vender_nm_v && !!customerInfo.vender_nm_v.trim()) {
+        if (!!customerInfo.cust_nm_v && !!customerInfo.cust_nm_v.trim()) {
             return false
         }
         return true
@@ -206,8 +206,8 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
+                                    required={true}
+                                    className="uppercaseInput"
                                     autoComplete="off"
                                     label={t('partner.customer.cust_nm_v')}
                                     onChange={handleChange}
@@ -220,8 +220,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
+                                    className="uppercaseInput"
                                     autoComplete="off"
                                     label={t('partner.customer.cust_nm_e')}
                                     onChange={handleChange}
@@ -234,8 +233,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
+                                    className="uppercaseInput"
                                     autoComplete="off"
                                     label={t('partner.customer.cust_nm_short')}
                                     onChange={handleChange}
@@ -250,8 +248,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.address')}
                                     onChange={handleChange}
@@ -264,8 +260,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.phone')}
                                     onChange={handleChange}
@@ -278,8 +272,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.fax')}
                                     onChange={handleChange}
@@ -294,8 +286,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.email')}
                                     onChange={handleChange}
@@ -308,8 +298,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.website')}
                                     onChange={handleChange}
@@ -322,8 +310,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.tax_cd')}
                                     onChange={handleChange}
@@ -336,8 +322,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.bank_acnt_no')}
                                     onChange={handleChange}
@@ -352,8 +336,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.bank_acnt_nm')}
                                     onChange={handleChange}
@@ -409,8 +391,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={customerInfo.cust_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.agent_nm')}
                                     onChange={handleChange}
@@ -424,8 +404,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={customerInfo.cust_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.agent_fun')}
                                     onChange={handleChange}
@@ -439,8 +417,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={customerInfo.cust_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.agent_phone')}
                                     onChange={handleChange}
@@ -454,8 +430,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     disabled={customerInfo.cust_tp === '1'}
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('partner.customer.agent_email')}
                                     onChange={handleChange}

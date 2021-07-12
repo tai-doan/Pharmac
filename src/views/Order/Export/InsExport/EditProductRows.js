@@ -53,7 +53,14 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
     const handleChange = e => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
-        setProductInfo(newProductInfo)
+        if (e.target.name === 'imp_tp' && e.target.value !== '1') {
+            newProductInfo['price'] = 0;
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = 0
+            setProductInfo(newProductInfo)
+        } else {
+            setProductInfo(newProductInfo)
+        }
     }
 
     const handleExpDateChange = date => {
@@ -76,13 +83,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue)
+        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue)
+        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 

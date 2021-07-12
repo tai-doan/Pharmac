@@ -15,27 +15,7 @@ import Dictionary from '../../../components/Dictionary'
 const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
     const { t } = useTranslation()
 
-    const [Customer, setCustomer] = useState({
-        cust_nm_v: '',
-        cust_nm_e: '',
-        cust_nm_short: '',
-        cust_tp: '1',
-        address: '',
-        phone: '',
-        fax: '',
-        email: '',
-        website: '',
-        tax_cd: '',
-        bank_acnt_no: '',
-        bank_acnt_nm: '',
-        bank_nm: '',
-        agent_nm: '',
-        agent_fun: '',
-        agent_address: '',
-        agent_phone: '',
-        agent_email: '',
-        default_yn: 'Y'
-    })
+    const [Customer, setCustomer] = useState({...defaultModalAdd})
 
     useEffect(() => {
         if (shouldOpenModal) {
@@ -79,8 +59,8 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                required={true}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.customer.cust_nm_v')}
                                 onChange={handleChange}
@@ -93,8 +73,7 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.customer.cust_nm_e')}
                                 onChange={handleChange}
@@ -107,8 +86,7 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.customer.cust_nm_short')}
                                 onChange={handleChange}
@@ -123,8 +101,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.address')}
                                 onChange={handleChange}
@@ -137,8 +113,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.phone')}
                                 onChange={handleChange}
@@ -151,8 +125,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.fax')}
                                 onChange={handleChange}
@@ -167,8 +139,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.email')}
                                 onChange={handleChange}
@@ -181,8 +151,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.website')}
                                 onChange={handleChange}
@@ -195,8 +163,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.tax_cd')}
                                 onChange={handleChange}
@@ -209,8 +175,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.bank_acnt_no')}
                                 onChange={handleChange}
@@ -225,8 +189,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.bank_acnt_nm')}
                                 onChange={handleChange}
@@ -245,8 +207,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                             {/* <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.bank_cd')}
                                 onChange={handleChange}
@@ -294,8 +254,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                                 disabled={Customer.cust_tp === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_nm')}
                                 onChange={handleChange}
@@ -309,8 +267,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                                 disabled={Customer.cust_tp === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_fun')}
                                 onChange={handleChange}
@@ -324,8 +280,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                                 disabled={Customer.cust_tp === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_phone')}
                                 onChange={handleChange}
@@ -339,8 +293,6 @@ const CustomerAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                                 disabled={Customer.cust_tp === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_email')}
                                 onChange={handleChange}

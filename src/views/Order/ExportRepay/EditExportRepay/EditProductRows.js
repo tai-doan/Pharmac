@@ -23,9 +23,9 @@ import sendRequest from '../../../../utils/service/sendReq'
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
         functionName: 'get_by_id',
-        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_BY_ID,
+        reqFunct: reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_BY_ID,
         biz: 'export',
-        object: 'exp_invoices_dt'
+        object: 'exp_repay_dt'
     }
 }
 
@@ -46,7 +46,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_EXPORT_INVOICE_BY_ID:
+                    case reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_BY_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
                     default:
@@ -132,28 +132,21 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue)
+        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue)
+        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
     const checkValidate = () => {
-        if (!!productInfo.exp_tp && productInfo.exp_tp === '1') {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price && !!productInfo.discount_per && !!productInfo.vat_per) {
-                return false
-            } else
-                return true
-        } else {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id) {
-                return false
-            }
-            return true
+        if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price && !!productInfo.discount_per && !!productInfo.vat_per) {
+            return false
         }
+        return true
     }
 
     return (
@@ -168,7 +161,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
-                    {t('order.ins_exportRepay.productEdit')}
+                    {t('order.exportRepay.productEdit')}
                 </DialogTitle>
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>

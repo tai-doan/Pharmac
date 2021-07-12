@@ -109,8 +109,8 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                required={true}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.supplier.vender_nm_v')}
                                 onChange={handleChange}
@@ -123,8 +123,7 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.supplier.vender_nm_e')}
                                 onChange={handleChange}
@@ -137,8 +136,7 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.supplier.vender_nm_short')}
                                 onChange={handleChange}
@@ -153,8 +151,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.address')}
                                 onChange={handleChange}
@@ -167,8 +163,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.phone')}
                                 onChange={handleChange}
@@ -181,8 +175,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.fax')}
                                 onChange={handleChange}
@@ -197,8 +189,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.email')}
                                 onChange={handleChange}
@@ -211,8 +201,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.website')}
                                 onChange={handleChange}
@@ -225,8 +213,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.tax_cd')}
                                 onChange={handleChange}
@@ -239,8 +225,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.bank_acnt_no')}
                                 onChange={handleChange}
@@ -255,8 +239,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.bank_acnt_nm')}
                                 onChange={handleChange}
@@ -275,8 +257,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             {/* <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.bank_cd')}
                                 onChange={handleChange}
@@ -308,8 +288,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Supplier.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.agent_nm')}
                                 onChange={handleChange}
@@ -323,8 +301,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Supplier.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.agent_fun')}
                                 onChange={handleChange}
@@ -338,8 +314,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Supplier.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.agent_phone')}
                                 onChange={handleChange}
@@ -353,8 +327,6 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Supplier.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.supplier.agent_email')}
                                 onChange={handleChange}

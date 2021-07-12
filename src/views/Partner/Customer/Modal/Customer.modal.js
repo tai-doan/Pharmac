@@ -68,6 +68,7 @@ const defaultModalAdd = {
     email: '',
     website: '',
     tax_cd: '',
+    bank_cd: '',
     bank_acnt_no: '',
     bank_acnt_nm: '',
     bank_nm: '',

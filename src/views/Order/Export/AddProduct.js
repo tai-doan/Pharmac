@@ -13,6 +13,7 @@ import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productExportModal } from './Modal/Export.modal'
 import NumberFormat from 'react-number-format'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import LotNoByProduct_Autocomplete from '../../../components/LotNoByProduct'
 
 const ProductExportAdd = ({ handleAddProduct }) => {
     const { t } = useTranslation()
@@ -23,6 +24,8 @@ const ProductExportAdd = ({ handleAddProduct }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['prod_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['prod_nm'] = !!obj ? obj?.o_2 : ''
+        newProductInfo['lot_no'] = !!obj ? '' : null
+        newProductInfo['quantity_in_stock'] = !!obj ? '' : ''
         setProductInfo(newProductInfo)
     }
 
@@ -61,13 +64,21 @@ const ProductExportAdd = ({ handleAddProduct }) => {
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue) > 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue) > 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        setProductInfo(newProductInfo)
+    }
+
+    const handleSelectLotNo = object => {
+        const newProductInfo = { ...productInfo };
+        newProductInfo['quantity_in_stock'] = !!object ? object.o_5 : null
+        newProductInfo['lot_no'] = !!object ? object.o_3 : null
+        newProductInfo['unit_id'] = !!object ? object.o_7 : null
         setProductInfo(newProductInfo)
     }
 
@@ -126,17 +137,35 @@ const ProductExportAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
+                                <LotNoByProduct_Autocomplete
+                                    disabled={!productInfo.prod_id}
+                                    productID={productInfo.prod_id}
+                                    label={t('order.export.lot_no')}
+                                    onSelect={handleSelectLotNo}
+                                />
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={2}>
+                            <Grid item xs>
                                 <TextField
+                                    disabled={true}
                                     fullWidth={true}
                                     margin="dense"
-                                    required
-                                    className="uppercaseInput"
                                     autoComplete="off"
-                                    label={t('order.export.lot_no')}
-                                    onChange={handleChange}
-                                    value={productInfo.lot_no || ''}
-                                    name='lot_no'
+                                    label={t('product.store_current')}
+                                    value={productInfo.quantity_in_stock || ''}
+                                    name='quantity_in_stock'
                                     variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item xs>
+                                <Unit_Autocomplete
+                                    unitID={productInfo.unit_id || null}
+                                    value={productInfo.unit_nm || ''}
+                                    style={{ marginTop: 8, marginBottom: 4 }}
+                                    size={'small'}
+                                    label={t('menu.configUnit')}
+                                    onSelect={handleSelectUnit}
                                 />
                             </Grid>
                             <Grid item xs>
@@ -159,15 +188,7 @@ const ProductExportAdd = ({ handleAddProduct }) => {
                             </Grid>
                         </Grid>
                         <Grid container spacing={2}>
-                            <Grid item xs>
-                                <Unit_Autocomplete
-                                    value={productInfo.unit_nm || ''}
-                                    style={{ marginTop: 8, marginBottom: 4 }}
-                                    size={'small'}
-                                    label={t('menu.configUnit')}
-                                    onSelect={handleSelectUnit}
-                                />
-                            </Grid>
+
                             <Grid item xs>
                                 <NumberFormat
                                     style={{ width: '100%' }}

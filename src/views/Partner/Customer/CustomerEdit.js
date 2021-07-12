@@ -112,8 +112,8 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
+                                required={true}
                                 autoComplete="off"
                                 label={t('partner.customer.cust_nm_v')}
                                 onChange={handleChange}
@@ -126,8 +126,7 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.customer.cust_nm_e')}
                                 onChange={handleChange}
@@ -140,8 +139,7 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
+                                className="uppercaseInput"
                                 autoComplete="off"
                                 label={t('partner.customer.cust_nm_short')}
                                 onChange={handleChange}
@@ -156,8 +154,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.address')}
                                 onChange={handleChange}
@@ -170,8 +166,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.phone')}
                                 onChange={handleChange}
@@ -184,8 +178,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.fax')}
                                 onChange={handleChange}
@@ -200,8 +192,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.email')}
                                 onChange={handleChange}
@@ -214,8 +204,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.website')}
                                 onChange={handleChange}
@@ -228,8 +216,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.tax_cd')}
                                 onChange={handleChange}
@@ -242,8 +228,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.bank_acnt_no')}
                                 onChange={handleChange}
@@ -258,8 +242,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.bank_acnt_nm')}
                                 onChange={handleChange}
@@ -278,8 +260,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                             {/* <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.bank_cd')}
                                 onChange={handleChange}
@@ -327,8 +307,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Customer.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_nm')}
                                 onChange={handleChange}
@@ -342,8 +320,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Customer.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_fun')}
                                 onChange={handleChange}
@@ -357,8 +333,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Customer.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_phone')}
                                 onChange={handleChange}
@@ -372,8 +346,6 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 disabled={Customer.o_23 === '1'}
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('partner.customer.agent_email')}
                                 onChange={handleChange}

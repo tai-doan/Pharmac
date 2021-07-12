@@ -2,24 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import SnackBarService from '../../../../utils/service/snackbar_service';
-import sendRequest from '../../../../utils/service/sendReq';
-import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
-import glb_sv from '../../../../utils/service/global_service'
-import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
+import SnackBarService from '../../utils/service/snackbar_service';
+import sendRequest from '../../utils/service/sendReq';
+import reqFunction from '../../utils/constan/functions';
+import { requestInfo } from '../../utils/models/requestInfo';
+import glb_sv from '../../utils/service/global_service'
+import control_sv from '../../utils/service/control_services'
+import socket_sv from '../../utils/service/socket_service'
 
 const serviceInfo = {
-    DROPDOWN_LIST: {
-        functionName: 'drop_list',
-        reqFunct: reqFunction.UNIT_DROPDOWN_LIST,
-        biz: 'common',
-        object: 'dropdown_list'
+    GET_LOT_NO_LIST: {
+        functionName: 'get_lotno',
+        reqFunct: reqFunction.LOT_NO_BY_PRODUCT,
+        biz: 'import',
+        object: 'imp_invoices'
     }
 }
 
-const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null, disabled = false }) => {
+const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size, value, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -27,10 +27,7 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = ['units', '%']
-        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
-
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        const lotNoSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
                 if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
@@ -40,31 +37,32 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.UNIT_DROPDOWN_LIST) {
-                    resultUnitDropDownList(msg, cltSeqResult, reqInfoMap)
+                if (reqInfoMap.reqFunct === reqFunction.LOT_NO_BY_PRODUCT) {
+                    resultLotNoByProductDropdownList(msg, cltSeqResult, reqInfoMap)
                 }
             }
         })
         return () => {
-            unitSub.unsubscribe()
+            lotNoSub.unsubscribe()
         }
     }, [])
 
     useEffect(() => {
-        if (!!unitID && unitID !== 0) {
-            setValueSelect(dataSource.find(x => x.o_1 === unitID))
-        }else{
+        if (!!productID && productID !== -1) {
+            const inputParam = [productID, 'Y']
+            sendRequest(serviceInfo.GET_LOT_NO_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        } else {
             setValueSelect({})
         }
-    }, [unitID])
+    }, [productID])
 
     useEffect(() => {
         if (value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
+            setValueSelect(dataSource.find(x => x.o_3 === value))
         }
     }, [value, dataSource])
 
-    const resultUnitDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultLotNoByProductDropdownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         reqInfoMap.procStat = 2
         if (message['PROC_STATUS'] === 2) {
@@ -74,6 +72,7 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
+            console.log('data số lô: ', newData)
             setDataSource(newData.rows)
         }
     }
@@ -101,11 +100,12 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect}
-            getOptionLabel={(option) => option.o_2 || ''}
-            style={style}
+            getOptionLabel={(option) => option.o_3 || ''}
+            inputValue={value}
+            style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
             renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }
 
-export default Unit_Autocomplete
+export default LotNoByProduct_Autocomplete

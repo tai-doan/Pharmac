@@ -260,7 +260,7 @@ const EditExport = ({ }) => {
             productEditID,
             productObject.exp_tp,
             productObject.qty,
-            productObject.unit_id,
+            // productObject.unit_id,
             productObject.price,
             productObject.discount_per,
             productObject.vat_per
