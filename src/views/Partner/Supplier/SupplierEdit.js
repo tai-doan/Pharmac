@@ -19,7 +19,7 @@ import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import Dictionary from '../../../components/Dictionary'
 
 const serviceInfo = {
-    GET_CUSTOMER_BY_ID: {
+    GET_SUPPLIER_BY_ID: {
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
@@ -43,7 +43,7 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.CUSTOMER_BY_ID) {
+                if (reqInfoMap.reqFunct === reqFunction.SUPPLIER_BY_ID) {
                     resultGetSupplierByID(msg, cltSeqResult, reqInfoMap)
                 }
             }
@@ -55,7 +55,7 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
 
     useEffect(() => {
         if (id) {
-            sendRequest(serviceInfo.GET_CUSTOMER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_SUPPLIER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
     }, [id])
 

@@ -34,6 +34,7 @@ import AddProduct from '../AddProduct'
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
+import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -328,14 +329,23 @@ const InsExport = ({ }) => {
                                 name='invoice_no'
                                 variant="outlined"
                             />
-                            <Dictionary_Autocomplete
+                            {/* <Dictionary_Autocomplete
                                 diectionName='customers'
                                 onSelect={handleSelectCustomer}
                                 label={t('menu.customer')}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                 size={'small'}
                                 value={customerSelect || ''}
-                            />
+                            /> */}
+                            <div className='d-flex align-items-center w-100'>
+                                <CustomerAdd_Autocomplete
+                                    value={customerSelect || ''}
+                                    size={'small'}
+                                    label={t('menu.customer')}
+                                    onSelect={handleSelectCustomer}
+                                    onCreate={id => setExport({ ...Export, ...{ customer: id } })}
+                                />
+                            </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker
                                     disableToolbar

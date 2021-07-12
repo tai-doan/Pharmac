@@ -95,16 +95,16 @@ const SupplierList = () => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.CUSTOMER_LIST:
+                    case reqFunction.SUPPLIER_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.CUSTOMER_CREATE:
+                    case reqFunction.SUPPLIER_CREATE:
                         resultCreate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.CUSTOMER_UPDATE:
+                    case reqFunction.SUPPLIER_UPDATE:
                         resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.CUSTOMER_DELETE:
+                    case reqFunction.SUPPLIER_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
                         break
                     default:

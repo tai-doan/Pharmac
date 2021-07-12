@@ -31,7 +31,8 @@
     "react-scripts": "3.4.0",
     "reactstrap": "^8.4.1",
     "recompose": "^0.30.0",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "start": "SET PORT=4100 && react-scripts start",

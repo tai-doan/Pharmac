@@ -22,7 +22,7 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import moment from 'moment'
 
 const serviceInfo = {
-    GET_CUSTOMER_BY_ID: {
+    GET_SUPPLIER_BY_ID: {
         functionName: config['byId'].functionName,
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
@@ -46,7 +46,7 @@ const SupplierView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.CUSTOMER_BY_ID) {
+                if (reqInfoMap.reqFunct === reqFunction.SUPPLIER_BY_ID) {
                     resultGetSupplierByID(msg, cltSeqResult, reqInfoMap)
                 }
             }
@@ -58,7 +58,7 @@ const SupplierView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
 
     useEffect(() => {
         if (id) {
-            sendRequest(serviceInfo.GET_CUSTOMER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_SUPPLIER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
     }, [id])
 

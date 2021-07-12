@@ -33,27 +33,27 @@ const config = {
     list: {
         functionName: 'get_all',
         operation: 'Q',
-        reqFunct: reqFunction.CUSTOMER_LIST,
+        reqFunct: reqFunction.SUPPLIER_LIST,
     },
     byId: {
         functionName: 'get_by_id',
         operation: 'Q',
-        reqFunct: reqFunction.CUSTOMER_BY_ID,
+        reqFunct: reqFunction.SUPPLIER_BY_ID,
     },
     insert: {
         functionName: 'insert',
         operation: 'I',
-        reqFunct: reqFunction.CUSTOMER_CREATE,
+        reqFunct: reqFunction.SUPPLIER_CREATE,
     },
     update: {
         functionName: 'update',
         operation: 'U',
-        reqFunct: reqFunction.CUSTOMER_UPDATE,
+        reqFunct: reqFunction.SUPPLIER_UPDATE,
     },
     delete: {
         functionName: 'delete',
         operation: 'D',
-        reqFunct: reqFunction.CUSTOMER_DELETE
+        reqFunct: reqFunction.SUPPLIER_DELETE
     },
 }
 

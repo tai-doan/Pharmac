@@ -35,6 +35,7 @@ import AddProduct from '../AddProduct'
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
+import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -415,14 +416,23 @@ const EditExportRepay = ({ }) => {
                                 name='invoice_no'
                                 variant="outlined"
                             />
-                            <Dictionary_Autocomplete
+                            {/* <Dictionary_Autocomplete
                                 diectionName='venders'
                                 value={supplierSelect || ''}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                 size={'small'}
                                 label={t('menu.supplier')}
                                 onSelect={handleSelectSupplier}
-                            />
+                            /> */}
+                            <div className='d-flex align-items-center w-100'>
+                                <SupplierAdd_Autocomplete
+                                    value={supplierSelect || ''}
+                                    size={'small'}
+                                    label={t('menu.supplier')}
+                                    onSelect={handleSelectSupplier}
+                                    onCreate={id => setExportRepay({ ...ExportRepay, ...{ supplier_id: id } })}
+                                />
+                            </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker
                                     disableToolbar
