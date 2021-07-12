@@ -11,6 +11,7 @@ import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
 import socket_sv from '../../../../utils/service/socket_service'
 import Dictionary from '../../../../components/Dictionary';
+import { defaultModalAdd } from '../Modal/Supplier.modal';
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -34,26 +35,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
     const [valueSelect, setValueSelect] = useState({})
     const [inputValue, setInputValue] = useState('')
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
-    const [supplierInfo, setSupplierInfo] = useState({
-        vender_nm_v: '',
-        vender_nm_e: '',
-        vender_nm_short: '',
-        address: '',
-        phone: '',
-        fax: '',
-        email: '',
-        website: '',
-        tax_cd: '',
-        bank_acnt_no: '',
-        bank_acnt_nm: '',
-        bank_cd: '',
-        agent_nm: '',
-        agent_fun: '',
-        agent_address: '',
-        agent_phone: '',
-        agent_email: '',
-        default_yn: 'Y'
-    })
+    const [supplierInfo, setSupplierInfo] = useState({ ...defaultModalAdd })
     const idCreated = useRef(-1)
 
     useEffect(() => {
@@ -212,7 +194,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
-                    setSupplierInfo({ name: '', note: '' })
+                    setSupplierInfo({ ...defaultModalAdd })
                 }}
             >
                 <Card>
@@ -488,7 +470,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                         <Button
                             onClick={e => {
                                 setShouldOpenModal(false);
-                                setSupplierInfo({ name: '', note: '' })
+                                setSupplierInfo({ ...defaultModalAdd })
                             }}
                             variant="contained"
                             disableElevation
@@ -498,7 +480,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                         <Button
                             onClick={() => {
                                 handleCreateSupplier();
-                                setSupplierInfo({ name: '', note: '' })
+                                setSupplierInfo({ ...defaultModalAdd })
                             }}
                             variant="contained"
                             disabled={checkValidate()}

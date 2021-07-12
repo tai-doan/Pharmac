@@ -11,6 +11,7 @@ import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
 import socket_sv from '../../../../utils/service/socket_service'
 import Dictionary from '../../../../components/Dictionary';
+import { defaultModalAdd } from '../Modal/Customer.modal';
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -34,27 +35,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
     const [valueSelect, setValueSelect] = useState({})
     const [inputValue, setInputValue] = useState('')
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
-    const [customerInfo, setCustomerInfo] = useState({
-        cust_nm_v: '',
-        cust_nm_e: '',
-        cust_nm_short: '',
-        cust_tp: '1',
-        address: '',
-        phone: '',
-        fax: '',
-        email: '',
-        website: '',
-        tax_cd: '',
-        bank_acnt_no: '',
-        bank_acnt_nm: '',
-        bank_nm: '',
-        agent_nm: '',
-        agent_fun: '',
-        agent_address: '',
-        agent_phone: '',
-        agent_email: '',
-        default_yn: 'Y'
-    })
+    const [customerInfo, setCustomerInfo] = useState({ ...defaultModalAdd })
     const idCreated = useRef(-1)
 
     useEffect(() => {
@@ -214,7 +195,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
-                    setCustomerInfo({ name: '', note: '' })
+                    setCustomerInfo({ ...defaultModalAdd })
                 }}
             >
                 <Card>
@@ -506,7 +487,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                         <Button
                             onClick={e => {
                                 setShouldOpenModal(false);
-                                setCustomerInfo({ name: '', note: '' })
+                                setCustomerInfo({ ...defaultModalAdd })
                             }}
                             variant="contained"
                             disableElevation
@@ -516,7 +497,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                         <Button
                             onClick={() => {
                                 handleCreateCustomer();
-                                setCustomerInfo({ name: '', note: '' })
+                                setCustomerInfo({ ...defaultModalAdd })
                             }}
                             variant="contained"
                             disabled={checkValidate()}
