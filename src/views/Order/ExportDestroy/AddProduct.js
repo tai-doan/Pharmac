@@ -9,6 +9,7 @@ import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productExportDestroyModal } from './Modal/ExportDestroy.modal'
 import NumberFormat from 'react-number-format'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import LotNoByProduct_Autocomplete from '../../../components/LotNoByProduct'
 
 const ProductExportDestroyAdd = ({ handleAddProduct }) => {
     const { t } = useTranslation()
@@ -19,6 +20,8 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['prod_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['prod_nm'] = !!obj ? obj?.o_2 : ''
+        newProductInfo['lot_no'] = !!obj ? '' : null
+        newProductInfo['quantity_in_stock'] = !!obj ? '' : ''
         setProductInfo(newProductInfo)
     }
 
@@ -44,6 +47,14 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
     const handlePriceChange = value => {
         const newProductInfo = { ...productInfo };
         newProductInfo['price'] = Math.round(value.floatValue)
+        setProductInfo(newProductInfo)
+    }
+
+    const handleSelectLotNo = object => {
+        const newProductInfo = { ...productInfo };
+        newProductInfo['quantity_in_stock'] = !!object ? object.o_5 : null
+        newProductInfo['lot_no'] = !!object ? object.o_3 : null
+        newProductInfo['unit_id'] = !!object ? object.o_7 : null
         setProductInfo(newProductInfo)
     }
 
@@ -79,6 +90,26 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
+                                <LotNoByProduct_Autocomplete
+                                    disabled={!productInfo.prod_id}
+                                    productID={productInfo.prod_id}
+                                    label={t('order.export.lot_no')}
+                                    onSelect={handleSelectLotNo}
+                                />
+                            </Grid>
+                            <Grid item xs>
+                                <TextField
+                                    disabled={true}
+                                    fullWidth={true}
+                                    margin="dense"
+                                    autoComplete="off"
+                                    label={t('product.store_current')}
+                                    value={productInfo.quantity_in_stock || ''}
+                                    name='quantity_in_stock'
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            {/* <Grid item xs>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -91,9 +122,10 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                                     name='lot_no'
                                     variant="outlined"
                                 />
-                            </Grid>
+                            </Grid> */}
                             <Grid item xs>
                                 <Unit_Autocomplete
+                                    unitID={productInfo.unit_id || 0}
                                     value={productInfo.unit_nm || ''}
                                     style={{ marginTop: 8, marginBottom: 4 }}
                                     size={'small'}

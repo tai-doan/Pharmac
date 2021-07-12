@@ -25,7 +25,7 @@ const serviceInfo = {
         functionName: 'get_by_id',
         reqFunct: reqFunction.PRODUCT_EXPORT_DESTROY_INVOICE_BY_ID,
         biz: 'export',
-        object: 'exp_invoices_dt'
+        object: 'exp_destroy_dt'
     }
 }
 
@@ -83,6 +83,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             let newData = message['PROC_DATA']
+            console.log('data xuất hủy: ', newData)
             const dataConvert = {
                 prod_id: newData.rows[0].o_3,
                 prod_nm: newData.rows[0].o_4,
@@ -135,7 +136,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
-                    {t('order.ins_exportDestroy.productEdit')}
+                    {t('order.exportDestroy.productEdit')}
                 </DialogTitle>
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
@@ -223,7 +224,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                 >
                                     <MenuItem value="1">{t('order.exportDestroy.cancel_by_out_of_date')}</MenuItem>
                                     <MenuItem value="2">{t('order.exportDestroy.cancel_by_lost_goods')}</MenuItem>
-                                    <MenuItem value="3">{t('order.exportDestroy.exportDestroy_type_selloff')}</MenuItem>
+                                    <MenuItem value="3">{t('order.exportDestroy.cancel_by_inventory_balance')}</MenuItem>
                                     <MenuItem value="4">{t('other_reason')}</MenuItem>
                                 </Select>
                             </FormControl>

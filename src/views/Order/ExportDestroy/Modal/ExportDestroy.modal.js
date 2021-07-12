@@ -55,7 +55,8 @@ const productExportDestroyModal = {
     unit_id: null,
     unit_nm: '',
     price: 0,
-    reason_tp: '1'
+    reason_tp: '1',
+    uantity_in_stock: null
 }
 
 const tableListAddColumn = [
