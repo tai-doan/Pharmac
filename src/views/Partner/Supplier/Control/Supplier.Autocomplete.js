@@ -20,7 +20,7 @@ const serviceInfo = {
     }
 }
 
-const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
+const Supplier_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress = () => null, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -90,6 +90,7 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, disabled =
             disabled={disabled}
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
             size={!!size ? size : 'small'}
             id="combo-box-demo"
             options={dataSource}

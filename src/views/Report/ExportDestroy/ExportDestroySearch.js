@@ -23,14 +23,14 @@ import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autoc
 import Customer_Autocomplete from '../../Partner/Customer/Control/Customer.Autocomplete'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 
-const ExportSearch = ({ handleSearch }) => {
+const ExportDestroySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().subtract(1, 'month').toString(),
         end_dt: moment().toString(),
-        customer_nm: '',
-        customer_id: null,
+        supplier_nm: '',
+        supplier_id: null,
         invoice_no: '',
         invoice_status: '%',
         product_id: null,
@@ -60,10 +60,10 @@ const ExportSearch = ({ handleSearch }) => {
         setSearchModal(newSearchModal)
     }
 
-    const handleSelectCustomer = obj => {
+    const handleSelectSupplier = obj => {
         const newSearchModal = { ...searchModal }
-        newSearchModal['customer_id'] = !!obj ? obj?.o_1 : null
-        newSearchModal['customer_nm'] = !!obj ? obj?.o_2 : ''
+        newSearchModal['supplier_id'] = !!obj ? obj?.o_1 : null
+        newSearchModal['supplier_nm'] = !!obj ? obj?.o_2 : ''
         setSearchModal(newSearchModal)
     }
 
@@ -122,16 +122,23 @@ const ExportSearch = ({ handleSearch }) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
                 <Grid item xs>
-                    <Customer_Autocomplete
-                        value={searchModal.customer_nm || ''}
-                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                        size={'small'}
-                        label={t('menu.customer')}
-                        onSelect={handleSelectCustomer}
-                        onKeyPress={key => {
-                            if (key.which === 13) return handleSearch(searchModal)
-                        }}
-                    />
+                    <FormControl margin="dense" variant="outlined" className='w-100'>
+                        <InputLabel id="reason_tp">{t('order.exportDestroy.reason_tp')}</InputLabel>
+                        <Select
+                            labelId="reason_tp"
+                            id="reason_tp-select"
+                            value={searchModal.reason_tp || '%'}
+                            onChange={handleChange}
+                            label={t('order.exportDestroy.reason_tp')}
+                            name='reason_tp'
+                        >
+                            <MenuItem value="%">{t('all')}</MenuItem>
+                            <MenuItem value="1">{t('order.exportDestroy.cancel_by_out_of_date')}</MenuItem>
+                            <MenuItem value="2">{t('order.exportDestroy.cancel_by_lost_goods')}</MenuItem>
+                            <MenuItem value="3">{t('order.exportDestroy.cancel_by_inventory_balance')}</MenuItem>
+                            <MenuItem value="4">{t('other_reason')}</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Grid>
                 <Grid item xs>
                     <TextField
@@ -190,4 +197,4 @@ const ExportSearch = ({ handleSearch }) => {
     )
 }
 
-export default ExportSearch;
+export default ExportDestroySearch;

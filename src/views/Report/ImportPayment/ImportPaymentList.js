@@ -19,23 +19,23 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, searchDefaultModal } from './Modal/Export.modal'
-import ExportSearch from './ExportSearch';
-import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
+import { tableColumn, searchDefaultModal } from './Modal/ImportPayment.modal'
+import ImportPaymentSearch from './ImportPaymentSearch';
+import { Card, CardHeader, CardContent, IconButton, Tooltip, Grid } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
 
 const serviceInfo = {
     GET_ALL: {
-        functionName: 'imp_time',
-        reqFunct: reqFunction.REPORT_EXPORT,
+        functionName: 'set_imp_time',
+        reqFunct: reqFunction.REPORT_IMPORT_PAYMENT,
         biz: 'report',
-        object: 'rp_import'
+        object: 'rp_settlement'
     }
 }
 
-const ExportList = () => {
+const ImportPaymentList = () => {
     const { t } = useTranslation()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
@@ -47,7 +47,7 @@ const ExportList = () => {
     const dataSourceRef = useRef([])
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, searchModal.customer_id, searchModal.invoice_no, searchModal.invoice_status, searchModal.product_id, 999999999999, 999999999999);
+        getList(searchModal.start_dt, searchModal.end_dt, searchModal.supplier_id, searchModal.invoice_no, 999999999999, 999999999999);
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -59,7 +59,7 @@ const ExportList = () => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.REPORT_EXPORT:
+                    case reqFunction.REPORT_IMPORT_PAYMENT:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
                 }
@@ -70,8 +70,8 @@ const ExportList = () => {
         }
     }, [])
 
-    const getList = (startdate, endDate, customer_id, invoice_no, invoice_status, product_id, last_invoice_id, last_invoice_detail_id) => {
-        const inputParam = [startdate, endDate, customer_id, invoice_no, invoice_status, product_id, last_invoice_id || 999999999999, last_invoice_detail_id || 999999999999]
+    const getList = (startdate, endDate, supplier_id, invoice_no, last_invoice_id, last_invoice_detail_id) => {
+        const inputParam = [startdate, endDate, supplier_id, invoice_no, last_invoice_id || 999999999999, last_invoice_detail_id || 999999999999]
         sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
@@ -134,10 +134,8 @@ const ExportList = () => {
         getList(
             moment(searchObject.start_dt).format('YYYYMMDD'),
             moment(searchObject.end_dt).format('YYYYMMDD'),
-            !!searchObject.customer_id && searchObject.customer_id !== 0 ? searchObject.customer_id : 0,
+            !!searchObject.supplier_id && searchObject.supplier_id !== 0 ? searchObject.supplier_id : 0,
             searchObject.invoice_no.trim() !== '' ? searchObject.invoice_no.trim() : '%',
-            searchObject.invoice_status,
-            !!searchObject.product_id && searchObject.product_id !== 0 ? searchObject.product_id : 0,
             999999999999,
             999999999999
         )
@@ -151,10 +149,8 @@ const ExportList = () => {
             getList(
                 moment(searchModal.start_dt).format('YYYYMMDD'),
                 moment(searchModal.end_dt).format('YYYYMMDD'),
-                !!searchModal.customer_id && searchModal.customer_id !== 0 ? searchModal.customer_id : 0,
+                !!searchModal.supplier_id && searchModal.supplier_id !== 0 ? searchModal.supplier_id : 0,
                 searchModal.invoice_no.trim() !== '' ? searchModal.invoice_no.trim() : '%',
-                searchModal.invoice_status,
-                !!searchModal.product_id && searchModal.product_id !== 0 ? searchModal.product_id : 0,
                 lastInvoiceID,
                 lastInvoiceDetailID
             )
@@ -173,7 +169,7 @@ const ExportList = () => {
                     }
                 />
                 <CardContent>
-                    <ExportSearch
+                    <ImportPaymentSearch
                         handleSearch={searchSubmit}
                     />
                 </CardContent>
@@ -186,7 +182,7 @@ const ExportList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.export.titleList')}
+                    title={t('import_payment_list')}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
@@ -224,6 +220,59 @@ const ExportList = () => {
                                                 let value = item[col.field]
                                                 if (col.show) {
                                                     switch (col.field) {
+                                                        case 'o_3':
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    <Tooltip
+                                                                        placement='top'
+                                                                        aria-label="add"
+                                                                        title={
+                                                                            <Grid container spacing={2}>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('report.invoice_val')} : {col['o_5']}
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                        }
+                                                                    >
+                                                                        {glb_sv.formatValue(value, col['type'])}
+                                                                    </Tooltip>
+                                                                </TableCell>
+                                                            )
+                                                        case 'o_8':
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    {col['o_7'] === '2' ? <Tooltip
+                                                                        placement='top'
+                                                                        aria-label="add"
+                                                                        title={
+                                                                            <Grid container spacing={2}>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('bank_transf_acc_number')} : {col['o_10']}
+                                                                                </Grid>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('bank_transf_acc_name')} : {col['o_11']}
+                                                                                </Grid>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('bank_transf_name')} : {col['o_13']}
+                                                                                </Grid>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('bank_recei_acc_number')} : {col['o_14']}
+                                                                                </Grid>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('bank_recei_acc_name')} : {col['o_15']}
+                                                                                </Grid>
+                                                                                <Grid item xs={12}>
+                                                                                    {t('bank_recei_name')} : {col['o_17']}
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                        }
+                                                                    >
+                                                                        {glb_sv.formatValue(value, col['type'])}
+                                                                    </Tooltip> :
+                                                                        glb_sv.formatValue(value, col['type'])
+                                                                    }
+                                                                </TableCell>
+                                                            )
                                                         default:
                                                             return (
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>
@@ -245,4 +294,4 @@ const ExportList = () => {
     )
 }
 
-export default ExportList
+export default ImportPaymentList

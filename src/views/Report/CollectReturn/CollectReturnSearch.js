@@ -20,9 +20,8 @@ import {
 } from '@material-ui/pickers';
 import moment from 'moment'
 import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
-import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 
-const ImportTimeSearch = ({ handleSearch }) => {
+const CollectReturnSearch = ({ handleSearch }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
@@ -30,10 +29,7 @@ const ImportTimeSearch = ({ handleSearch }) => {
         end_dt: moment().toString(),
         supplier_nm: '',
         supplier_id: null,
-        invoice_no: '',
-        invoice_status: '%',
-        product_id: null,
-        product_nm: ''
+        invoice_no: ''
     })
     const [isExpanded, setIsExpanded] = useState(true)
 
@@ -66,13 +62,6 @@ const ImportTimeSearch = ({ handleSearch }) => {
         setSearchModal(newSearchModal)
     }
 
-    const handleSelectProduct = obj => {
-        const newSearchModal = { ...searchModal }
-        newSearchModal['product_id'] = !!obj ? obj?.o_1 : null
-        newSearchModal['product_nm'] = !!obj ? obj?.o_2 : ''
-        setSearchModal(newSearchModal)
-    }
-
     return (
         <>
             <Grid container spacing={2}>
@@ -89,6 +78,9 @@ const ImportTimeSearch = ({ handleSearch }) => {
                             label={t('order.export.start_date')}
                             value={searchModal.start_dt}
                             onChange={handleStartDateChange}
+                            onKeyPress={key => {
+                                if (key.which === 13) return handleSearch(searchModal)
+                            }}
                             KeyboardButtonProps={{
                                 'aria-label': 'change date',
                             }}
@@ -108,6 +100,9 @@ const ImportTimeSearch = ({ handleSearch }) => {
                             label={t('order.export.end_date')}
                             value={searchModal.end_dt}
                             onChange={handleEndDateChange}
+                            onKeyPress={key => {
+                                if (key.which === 13) return handleSearch(searchModal)
+                            }}
                             KeyboardButtonProps={{
                                 'aria-label': 'change date',
                             }}
@@ -121,6 +116,9 @@ const ImportTimeSearch = ({ handleSearch }) => {
                         size={'small'}
                         label={t('menu.supplier')}
                         onSelect={handleSelectSupplier}
+                        onKeyPress={key => {
+                            if (key.which === 13) return handleSearch(searchModal)
+                        }}
                     />
                 </Grid>
                 <Grid item xs>
@@ -140,32 +138,6 @@ const ImportTimeSearch = ({ handleSearch }) => {
                 </Grid>
             </Grid>
             <Grid container spacing={2}>
-                <Grid item xs={3}>
-                    <FormControl margin="dense" variant="outlined" className='w-100'>
-                        <InputLabel id="status">{t('invoice_status')}</InputLabel>
-                        <Select
-                            labelId="status"
-                            id="status-select"
-                            value={searchModal.invoice_status || '%'}
-                            onChange={handleChange}
-                            label={t('invoice_status')}
-                            name='invoice_status'
-                        >
-                            <MenuItem value="%">{t('all')}</MenuItem>
-                            <MenuItem value="1">{t('normal')}</MenuItem>
-                            <MenuItem value="2">{t('cancelled')}</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={3}>
-                    <Product_Autocomplete
-                        value={searchModal.product_nm || ''}
-                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                        size={'small'}
-                        label={t('menu.product')}
-                        onSelect={handleSelectProduct}
-                    />
-                </Grid>
                 <Grid item className='d-flex align-items-center'>
                     <Button style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
@@ -174,4 +146,4 @@ const ImportTimeSearch = ({ handleSearch }) => {
     )
 }
 
-export default ImportTimeSearch;
+export default CollectReturnSearch;

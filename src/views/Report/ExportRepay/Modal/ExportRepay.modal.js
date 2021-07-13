@@ -2,7 +2,7 @@ import moment from 'moment'
 
 const tableColumn = [
     { field: 'o_2', title: 'invoice_no', show: true, disabled: true, minWidth: 200 },
-    { field: 'o_3', title: 'partner.customer.cust_nm_v', show: true, disabled: false, minWidth: 200, type: 'status' },
+    { field: 'o_3', title: 'partner.supplier.vender_nm_v', show: true, disabled: false, minWidth: 200, type: 'status' },
     { field: 'o_4', title: 'order.import.order_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     { field: 'o_7', title: 'products.product.name', show: true, disabled: false, minWidth: 100 },
     { field: 'o_8', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100 },
@@ -19,8 +19,8 @@ const tableColumn = [
 const searchDefaultModal = {
     start_dt: moment().subtract(1, 'months').format('YYYYMMDD'),
     end_dt: moment().format('YYYYMMDD'),
-    customer_id: 0,
-    customer_nm: '',
+    supplier_id: 0,
+    supplier_nm: '',
     invoice_no: '%',
     invoice_status: '%',
     product_id: 0,

@@ -19,18 +19,14 @@ import {
     KeyboardDatePicker
 } from '@material-ui/pickers';
 import moment from 'moment'
-import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
-import Customer_Autocomplete from '../../Partner/Customer/Control/Customer.Autocomplete'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 
-const ExportSearch = ({ handleSearch }) => {
+const ImportInventorySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().subtract(1, 'month').toString(),
         end_dt: moment().toString(),
-        customer_nm: '',
-        customer_id: null,
         invoice_no: '',
         invoice_status: '%',
         product_id: null,
@@ -60,10 +56,10 @@ const ExportSearch = ({ handleSearch }) => {
         setSearchModal(newSearchModal)
     }
 
-    const handleSelectCustomer = obj => {
+    const handleSelectSupplier = obj => {
         const newSearchModal = { ...searchModal }
-        newSearchModal['customer_id'] = !!obj ? obj?.o_1 : null
-        newSearchModal['customer_nm'] = !!obj ? obj?.o_2 : ''
+        newSearchModal['supplier_id'] = !!obj ? obj?.o_1 : null
+        newSearchModal['supplier_nm'] = !!obj ? obj?.o_2 : ''
         setSearchModal(newSearchModal)
     }
 
@@ -122,18 +118,6 @@ const ExportSearch = ({ handleSearch }) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
                 <Grid item xs>
-                    <Customer_Autocomplete
-                        value={searchModal.customer_nm || ''}
-                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                        size={'small'}
-                        label={t('menu.customer')}
-                        onSelect={handleSelectCustomer}
-                        onKeyPress={key => {
-                            if (key.which === 13) return handleSearch(searchModal)
-                        }}
-                    />
-                </Grid>
-                <Grid item xs>
                     <TextField
                         fullWidth={true}
                         margin="dense"
@@ -148,8 +132,6 @@ const ExportSearch = ({ handleSearch }) => {
                         variant="outlined"
                     />
                 </Grid>
-            </Grid>
-            <Grid container spacing={2}>
                 <Grid item xs={3}>
                     <FormControl margin="dense" variant="outlined" className='w-100'>
                         <InputLabel id="status">{t('invoice_status')}</InputLabel>
@@ -170,6 +152,8 @@ const ExportSearch = ({ handleSearch }) => {
                         </Select>
                     </FormControl>
                 </Grid>
+            </Grid>
+            <Grid container spacing={2}>
                 <Grid item xs={3}>
                     <Product_Autocomplete
                         value={searchModal.product_nm || ''}
@@ -190,4 +174,4 @@ const ExportSearch = ({ handleSearch }) => {
     )
 }
 
-export default ExportSearch;
+export default ImportInventorySearch;

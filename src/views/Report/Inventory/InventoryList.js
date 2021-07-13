@@ -19,23 +19,22 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, searchDefaultModal } from './Modal/Export.modal'
-import ExportSearch from './ExportSearch';
+import { tableColumn, searchDefaultModal } from './Modal/Inventory.modal'
+import InventorySearch from './InventorySearch';
 import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
-import moment from 'moment'
 import { Link } from 'react-router-dom'
 
 const serviceInfo = {
     GET_ALL: {
-        functionName: 'imp_time',
-        reqFunct: reqFunction.REPORT_EXPORT,
+        functionName: 'inven_lotno',
+        reqFunct: reqFunction.REPORT_INVENTORY_LOTNO,
         biz: 'report',
-        object: 'rp_import'
+        object: 'rp_inventory'
     }
 }
 
-const ExportList = () => {
+const InventoryList = () => {
     const { t } = useTranslation()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
@@ -47,7 +46,7 @@ const ExportList = () => {
     const dataSourceRef = useRef([])
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, searchModal.customer_id, searchModal.invoice_no, searchModal.invoice_status, searchModal.product_id, 999999999999, 999999999999);
+        getList(999999999999, 'ZZZ', searchModal.group_id, searchModal.invent_yn);
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -59,7 +58,7 @@ const ExportList = () => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.REPORT_EXPORT:
+                    case reqFunction.REPORT_INVENTORY_LOTNO:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
                 }
@@ -70,8 +69,8 @@ const ExportList = () => {
         }
     }, [])
 
-    const getList = (startdate, endDate, customer_id, invoice_no, invoice_status, product_id, last_invoice_id, last_invoice_detail_id) => {
-        const inputParam = [startdate, endDate, customer_id, invoice_no, invoice_status, product_id, last_invoice_id || 999999999999, last_invoice_detail_id || 999999999999]
+    const getList = (last_product_id, last_lot_no_id, group_id, invent_yn) => {
+        const inputParam = [last_product_id || 999999999999, last_lot_no_id || 'ZZZ', group_id, invent_yn]
         sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
@@ -131,33 +130,15 @@ const ExportList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(
-            moment(searchObject.start_dt).format('YYYYMMDD'),
-            moment(searchObject.end_dt).format('YYYYMMDD'),
-            !!searchObject.customer_id && searchObject.customer_id !== 0 ? searchObject.customer_id : 0,
-            searchObject.invoice_no.trim() !== '' ? searchObject.invoice_no.trim() : '%',
-            searchObject.invoice_status,
-            !!searchObject.product_id && searchObject.product_id !== 0 ? searchObject.product_id : 0,
-            999999999999,
-            999999999999
-        )
+        getList(999999999999, 'ZZZ', searchObject.group_id || 0, searchObject.invent_yn || 'Y')
     }
 
     const getNextData = () => {
         if (dataSourceRef.current.length > 0) {
             const lastIndex = dataSourceRef.current.length - 1;
-            const lastInvoiceID = dataSourceRef.current[lastIndex].o_1
-            const lastInvoiceDetailID = dataSourceRef.current[lastIndex].o_5
-            getList(
-                moment(searchModal.start_dt).format('YYYYMMDD'),
-                moment(searchModal.end_dt).format('YYYYMMDD'),
-                !!searchModal.customer_id && searchModal.customer_id !== 0 ? searchModal.customer_id : 0,
-                searchModal.invoice_no.trim() !== '' ? searchModal.invoice_no.trim() : '%',
-                searchModal.invoice_status,
-                !!searchModal.product_id && searchModal.product_id !== 0 ? searchModal.product_id : 0,
-                lastInvoiceID,
-                lastInvoiceDetailID
-            )
+            const lastProductID = dataSourceRef.current[lastIndex].o_1
+            const lastLotNo = dataSourceRef.current[lastIndex].o_3
+            getList(lastProductID, lastLotNo, searchModal.group_id || 0, searchModal.invent_yn || 'Y')
         }
     }
 
@@ -173,7 +154,7 @@ const ExportList = () => {
                     }
                 />
                 <CardContent>
-                    <ExportSearch
+                    <InventorySearch
                         handleSearch={searchSubmit}
                     />
                 </CardContent>
@@ -186,7 +167,7 @@ const ExportList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.export.titleList')}
+                    title={t('list_of_products_in_stock_with_lot_details')}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
@@ -208,6 +189,7 @@ const ExportList = () => {
                                 <TableRow>
                                     {column.map(col => (
                                         <TableCell nowrap="true"
+                                            align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -245,4 +227,4 @@ const ExportList = () => {
     )
 }
 
-export default ExportList
+export default InventoryList

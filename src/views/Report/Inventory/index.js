@@ -1,3 +1,3 @@
-import InventoryContainer from './InventoryContainer';
+import InventoryList from './InventoryList';
 
-export default InventoryContainer;
+export default InventoryList;

@@ -19,8 +19,8 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn, config } from './Modal/ImportTime.modal'
-import ImportTimeSearch from './ImportTimeSearch';
+import { tableColumn, searchDefaultModal } from './Modal/ExportRepay.modal'
+import ExportRepaySearch from './ExportRepaySearch';
 import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import moment from 'moment'
@@ -28,45 +28,18 @@ import { Link } from 'react-router-dom'
 
 const serviceInfo = {
     GET_ALL: {
-        functionName: config['list'].functionName,
-        reqFunct: config['list'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    CREATE: {
-        functionName: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        functionName: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    DELETE: {
-        functionName: config['delete'].functionName,
-        reqFunct: config['delete'].reqFunct,
-        biz: config.biz,
-        object: config.object
+        functionName: 'exp_repay_time',
+        reqFunct: reqFunction.REPORT_EXPORT_REPAY,
+        biz: 'report',
+        object: 'rp_exp_repay'
     }
 }
 
-const ImportTimeList = () => {
+const ExportRepayList = () => {
     const { t } = useTranslation()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
-    const [searchModal, setSearchModal] = useState({
-        start_dt: moment().subtract(1, 'months').format('YYYYMMDD'),
-        end_dt: moment().format('YYYYMMDD'),
-        supplier_id: 0,
-        invoice_no: '%',
-        invoice_status: '%',
-        product_id: 0,
-        last_invoice_id: 999999999999,
-        last_invoice_detail_id: 999999999999
-    })
+    const [searchModal, setSearchModal] = useState({ ...searchDefaultModal })
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
@@ -86,7 +59,7 @@ const ImportTimeList = () => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.REPORT_IMPORT_TIME:
+                    case reqFunction.REPORT_EXPORT_REPAY:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
                 }
@@ -120,6 +93,7 @@ const ImportTimeList = () => {
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
+            console.log('data: ', newData)
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[6] === 999999999999 && reqInfoMap.inputParam[7] === 999999999999) {
                     setTotalRecords(newData.rowTotal)
@@ -199,7 +173,7 @@ const ImportTimeList = () => {
                     }
                 />
                 <CardContent>
-                    <ImportTimeSearch
+                    <ExportRepaySearch
                         handleSearch={searchSubmit}
                     />
                 </CardContent>
@@ -212,7 +186,7 @@ const ImportTimeList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.export.titleList')}
+                    title={t('order.exportRepay.titleList')}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
@@ -271,4 +245,4 @@ const ImportTimeList = () => {
     )
 }
 
-export default ImportTimeList
+export default ExportRepayList

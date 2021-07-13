@@ -20,21 +20,16 @@ import {
 } from '@material-ui/pickers';
 import moment from 'moment'
 import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
-import Customer_Autocomplete from '../../Partner/Customer/Control/Customer.Autocomplete'
-import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 
-const ExportSearch = ({ handleSearch }) => {
+const ImportPaymentSearch = ({ handleSearch }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().subtract(1, 'month').toString(),
         end_dt: moment().toString(),
-        customer_nm: '',
-        customer_id: null,
-        invoice_no: '',
-        invoice_status: '%',
-        product_id: null,
-        product_nm: ''
+        supplier_nm: '',
+        supplier_id: null,
+        invoice_no: ''
     })
     const [isExpanded, setIsExpanded] = useState(true)
 
@@ -60,17 +55,10 @@ const ExportSearch = ({ handleSearch }) => {
         setSearchModal(newSearchModal)
     }
 
-    const handleSelectCustomer = obj => {
+    const handleSelectSupplier = obj => {
         const newSearchModal = { ...searchModal }
-        newSearchModal['customer_id'] = !!obj ? obj?.o_1 : null
-        newSearchModal['customer_nm'] = !!obj ? obj?.o_2 : ''
-        setSearchModal(newSearchModal)
-    }
-
-    const handleSelectProduct = obj => {
-        const newSearchModal = { ...searchModal }
-        newSearchModal['product_id'] = !!obj ? obj?.o_1 : null
-        newSearchModal['product_nm'] = !!obj ? obj?.o_2 : ''
+        newSearchModal['supplier_id'] = !!obj ? obj?.o_1 : null
+        newSearchModal['supplier_nm'] = !!obj ? obj?.o_2 : ''
         setSearchModal(newSearchModal)
     }
 
@@ -122,12 +110,12 @@ const ExportSearch = ({ handleSearch }) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
                 <Grid item xs>
-                    <Customer_Autocomplete
-                        value={searchModal.customer_nm || ''}
+                    <Supplier_Autocomplete
+                        value={searchModal.supplier_nm || ''}
                         style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                         size={'small'}
-                        label={t('menu.customer')}
-                        onSelect={handleSelectCustomer}
+                        label={t('menu.supplier')}
+                        onSelect={handleSelectSupplier}
                         onKeyPress={key => {
                             if (key.which === 13) return handleSearch(searchModal)
                         }}
@@ -150,38 +138,6 @@ const ExportSearch = ({ handleSearch }) => {
                 </Grid>
             </Grid>
             <Grid container spacing={2}>
-                <Grid item xs={3}>
-                    <FormControl margin="dense" variant="outlined" className='w-100'>
-                        <InputLabel id="status">{t('invoice_status')}</InputLabel>
-                        <Select
-                            labelId="status"
-                            id="status-select"
-                            value={searchModal.invoice_status || '%'}
-                            onChange={handleChange}
-                            onKeyPress={key => {
-                                if (key.which === 13) return handleSearch(searchModal)
-                            }}
-                            label={t('invoice_status')}
-                            name='invoice_status'
-                        >
-                            <MenuItem value="%">{t('all')}</MenuItem>
-                            <MenuItem value="1">{t('normal')}</MenuItem>
-                            <MenuItem value="2">{t('cancelled')}</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={3}>
-                    <Product_Autocomplete
-                        value={searchModal.product_nm || ''}
-                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                        size={'small'}
-                        label={t('menu.product')}
-                        onSelect={handleSelectProduct}
-                        onKeyPress={key => {
-                            if (key.which === 13) return handleSearch(searchModal)
-                        }}
-                    />
-                </Grid>
                 <Grid item className='d-flex align-items-center'>
                     <Button style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
@@ -190,4 +146,4 @@ const ExportSearch = ({ handleSearch }) => {
     )
 }
 
-export default ExportSearch;
+export default ImportPaymentSearch;

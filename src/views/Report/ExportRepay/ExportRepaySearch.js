@@ -23,14 +23,14 @@ import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autoc
 import Customer_Autocomplete from '../../Partner/Customer/Control/Customer.Autocomplete'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 
-const ExportSearch = ({ handleSearch }) => {
+const ExportRepaySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().subtract(1, 'month').toString(),
         end_dt: moment().toString(),
-        customer_nm: '',
-        customer_id: null,
+        supplier_nm: '',
+        supplier_id: null,
         invoice_no: '',
         invoice_status: '%',
         product_id: null,
@@ -60,10 +60,10 @@ const ExportSearch = ({ handleSearch }) => {
         setSearchModal(newSearchModal)
     }
 
-    const handleSelectCustomer = obj => {
+    const handleSelectSupplier = obj => {
         const newSearchModal = { ...searchModal }
-        newSearchModal['customer_id'] = !!obj ? obj?.o_1 : null
-        newSearchModal['customer_nm'] = !!obj ? obj?.o_2 : ''
+        newSearchModal['supplier_id'] = !!obj ? obj?.o_1 : null
+        newSearchModal['supplier_nm'] = !!obj ? obj?.o_2 : ''
         setSearchModal(newSearchModal)
     }
 
@@ -122,12 +122,12 @@ const ExportSearch = ({ handleSearch }) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
                 <Grid item xs>
-                    <Customer_Autocomplete
-                        value={searchModal.customer_nm || ''}
+                    <Supplier_Autocomplete
+                        value={searchModal.supplier_nm || ''}
                         style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                         size={'small'}
-                        label={t('menu.customer')}
-                        onSelect={handleSelectCustomer}
+                        label={t('menu.supplier')}
+                        onSelect={handleSelectSupplier}
                         onKeyPress={key => {
                             if (key.which === 13) return handleSearch(searchModal)
                         }}
@@ -190,4 +190,4 @@ const ExportSearch = ({ handleSearch }) => {
     )
 }
 
-export default ExportSearch;
+export default ExportRepaySearch;

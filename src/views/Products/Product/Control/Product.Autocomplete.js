@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
+const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress = () => null, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -88,6 +88,7 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, disabled = 
         <Autocomplete
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
             disabled={disabled}
             size={!!size ? size : 'small'}
             noOptionsText={t('noData')}
