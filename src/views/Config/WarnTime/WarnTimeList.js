@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Dialog from '@material-ui/core/Dialog'
 import Button from '@material-ui/core/Button'
-import AutorenewIcon from '@material-ui/icons/Autorenew';
+import FastForwardIcon from '@material-ui/icons/FastForward';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
@@ -29,6 +29,8 @@ import WarnTimeView from './WarnTimeView';
 import WarnTimeEdit from './WarnTimeEdit'
 import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions, Chip } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook';
+import AddIcon from '@material-ui/icons/Add';
 
 const serviceInfo = {
     GET_ALL: {
@@ -84,6 +86,8 @@ const WarnTimeList = () => {
     const unitNameFocus = useRef(null)
     const unitNoteFocus = useRef(null)
     const idRef = useRef(0)
+
+    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(999999999999, '');
@@ -171,7 +175,7 @@ const WarnTimeList = () => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -192,7 +196,7 @@ const WarnTimeList = () => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -213,7 +217,7 @@ const WarnTimeList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
@@ -300,12 +304,14 @@ const WarnTimeList = () => {
     }
 
     const handleCreate = (actionType, dataObject) => {
+        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
         saveContinue.current = actionType
         const inputParam = [dataObject.product, Number(dataObject.warn_amt), Number(dataObject.warn_time_tp)];
         sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleUpdate = dataObject => {
+        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
         const inputParam = [dataObject.o_1, dataObject.o_4, dataObject.o_5];
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -315,11 +321,6 @@ const WarnTimeList = () => {
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <SearchOne
@@ -337,12 +338,16 @@ const WarnTimeList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('config.warnTime.titleList')}
+                    title={<>{t('config.warnTime.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                            <Button size="small" className='mr-1' style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
+                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
                 />
@@ -422,8 +427,9 @@ const WarnTimeList = () => {
             >
                 <Card>
                     <CardHeader title={t('config.warnTime.titleRemove', { name: name })} />
+                    <CardContent>{name}</CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
@@ -432,7 +438,7 @@ const WarnTimeList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
@@ -453,13 +459,6 @@ const WarnTimeList = () => {
                 shouldOpenEditModal={shouldOpenEditModal}
                 handleCloseEditModal={handleCloseEditModal}
                 handleUpdate={handleUpdate}
-            />
-
-            {/* modal view */}
-            <WarnTimeView
-                id={id}
-                shouldOpenViewModal={shouldOpenViewModal}
-                handleCloseViewModal={handleCloseViewModal}
             />
         </>
     )

@@ -139,7 +139,7 @@ const ImportPaymentSearch = ({ handleSearch }) => {
             </Grid>
             <Grid container spacing={2}>
                 <Grid item className='d-flex align-items-center'>
-                    <Button style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

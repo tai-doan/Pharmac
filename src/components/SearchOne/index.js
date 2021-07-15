@@ -1,6 +1,7 @@
 import { Grid, TextField, Button } from '@material-ui/core'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import SearchIcon from '@material-ui/icons/Search';
 
 const SearchOne = ({ label, name, searchSubmit }) => {
     const { t } = useTranslation()
@@ -23,7 +24,7 @@ const SearchOne = ({ label, name, searchSubmit }) => {
                 />
             </Grid>
             <Grid item className='d-flex align-items-center'>
-                <Button style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => searchSubmit(searchValue)} variant="contained">{t('search_btn')}</Button>
+                <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => searchSubmit(searchValue)} variant="contained">{t('search_btn')}</Button>
             </Grid>
         </Grid>
     )

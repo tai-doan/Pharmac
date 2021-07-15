@@ -4,12 +4,17 @@ import Dialog from '@material-ui/core/Dialog'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const ProductGroupAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, productGroupNameFocus, productGroupNoteFocus, handleCreate }) => {
     const { t } = useTranslation()
 
     const [name, setName] = useState('')
     const [note, setNote] = useState('')
+
+    useHotkeys('f3', () => handleCreate(false, name, note), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => handleCreate(true, name, note), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseAddModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         return () => {
@@ -87,7 +92,7 @@ const ProductGroupAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModa
                     />
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseAddModal(false);
                             setName('');
@@ -98,7 +103,7 @@ const ProductGroupAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModa
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleCreate(false, name, note);
                             setName('');
@@ -110,7 +115,7 @@ const ProductGroupAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModa
                     >
                         {t('btn.save')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleCreate(true, name, note);
                             setName('');

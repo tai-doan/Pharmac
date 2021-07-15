@@ -15,7 +15,7 @@ import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import FormControl from "@material-ui/core/FormControl"
 import Select from "@material-ui/core/Select"
-import AutorenewIcon from '@material-ui/icons/Autorenew';
+import FastForwardIcon from '@material-ui/icons/FastForward';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import ReplayIcon from '@material-ui/icons/Replay';
@@ -36,6 +36,8 @@ import ImportSearch from './ImportSearch';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook';
+import AddIcon from '@material-ui/icons/Add';
 
 const serviceInfo = {
     GET_ALL: {
@@ -91,6 +93,8 @@ const ImportList = () => {
     const dataSourceRef = useRef([])
     const idRef = useRef(0)
 
+    useHotkeys('f2', () => history.push('/page/order/ins-import'), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status, '');
         const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -106,12 +110,6 @@ const ImportList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.IMPORT_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.IMPORT_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.IMPORT_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.IMPORT_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -167,45 +165,6 @@ const ImportList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        import_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        import_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
-        }
-    }
-
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         import_SendReqFlag.current = false
@@ -215,7 +174,7 @@ const ImportList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
@@ -290,11 +249,6 @@ const ImportList = () => {
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <ImportSearch
@@ -310,15 +264,16 @@ const ImportList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.import.titleList')}
+                    title={<>{t('order.import.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton></>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <Link to="/page/order/ins-import" className="normalLink">
-                                <Button variant="contained" size="small" style={{ backgroundColor: 'green', color: '#fff' }}>
-                                    {t('btn.add')}
-                                </Button>
+                                <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                             </Link>
                         </div>
                     }
@@ -336,7 +291,7 @@ const ImportList = () => {
                             <TableHead>
                                 <TableRow>
                                     {column.map(col => (
-                                        <TableCell nowrap="true"
+                                        <TableCell nowrap="true" align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -356,16 +311,15 @@ const ImportList = () => {
                                                         case 'action':
                                                             return (
                                                                 <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
                                                                         <ReplayIcon style={{ color: 'red' }} fontSize="small" />
                                                                     </IconButton>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
-                                                                            // onEdit(item)
                                                                             history.push('/page/order/edit-import', { id: item.o_1 })
                                                                         }}
                                                                     >
@@ -404,7 +358,7 @@ const ImportList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='md'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)
@@ -413,6 +367,7 @@ const ImportList = () => {
                 <Card>
                     <CardHeader title={t('order.import.titleCancel', { name: name })} />
                     <CardContent>
+                        <Grid container>{t('order.import.invoice_no')}: {name}</Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
@@ -448,7 +403,7 @@ const ImportList = () => {
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
@@ -457,7 +412,7 @@ const ImportList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

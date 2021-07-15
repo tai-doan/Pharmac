@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHotkeys } from 'react-hotkeys-hook';
 import Dialog from '@material-ui/core/Dialog'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
@@ -44,6 +45,10 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
 
     const [product, setProduct] = useState({})
     const [isExpanded, setIsExpanded] = useState(false)
+
+    useHotkeys('f3', () => handleCreate(false, product), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => handleCreate(true, product), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseAddModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -378,7 +383,7 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                     </Accordion>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={(e) => {
                             handleCloseAddModal(false)
                             setProduct({})
@@ -388,7 +393,7 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => handleCreate(false, product)}
                         variant="contained"
                         disabled={checkValidate()}
@@ -396,7 +401,7 @@ const ProductAdd = ({ id, productData, productNameFocus, shouldOpenModal, handle
                     >
                         {t('btn.save')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => handleCreate(true, product)}
                         variant="contained"
                         disabled={checkValidate()}

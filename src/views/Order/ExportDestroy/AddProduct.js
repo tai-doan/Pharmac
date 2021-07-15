@@ -67,7 +67,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
 
     return (
         <>
-            <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.exportDestroy.productAdd')}</Button>
+            <Button size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.exportDestroy.productAdd')}</Button>
             <Dialog
                 fullWidth={true}
                 maxWidth="md"

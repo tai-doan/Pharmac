@@ -20,6 +20,7 @@ import { config } from './Modal/Customer.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import Dictionary from '../../../components/Dictionary'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_CUSTOMER_BY_ID: {
@@ -34,6 +35,9 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
     const { t } = useTranslation()
 
     const [Customer, setCustomer] = useState({})
+
+    useHotkeys('f3', () => handleUpdate(Customer), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const CustomerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -374,7 +378,7 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseEditModal(false);
                         }}
@@ -383,7 +387,7 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleUpdate(Customer);
                         }}

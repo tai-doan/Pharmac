@@ -15,7 +15,7 @@ import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import FormControl from "@material-ui/core/FormControl"
 import Select from "@material-ui/core/Select"
-import AutorenewIcon from '@material-ui/icons/Autorenew';
+import FastForwardIcon from '@material-ui/icons/FastForward';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import ReplayIcon from '@material-ui/icons/Replay';
@@ -323,9 +323,9 @@ const ExportRepayList = () => {
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <Link to="/page/order/ins-exportRepay" className="normalLink">
-                                <Button variant="contained" size="small" style={{ backgroundColor: 'green', color: '#fff' }}>
+                                <Button variant="contained" size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }}>
                                     {t('btn.add')}
                                 </Button>
                             </Link>

@@ -22,6 +22,7 @@ import { config } from './Modal/Product.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -37,6 +38,9 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
 
     const [product, setProduct] = useState({})
     const [isExpanded, setIsExpanded] = useState(false)
+
+    useHotkeys('f3', () => handleEdit(product), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -384,7 +388,7 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                     </Accordion>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={(e) => {
                             handleCloseEditModal(false)
                             setProduct({})
@@ -394,7 +398,7 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => handleEdit(product)}
                         variant="contained"
                         disabled={checkValidate()}

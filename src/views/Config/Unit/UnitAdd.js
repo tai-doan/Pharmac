@@ -7,12 +7,17 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitNameFocus, unitNoteFocus, handleSubmit }) => {
     const { t } = useTranslation()
 
     const [name, setName] = useState('')
     const [note, setNote] = useState('')
+
+    useHotkeys('f3', () => handleSubmit(false, name, note), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => handleSubmit(true, name, note), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseAddModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         setName(Bname)
@@ -83,7 +88,7 @@ const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitN
                     />
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseAddModal(false);
                             setName('');
@@ -94,7 +99,7 @@ const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitN
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleSubmit(false, name, note);
                             setName('');
@@ -107,7 +112,7 @@ const UnitAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, unitN
                         {t('btn.save')}
                     </Button>
                     {(!id || id === 0) && (
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleSubmit(true, name, note);
                                 setName('');

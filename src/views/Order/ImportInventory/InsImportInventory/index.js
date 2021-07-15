@@ -26,6 +26,7 @@ import { Link } from 'react-router-dom'
 import AddProduct from '../AddProduct'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -51,6 +52,8 @@ const ProductImportInventory = ({ }) => {
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+
+    useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const importInventorySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -139,7 +142,7 @@ const ProductImportInventory = ({ }) => {
     }
 
     const handleAddProduct = productObject => {
-        if(productObject === null){
+        if (productObject === null) {
             return
         }
         let converted = { ...productObject }
@@ -181,6 +184,7 @@ const ProductImportInventory = ({ }) => {
     }
 
     const handleCreateInvoice = () => {
+        if (dataSource.lenght <= 0) return
         //bắn event tạo invoice
         sendRequest(serviceInfo.CREATE_INVOICE, [], e => console.log(e), true, handleTimeOut)
     }

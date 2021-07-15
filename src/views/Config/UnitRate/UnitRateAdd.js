@@ -8,6 +8,7 @@ import NumberFormat from 'react-number-format'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
     const { t } = useTranslation()
@@ -15,6 +16,10 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
     const [unitRate, setUnitRate] = useState({})
     const [productSelect, setProductSelect] = useState('')
     const [unitSelect, setUnitSelect] = useState('')
+
+    useHotkeys('f3', () => handleCreate(false, unitRate), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => handleCreate(true, unitRate), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseAddModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (shouldOpenModal) {
@@ -103,7 +108,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseAddModal(false);
                         }}
@@ -112,7 +117,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleCreate(false, unitRate);
                         }}
@@ -122,7 +127,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     >
                         {t('btn.save')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             setUnitRate({})
                             setProductSelect('')

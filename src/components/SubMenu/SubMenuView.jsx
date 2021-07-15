@@ -10,7 +10,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListIcon from '@material-ui/icons/List';
 
 const SubMenuView = ({
-    item, baseLink
+    item, baseLink, onChangeLink
 }) => {
     const { t } = useTranslation();
 
@@ -31,7 +31,7 @@ const SubMenuView = ({
                             item.children.map((row, index) => {
                                 return (
                                     <React.Fragment key={index}>
-                                        <Link to={baseLink + row.link} key={row.link + index} className="text-decoration-none text-dark" >
+                                        <Link onClick={onChangeLink} to={baseLink + row.link} key={row.link + index} className="text-decoration-none text-dark" >
                                             <ListItem button className={activeLink === row.link ? style.active : ''}>
                                                 <ListItemIcon className={style.icon}> <ListIcon /></ListItemIcon>
                                                 <ListItemText><span className={style.title}>{t(row.title)}</span></ListItemText>

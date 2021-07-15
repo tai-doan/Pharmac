@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Dialog from '@material-ui/core/Dialog'
 import Button from '@material-ui/core/Button'
-import AutorenewIcon from '@material-ui/icons/Autorenew';
+import FastForwardIcon from '@material-ui/icons/FastForward';
 import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -29,6 +29,8 @@ import PriceAdd from './PriceAdd';
 import PriceEdit from './PriceEdit'
 import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook';
+import AddIcon from '@material-ui/icons/Add';
 
 const serviceInfo = {
     GET_ALL: {
@@ -79,6 +81,8 @@ const PriceList = () => {
     const searchRef = useRef('')
     const saveContinue = useRef(false)
     const idRef = useRef(0)
+
+    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(999999999999, '');
@@ -164,7 +168,7 @@ const PriceList = () => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -185,7 +189,7 @@ const PriceList = () => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -206,7 +210,7 @@ const PriceList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
@@ -292,12 +296,14 @@ const PriceList = () => {
     }
 
     const handleCreate = (actionType, dataObject) => {
+        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
         saveContinue.current = actionType
         const inputParam = [dataObject.product, dataObject.unit, dataObject.importPrice, dataObject.importVAT, dataObject.price, dataObject.wholePrice, dataObject.exportVAT, dataObject.note];
         sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleUpdate = dataObject => {
+        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
         const inputParam = [dataObject.o_1, dataObject.o_4, dataObject.o_6, dataObject.o_7, dataObject.o_8, dataObject.o_9, dataObject.o_10, dataObject.o_11];
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
@@ -307,11 +313,6 @@ const PriceList = () => {
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <SearchOne
@@ -329,12 +330,16 @@ const PriceList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('config.price.titleList')}
+                    title={<>{t('config.price.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                            <Button size="small" className='mr-1' style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
+                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
                 />
@@ -351,7 +356,7 @@ const PriceList = () => {
                             <TableHead>
                                 <TableRow>
                                     {column.map(col => (
-                                        <TableCell nowrap="true"
+                                        <TableCell nowrap="true" align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -413,8 +418,9 @@ const PriceList = () => {
             >
                 <Card>
                     <CardHeader title={t('config.price.titleRemove', { name: name })} />
+                    <CardContent>{name}</CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
@@ -423,7 +429,7 @@ const PriceList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

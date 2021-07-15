@@ -12,6 +12,7 @@ import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service';
 import { config } from './Modal/ProductGroup.modal'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const serviceInfo = {
     GET_PRODUCT_GROUP_BY_ID: {
@@ -26,6 +27,8 @@ const ProductGroupEdit = ({ id, shouldOpenModal, handleCloseEditModal, productGr
     const { t } = useTranslation()
 
     const [productGroup, setProductGroup] = useState({})
+    useHotkeys('f3', () => handleUpdate(productGroup), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productGroupSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -136,7 +139,7 @@ const ProductGroupEdit = ({ id, shouldOpenModal, handleCloseEditModal, productGr
                     />
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseEditModal(false);
                         }}
@@ -145,7 +148,7 @@ const ProductGroupEdit = ({ id, shouldOpenModal, handleCloseEditModal, productGr
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleUpdate(false, productGroup);
                         }}

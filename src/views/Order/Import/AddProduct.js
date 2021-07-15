@@ -18,11 +18,17 @@ import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productImportModal } from './Modal/Import.modal'
 import NumberFormat from 'react-number-format'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const ProductImportAdd = ({ handleAddProduct }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => { handleAddProduct(productInfo); setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleAddProduct(productInfo); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -98,7 +104,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
 
     return (
         <>
-            <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.import.productAdd')}</Button>
+            <Button size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.import.productAdd')}</Button>
             <Dialog
                 fullWidth={true}
                 maxWidth="md"
@@ -264,7 +270,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setProductInfo({ ...productImportModal })
                                 setShouldOpenModal(false);
@@ -274,7 +280,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleAddProduct(productInfo);
                                 setProductInfo({ ...productImportModal })
@@ -286,7 +292,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                         >
                             {t('btn.save')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleAddProduct(productInfo);
                                 setProductInfo({ ...productImportModal })

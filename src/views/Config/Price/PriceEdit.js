@@ -15,6 +15,7 @@ import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Price.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_PRICE_BY_ID: {
@@ -30,6 +31,9 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
 
     const [Price, setPrice] = useState({})
     const [unitSelect, setUnitSelect] = useState('')
+
+    useHotkeys('f3', () => handleUpdate(Price), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const PriceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -264,7 +268,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseEditModal(false);
                         }}
@@ -273,7 +277,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleUpdate(Price);
                         }}

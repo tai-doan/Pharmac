@@ -79,7 +79,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
 
     return (
         <>
-            <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.exportRepay.productAdd')}</Button>
+            <Button size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('order.exportRepay.productAdd')}</Button>
             <Dialog
                 fullWidth={true}
                 maxWidth="md"

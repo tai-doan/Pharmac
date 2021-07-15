@@ -15,6 +15,7 @@ import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/StoreLimit.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_STORE_LIMIT_BY_ID: {
@@ -30,6 +31,9 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
 
     const [StoreLimit, setStoreLimit] = useState({})
     const [unitSelect, setUnitSelect] = useState('')
+
+    useHotkeys('f3', () => handleUpdate(StoreLimit), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const StoreLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -169,7 +173,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseEditModal(false);
                         }}
@@ -178,7 +182,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleUpdate(StoreLimit);
                         }}

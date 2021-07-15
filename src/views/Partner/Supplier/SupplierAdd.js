@@ -11,11 +11,15 @@ import { Grid } from '@material-ui/core'
 import { defaultModalAdd } from './Modal/Supplier.modal';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import Dictionary from '../../../components/Dictionary'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const SupplierAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
     const { t } = useTranslation()
 
     const [Supplier, setSupplier] = useState({ ...defaultModalAdd })
+    useHotkeys('f3', () => handleCreate(false, Supplier), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => handleCreate(true, Supplier), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseAddModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (shouldOpenModal) {
@@ -307,7 +311,7 @@ const SupplierAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseAddModal(false);
                         }}
@@ -316,7 +320,7 @@ const SupplierAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleCreate(false, Supplier);
                         }}
@@ -326,7 +330,7 @@ const SupplierAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
                     >
                         {t('btn.save')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleCreate(true, Supplier);
                         }}

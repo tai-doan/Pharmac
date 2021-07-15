@@ -7,12 +7,12 @@ import MenuView from '../../components/Menu/index'
 import HeaderView from '../../components/Header/index'
 
 import Dashboard from '../Dashboard/index'
-import Product from '../Product/index'
 import Config from '../Config/index'
 import Report from '../Report/index'
 import Partner from '../Partner/index'
 import Order from '../Order/index'
 import Products from '../Products'
+import SettlementLayout from '../Settlement'
 
 const baseLink = '/page/'
 
@@ -22,8 +22,6 @@ function Child() {
     switch (link) {
         case 'dashboard':
             return <Dashboard />
-        case 'product':
-            return <Product />
         case 'order':
             return <Order />
         case 'partner':
@@ -34,6 +32,8 @@ function Child() {
             return <Config />
         case 'products':
             return <Products />
+        case 'settlement':
+            return <SettlementLayout />
         default:
             break
     }
@@ -47,7 +47,7 @@ const Page = () => {
             setWidthMenu(document.getElementById('menu_view').offsetWidth)
         }, 400);
         document.getElementById('menu_view').addEventListener('click', handleResize)
-        return () =>{
+        return () => {
             document.getElementById('menu_view').removeEventListener('click', handleResize)
         }
     }, [])

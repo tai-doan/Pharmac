@@ -35,6 +35,7 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -62,6 +63,8 @@ const ProductImport = ({ }) => {
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+
+    useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -214,6 +217,7 @@ const ProductImport = ({ }) => {
     }
 
     const handleCreateInvoice = () => {
+        if (dataSource.length <= 0 || !Import.supplier || !Import.order_dt) return
         //bắn event tạo invoice
         const inputParam = [
             !!Import.invoice_no ? Import.invoice_no : 'AUTO',
@@ -257,7 +261,7 @@ const ProductImport = ({ }) => {
                                 <TableHead>
                                     <TableRow>
                                         {column.map(col => (
-                                            <TableCell nowrap="true"
+                                            <TableCell nowrap="true" align={col.align}
                                                 className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                                 key={col.field}
                                             >

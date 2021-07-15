@@ -4,14 +4,14 @@ const tableColumn = [
     { field: 'action', title: 'lbl.action', show: true, disabled: true, minWidth: 100 },
     { field: 'o_3', title: 'menu.product', show: true, disabled: true, minWidth: 200 },
     { field: 'o_5', title: 'menu.configUnit', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_6', title: 'config.price.importPrice', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_7', title: 'config.price.importVAT', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_8', title: 'config.price.price', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_9', title: 'config.price.wholePrice', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_10', title: 'config.price.exportVAT', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_6', title: 'config.price.importPrice', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
+    { field: 'o_7', title: 'config.price.importVAT', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
+    { field: 'o_8', title: 'config.price.price', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
+    { field: 'o_9', title: 'config.price.wholePrice', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
+    { field: 'o_10', title: 'config.price.exportVAT', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_11', title: 'config.price.note', show: true, disabled: false, minWidth: 300 },
     { field: 'o_12', title: 'updateUser', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_13', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date' },
+    { field: 'o_13', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' },
     // { field: 'o_11', title: 'config.unit.titleBranch', show: true, disabled: false, minWidth: 100 }
 ]
 

@@ -68,7 +68,7 @@ const menuList = [
         link: 'settlement',
         key: 'settlement',
         children: [
-            { title: 'menu.settlImp', link: 'settlement/settlImp', key: 'settlImp' },
+            { title: 'menu.settlImp', link: 'settlement/import', key: 'settlImp' },
             { title: 'menu.settlExp', link: 'settlement/settlExp', key: 'settlExp' },
             { title: 'menu.settlExpRepay', link: 'settlement/settlExpRepay', key: 'settlExpRepay' },
         ],
@@ -228,7 +228,7 @@ const MenuView = ({ baseLink }) => {
             </div>
 
             <div className={[style.iconExpand, expand === true ? 'w-100' : 'd-none'].join(' ')}>
-                <SubMenuView item={itemActive} baseLink={baseLink} />
+                <SubMenuView item={itemActive} baseLink={baseLink} onChangeLink={() => setExpand(false)} />
             </div>
         </div>
     )

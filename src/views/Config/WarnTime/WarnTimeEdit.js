@@ -15,6 +15,7 @@ import { config } from './Modal/WarnTime.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import Dictionary from '../../../components/Dictionary/index'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_WARN_TIME_BY_ID: {
@@ -29,6 +30,9 @@ const WarnTimeEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
     const { t } = useTranslation()
 
     const [warnTime, setWarnTime] = useState({})
+
+    useHotkeys('f3', () => handleUpdate(warnTime), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const warnTimeSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -145,7 +149,7 @@ const WarnTimeEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseEditModal(false);
                         }}
@@ -154,7 +158,7 @@ const WarnTimeEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleUpdate(warnTime);
                         }}

@@ -4,10 +4,10 @@ const tableColumn = [
     { field: 'action', title: 'lbl.action', show: true, disabled: true, minWidth: 100 },
     { field: 'o_3', title: 'menu.product', show: true, disabled: true, minWidth: 200 },
     { field: 'o_5', title: 'menu.configUnit', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_6', title: 'config.store_limit.minQuantity', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_7', title: 'config.store_limit.maxQuantity', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_6', title: 'config.store_limit.minQuantity', show: true, disabled: false, minWidth: 100, type:'number', align: 'right' },
+    { field: 'o_7', title: 'config.store_limit.maxQuantity', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_8', title: 'updateUser', show: true, disabled: false, minWidth: 100 },
-    { field: 'o_9', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date' }
+    { field: 'o_9', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]
 
 const config = {

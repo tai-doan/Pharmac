@@ -19,6 +19,7 @@ import {
     KeyboardDatePicker
 } from '@material-ui/pickers';
 import moment from 'moment'
+import SearchIcon from '@material-ui/icons/Search';
 
 const ExportDestroySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
@@ -112,7 +113,7 @@ const ExportDestroySearch = ({ handleSearch }) => {
             </Grid>
             <Grid container spacing={1}>
                 <Grid item>
-                    <Button size="small" style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button endIcon={<SearchIcon />} size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

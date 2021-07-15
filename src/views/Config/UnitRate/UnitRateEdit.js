@@ -18,6 +18,7 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/UnitRate.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_UNIT_RATE_BY_ID: {
@@ -32,6 +33,9 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
+
+    useHotkeys('f3', () => handleUpdate(unitRate), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const unitRateSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -139,7 +143,7 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleCloseEditModal(false);
                         }}
@@ -148,7 +152,7 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleUpdate(unitRate);
                         }}

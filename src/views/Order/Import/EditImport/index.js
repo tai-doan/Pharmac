@@ -36,6 +36,7 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -89,6 +90,8 @@ const EditImport = ({ }) => {
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+
+    useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -287,7 +290,6 @@ const EditImport = ({ }) => {
     }
 
     const checkValidate = () => {
-        console.log(dataSource, Import)
         if (dataSource.length > 0 && !!Import.supplier && !!Import.order_dt) {
             return false
         }
@@ -295,7 +297,7 @@ const EditImport = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!Import.invoice_id) {
+        if (!Import.invoice_id || dataSource.length <= 0 || !Import.supplier || !Import.order_dt) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         }

@@ -12,7 +12,8 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
-import AutorenewIcon from '@material-ui/icons/Autorenew';
+import FastForwardIcon from '@material-ui/icons/FastForward';
+import AddIcon from '@material-ui/icons/Add';
 import Chip from '@material-ui/core/Chip';
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
@@ -101,6 +102,8 @@ const ProductList = () => {
     const productNoteFocus = useRef(null)
     const idRef = useRef(0)
 
+    
+
     useEffect(() => {
         getList(999999999999, '');
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -163,6 +166,7 @@ const ProductList = () => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         }
         if (message['PROC_DATA']) {
+            console.log('msg: ', message)
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[0] === 999999999999) {
@@ -189,7 +193,7 @@ const ProductList = () => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -217,7 +221,7 @@ const ProductList = () => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -238,7 +242,7 @@ const ProductList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
@@ -295,28 +299,30 @@ const ProductList = () => {
     }
 
     const handleCreate = (actionType, dataObject) => {
+        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
         const inputParam = [
             dataObject.productGroup,
-            dataObject.code.trim() === '' ? 'AUTO' : dataObject.code.trim(),
+            !dataObject.code || dataObject.code.trim() === '' ? 'AUTO' : dataObject.code.trim(),
             dataObject.name,
             dataObject.barcode,
             dataObject.unit,
-            dataObject.content,
-            dataObject.contraind,
-            dataObject.designate,
-            dataObject.dosage,
-            dataObject.interact,
-            dataObject.manufact,
-            dataObject.effect,
-            dataObject.overdose,
-            dataObject.storages,
-            dataObject.packing
+            dataObject.content || '',
+            dataObject.contraind || '',
+            dataObject.designate || '',
+            dataObject.dosage || '',
+            dataObject.interact || '',
+            dataObject.manufact || '',
+            dataObject.effect || '',
+            dataObject.overdose || '',
+            dataObject.storages || '',
+            dataObject.packing || ''
         ]
         saveContinue.current = actionType
         sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const handleEdit = newData => {
+        if (newData && Object.keys(newData).length === 0 && newData.constructor === Object) return
         let data = Object.keys(newData).map(key => newData[key])
         data.splice(-2); // xóa mã sp + tên units
         sendRequest(serviceInfo.UPDATE, data, e => console.log(e), true, handleTimeOut)
@@ -358,11 +364,6 @@ const ProductList = () => {
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <SearchOne
@@ -380,12 +381,19 @@ const ProductList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('products.product.titleList')}
+                    title={
+                        <>
+                            {t('products.product.titleList')}
+                            <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                                <MoreVertIcon />
+                            </IconButton>
+                        </>
+                    }
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AutorenewIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                            <Button size="small" className='mr-1' style={{ backgroundColor: 'green', color: '#fff' }} onClick={() => setShouldOpenModal(true)} variant="contained">{t('btn.add')}</Button>
+                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
                 />
@@ -466,8 +474,12 @@ const ProductList = () => {
             >
                 <Card>
                     <CardHeader title={t('products.product.titleRemove', { name: name })} />
+                    <CardContent>
+                        {name}
+                    </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button
+                            size='small'
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
@@ -476,7 +488,7 @@ const ProductList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
