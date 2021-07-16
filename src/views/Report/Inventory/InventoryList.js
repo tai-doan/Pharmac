@@ -93,9 +93,8 @@ const InventoryList = () => {
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            console.log('data: ', newData)
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[6] === 999999999999 && reqInfoMap.inputParam[7] === 999999999999) {
+                if (reqInfoMap.inputParam[0] === 999999999999 && reqInfoMap.inputParam[1] === 'ZZZ') {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)

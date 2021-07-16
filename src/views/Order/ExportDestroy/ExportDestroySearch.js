@@ -56,7 +56,7 @@ const ExportDestroySearch = ({ handleSearch }) => {
     return (
         <>
             <Grid container spacing={2}>
-                <Grid item xs>
+                <Grid item xs={3}>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
                             disableToolbar
@@ -75,7 +75,7 @@ const ExportDestroySearch = ({ handleSearch }) => {
                         />
                     </MuiPickersUtilsProvider>
                 </Grid>
-                <Grid item xs>
+                <Grid item xs={3}>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
                             disableToolbar
@@ -94,7 +94,7 @@ const ExportDestroySearch = ({ handleSearch }) => {
                         />
                     </MuiPickersUtilsProvider>
                 </Grid>
-                <Grid item xs>
+                <Grid item xs={3}>
                     <FormControl margin="dense" variant="outlined" className='w-100'>
                         <InputLabel id="status">{t('order.exportDestroy.invoice_type')}</InputLabel>
                         <Select
@@ -110,9 +110,7 @@ const ExportDestroySearch = ({ handleSearch }) => {
                         </Select>
                     </FormControl>
                 </Grid>
-            </Grid>
-            <Grid container spacing={1}>
-                <Grid item>
+                <Grid item xs={3} className='d-flex align-items-center'>
                     <Button endIcon={<SearchIcon />} size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
