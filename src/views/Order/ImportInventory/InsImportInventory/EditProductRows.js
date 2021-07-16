@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import InputLabel from "@material-ui/core/InputLabel"
-import MenuItem from "@material-ui/core/MenuItem"
-import FormControl from "@material-ui/core/FormControl"
-import Select from "@material-ui/core/Select"
-import { Grid } from '@material-ui/core'
+import { Grid, Dialog, DialogTitle, DialogActions, DialogContent, TextField, Button, InputLabel, MenuItem, FormControl, Select } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -28,7 +18,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
     const [productInfo, setProductInfo] = useState({ ...productData })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({...productData}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productData }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (productEditID !== -1 && !!productData) {

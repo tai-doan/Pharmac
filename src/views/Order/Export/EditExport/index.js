@@ -1,21 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
+import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Dictionary_Autocomplete from '../../../../components/Dictionary_Autocomplete'
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -34,7 +25,6 @@ import AddProduct from '../AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
-import { Card, CardHeader, CardContent } from '@material-ui/core'
 import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -421,14 +411,6 @@ const EditExport = ({ }) => {
                                 name='invoice_no'
                                 variant="outlined"
                             />
-                            {/* <Dictionary_Autocomplete
-                                diectionName='customers'
-                                value={customerSelect || ''}
-                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                size={'small'}
-                                label={t('menu.customer')}
-                                onSelect={handleSelectSupplier}
-                            /> */}
                             <div className='d-flex align-items-center w-100'>
                                 <CustomerAdd_Autocomplete
                                     value={customerSelect || ''}

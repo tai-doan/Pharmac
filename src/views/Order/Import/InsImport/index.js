@@ -1,20 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
+import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Supplier_Autocomplete from '../../../Partner/Supplier/Control/Supplier.Autocomplete'
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -33,7 +24,6 @@ import AddProduct from '../AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
-import { Card, CardHeader, CardContent } from '@material-ui/core'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -328,18 +318,20 @@ const ProductImport = ({ }) => {
                     <CardHeader title={t('order.import.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.invoice_no')}
-                                onChange={handleChange}
-                                value={Import.invoice_no || ''}
-                                name='invoice_no'
-                                variant="outlined"
-                            />
+                            <Tooltip placement="top" title={t('auto_invoice')} arrow>
+                                <TextField
+                                    fullWidth={true}
+                                    margin="dense"
+                                    multiline
+                                    rows={1}
+                                    autoComplete="off"
+                                    label={t('order.import.invoice_no')}
+                                    onChange={handleChange}
+                                    value={Import.invoice_no || ''}
+                                    name='invoice_no'
+                                    variant="outlined"
+                                />
+                            </Tooltip>
                             <div className='d-flex align-items-center w-100'>
                                 <SupplierAdd_Autocomplete
                                     value={supplierSelect || ''}
@@ -349,13 +341,6 @@ const ProductImport = ({ }) => {
                                     onCreate={id => setImport({ ...Import, ...{ supplier: id } })}
                                 />
                             </div>
-                            {/* <Supplier_Autocomplete
-                                value={supplierSelect || ''}
-                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                size={'small'}
-                                label={t('menu.supplier')}
-                                onSelect={handleSelectSupplier}
-                            /> */}
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker
                                     disableToolbar

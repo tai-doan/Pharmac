@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
+import { Grid, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -33,7 +25,6 @@ import AddProduct from '../AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
-import { Card, CardHeader, CardContent } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {

@@ -1,17 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom';
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Accordion from '@material-ui/core/Accordion'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import Typography from '@material-ui/core/Typography'
-import InputLabel from "@material-ui/core/InputLabel"
-import MenuItem from "@material-ui/core/MenuItem"
-import FormControl from "@material-ui/core/FormControl"
-import Select from "@material-ui/core/Select"
-import { Grid } from '@material-ui/core'
+import { Grid, Select, FormControl, MenuItem, InputLabel, Typography, AccordionSummary, AccordionDetails, Accordion, Button, TextField } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import DateFnsUtils from '@date-io/date-fns';
 import {

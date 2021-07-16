@@ -1,23 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
-import InputLabel from "@material-ui/core/InputLabel"
-import MenuItem from "@material-ui/core/MenuItem"
-import FormControl from "@material-ui/core/FormControl"
-import Select from "@material-ui/core/Select"
+import {
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
+    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+} from '@material-ui/core'
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import Chip from '@material-ui/core/Chip';
-import IconButton from '@material-ui/core/IconButton'
 import ReplayIcon from '@material-ui/icons/Replay';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -33,7 +21,6 @@ import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/ExportDestroy.modal'
 import ExportDestroySearch from './ExportDestroySearch';
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook';

@@ -1,20 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
+import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker
 } from '@material-ui/pickers';
-import Dictionary_Autocomplete from '../../../../components/Dictionary_Autocomplete'
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -33,7 +24,6 @@ import AddProduct from '../AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
-import { Card, CardHeader, CardContent } from '@material-ui/core'
 import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -321,26 +311,20 @@ const InsExport = ({ }) => {
                     <CardHeader title={t('order.export.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.export.invoice_no')}
-                                onChange={handleChange}
-                                value={Export.invoice_no || ''}
-                                name='invoice_no'
-                                variant="outlined"
-                            />
-                            {/* <Dictionary_Autocomplete
-                                diectionName='customers'
-                                onSelect={handleSelectCustomer}
-                                label={t('menu.customer')}
-                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                size={'small'}
-                                value={customerSelect || ''}
-                            /> */}
+                            <Tooltip placement="top" title={t('auto_invoice')} arrow>
+                                <TextField
+                                    fullWidth={true}
+                                    margin="dense"
+                                    multiline
+                                    rows={1}
+                                    autoComplete="off"
+                                    label={t('order.export.invoice_no')}
+                                    onChange={handleChange}
+                                    value={Export.invoice_no || ''}
+                                    name='invoice_no'
+                                    variant="outlined"
+                                />
+                            </Tooltip>
                             <div className='d-flex align-items-center w-100'>
                                 <CustomerAdd_Autocomplete
                                     value={customerSelect || ''}

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
+import { Grid, Dialog, TextField, Button, Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -22,7 +19,6 @@ import SnackBarService from '../../../../utils/service/snackbar_service'
 import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
@@ -39,7 +35,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({...productImportModal}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productImportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {

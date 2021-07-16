@@ -21,6 +21,7 @@
     "noData": "Không có dữ liệu",
     "wrongData": "Dữ liệu bị lỗi",
     "can_not_found_id_invoice_please_try_again": "Không tìm thấy id hóa đơn, vui lòng thử lại",
+    "auto_invoice": "Nếu để trống hệ thống sẽ tự tạo",
     "transaction_statement_list": "Danh sách sao kê giao dịch",
     "invoice_no": "Mã hóa đơn",
     "invoice_status": "Trạng thái hóa đơn",
