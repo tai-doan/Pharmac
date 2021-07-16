@@ -10,6 +10,7 @@ const ImportPayment = lazy(() => import('./ImportPayment'))
 const CollectSales = lazy(() => import('./CollectSales'))
 const CollectReturns = lazy(() => import('./CollectReturn'))
 const Inventory = lazy(() => import('./Inventory'))
+const TransactionStatement = lazy(() => import('./TransactionStatement'))
 
 const ReportLayout = () => {
     return (
@@ -44,6 +45,8 @@ function Child() {
             return <CollectReturns />
         case 'inventory':
             return <Inventory />
+        case 'transaction-statement':
+            return <TransactionStatement />
         default:
             break
     }

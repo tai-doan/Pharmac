@@ -21,6 +21,7 @@
     "noData": "Không có dữ liệu",
     "wrongData": "Dữ liệu bị lỗi",
     "can_not_found_id_invoice_please_try_again": "Không tìm thấy id hóa đơn, vui lòng thử lại",
+    "transaction_statement_list": "Danh sách sao kê giao dịch",
     "invoice_no": "Mã hóa đơn",
     "invoice_status": "Trạng thái hóa đơn",
     "all": "Tất cả",
@@ -86,6 +87,7 @@
         "reportExportRepay": "Xuất trả hàng",
         "reportExportDestroy": "Xuất hủy",
         "reportSettlement": "Công nợ",
+        "reportTransactionStatement": "Sao kê giao dịch",
         "configUnit": "Đơn vị",
         "configUnitRate": "Hệ số quy đổi",
         "configStoreLimit": "Hạn mức kho",
@@ -273,6 +275,12 @@
         }
     },
     "report": {
+        "transaction_statement": "Sao kê giao dịch",
+        "trans_dt": "Ngày giao dịch",
+        "s_inven_qty": "Số dư đầu kỳ",
+        "e_inven_qty": "Số dư cuối kỳ",
+        "trans_nm": "Loại giao dịch",
+        "qty":"Số lượng giao dịch",
         "payment_amount": "Số tiền thanh toán",
         "payment_method": "Phương thức thanh toán",
         "payment_date": "Ngày thanh toán",

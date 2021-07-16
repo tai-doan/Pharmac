@@ -88,6 +88,7 @@ const menuList = [
             { title: 'collecting_sales', link: 'report/collect-sales', key: 'reportCollectSales' },
             { title: 'collecting_import_repay', link: 'report/collect-returns', key: 'reportCollectReturn' },
             { title: 'menu.reportInventory', link: 'report/inventory', key: 'reportInventory' },
+            { title: 'menu.reportTransactionStatement', link: 'report/transaction-statement', key: 'reportTransactionStatement' },
             // { title: 'menu.reportImportInven', link: 'report/import-order-inven', key: 'reportImportInven' },
             // { title: 'menu.reportExportOrder', link: 'report/export-order', key: 'reportExportOrder' },
             // { title: 'menu.reportSettlement', link: 'report/export-order-settl', key: 'reportSettlement' },
