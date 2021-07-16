@@ -20,6 +20,7 @@ import {
 } from '@material-ui/pickers';
 import moment from 'moment'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
+import SearchIcon from '@material-ui/icons/Search';
 
 const ImportInventorySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
@@ -167,7 +168,7 @@ const ImportInventorySearch = ({ handleSearch }) => {
                     />
                 </Grid>
                 <Grid item className='d-flex align-items-center'>
-                    <Button style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button size='small' endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

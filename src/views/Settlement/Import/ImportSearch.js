@@ -19,6 +19,7 @@ import {
     KeyboardDatePicker
 } from '@material-ui/pickers';
 import moment from 'moment'
+import SearchIcon from '@material-ui/icons/Search';
 
 const ImportSearch = ({ handleSearch }) => {
     const { t } = useTranslation()
@@ -93,7 +94,7 @@ const ImportSearch = ({ handleSearch }) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
                 <Grid item xs={3} className='align-items-center d-flex'>
-                    <Button style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button endIcon={<SearchIcon />} size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

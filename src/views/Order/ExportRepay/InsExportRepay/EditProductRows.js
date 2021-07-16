@@ -21,11 +21,14 @@ import Unit_Autocomplete from '../../../Config/Unit/Control/Unit.Autocomplete'
 import { productExportRepayModal } from '../Modal/ExportRepay.modal'
 import NumberFormat from 'react-number-format'
 import moment from 'moment'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productData })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productData }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (productEditID !== -1 && !!productData) {
@@ -261,7 +264,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleEditProduct(null)
                             setProductInfo({ ...productExportRepayModal })
@@ -272,7 +275,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleEditProduct(productInfo);
                             setProductInfo({ ...productExportRepayModal })

@@ -28,7 +28,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
     const [productInfo, setProductInfo] = useState({ ...productData })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productData) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productData }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (productEditID !== -1 && !!productData) {

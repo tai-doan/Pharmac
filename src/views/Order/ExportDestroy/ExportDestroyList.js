@@ -36,6 +36,9 @@ import ExportDestroySearch from './ExportDestroySearch';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook';
+import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -92,6 +95,8 @@ const ExportDestroyList = () => {
     const saveContinue = useRef(false)
     const idRef = useRef(0)
 
+    useHotkeys('f2', () => history.push('/page/order/ins-exportDestroy'), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status);
         const exportDestroySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -107,12 +112,6 @@ const ExportDestroyList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.EXPORT_DESTROY_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_DESTROY_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_DESTROY_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.EXPORT_DESTROY_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -169,45 +168,6 @@ const ExportDestroyList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        exportDestroy_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        exportDestroy_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status)
-        }
-    }
-
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         exportDestroy_SendReqFlag.current = false
@@ -217,7 +177,7 @@ const ExportDestroyList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
@@ -287,16 +247,47 @@ const ExportDestroyList = () => {
         setDeleteModalContent(newModal)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.exportDestroy.invoice_no'), key: 'invoice_no' },
+        { label: t('order.exportDestroy.invoice_stat'), key: 'invoice_stat' },
+        { label: t('order.exportDestroy.exp_dt'), key: 'exp_dt' },
+        { label: t('order.exportDestroy.input_dt'), key: 'input_dt' },
+        { label: t('order.exportDestroy.staff_nm'), key: 'staff_nm' },
+        { label: t('order.exportDestroy.note'), key: 'note' },
+        { label: t('order.exportDestroy.total_prod'), key: 'total_prod' },
+        { label: t('order.exportDestroy.invoice_val'), key: 'invoice_val' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['invoice_no'] = data.o_2
+            item['invoice_stat'] = data.o_3 === '1' ? t('normal') : t('cancelled')
+            item['exp_dt'] = glb_sv.formatValue(data.o_4, 'dated')
+            item['input_dt'] = glb_sv.formatValue(data.o_5, 'dated')
+            item['staff_nm'] = data.o_6
+            item['note'] = data.o_7
+            item['total_prod'] = data.o_8
+            item['invoice_val'] = data.o_9
+            item['createdUser'] = data.o_10
+            item['createdDate'] = glb_sv.formatValue(data.o_11, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <ExportDestroySearch
@@ -312,15 +303,18 @@ const ExportDestroyList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.exportDestroy.titleList')}
+                    title={<>{t('order.exportDestroy.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='export-destroy' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Link to="/page/order/ins-exportDestroy" className="normalLink">
-                                <Button variant="contained" size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }}>
-                                    {t('btn.add')}
-                                </Button>
+                                <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                             </Link>
                         </div>
                     }
@@ -338,7 +332,7 @@ const ExportDestroyList = () => {
                             <TableHead>
                                 <TableRow>
                                     {column.map(col => (
-                                        <TableCell nowrap="true"
+                                        <TableCell nowrap="true" align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -358,14 +352,14 @@ const ExportDestroyList = () => {
                                                         case 'action':
                                                             return (
                                                                 <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
                                                                         <ReplayIcon style={{ color: 'red' }} fontSize="small" />
                                                                     </IconButton>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
                                                                             history.push('/page/order/edit-exportDestroy', { id: item.o_1 })
                                                                         }}
@@ -400,7 +394,7 @@ const ExportDestroyList = () => {
 
             {/* modal delete */}
             <Dialog
-                maxWidth="md"
+                maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)
@@ -409,6 +403,7 @@ const ExportDestroyList = () => {
                 <Card>
                     <CardHeader title={t('order.exportDestroy.titleCancel', { name: name })} />
                     <CardContent>
+                        <Grid container spacing={2}>{t('order.exportDestroy.invoice_no')}: {name}</Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
@@ -444,7 +439,7 @@ const ExportDestroyList = () => {
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
@@ -453,7 +448,7 @@ const ExportDestroyList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

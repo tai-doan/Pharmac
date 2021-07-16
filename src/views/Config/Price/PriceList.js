@@ -31,6 +31,7 @@ import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -308,6 +309,42 @@ const PriceList = () => {
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('menu.product'), key: 'product' },
+        { label: t('menu.configUnit'), key: 'unit' },
+        { label: t('config.price.importPrice'), key: 'importPrice' },
+        { label: t('config.price.importVAT'), key: 'importVAT' },
+        { label: t('config.price.price'), key: 'price' },
+        { label: t('config.price.wholePrice'), key: 'wholePrice' },
+        { label: t('config.price.exportVAT'), key: 'exportVAT' },
+        { label: t('config.price.note'), key: 'note' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['product'] = data.o_3
+            item['unit'] = data.o_5
+            item['importPrice'] = data.o_6
+            item['importVAT'] = data.o_7
+            item['price'] = data.o_8
+            item['wholePrice'] = data.o_9
+            item['exportVAT'] = data.o_10
+            item['note'] = data.o_11
+            item['createdUser'] = data.o_12
+            item['createdDate'] = glb_sv.formatValue(data.o_13, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -339,6 +376,7 @@ const PriceList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='price' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -410,7 +448,7 @@ const PriceList = () => {
                 </CardContent>
             </Card>
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

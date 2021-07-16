@@ -38,6 +38,7 @@ import moment from 'moment'
 import { Link } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -244,6 +245,54 @@ const ImportList = () => {
         setDeleteModalContent(newModal)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.import.invoice_no'), key: 'invoice_no' },
+        { label: t('order.import.invoice_stat'), key: 'invoice_stat' },
+        { label: t('order.import.vender_nm'), key: 'vender_nm' },
+        { label: t('order.import.order_dt'), key: 'order_dt' },
+        { label: t('order.import.input_dt'), key: 'input_dt' },
+        { label: t('order.import.person_s'), key: 'person_s' },
+        { label: t('order.import.person_r'), key: 'person_r' },
+        { label: t('order.import.cancel_reason'), key: 'cancel_reason' },
+        { label: t('order.import.note'), key: 'note' },
+        { label: t('order.import.total_prod'), key: 'total_prod' },
+        { label: t('order.import.invoice_val'), key: 'invoice_val' },
+        { label: t('order.import.invoice_discount'), key: 'invoice_discount' },
+        { label: t('order.import.invoice_vat'), key: 'invoice_vat' },
+        { label: t('order.import.invoice_settl'), key: 'invoice_settl' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['invoice_no'] = data.o_2
+            item['invoice_stat'] = data.o_3 === '1' ? t('normal') : t('cancelled')
+            item['vender_nm'] = data.o_5
+            item['order_dt'] = glb_sv.formatValue(data.o_6, 'dated')
+            item['input_dt'] = glb_sv.formatValue(data.o_7, 'dated')
+            item['person_s'] = data.o_8
+            item['person_s'] = data.o_9
+            item['cancel_reason'] = data.o_10
+            item['note'] = data.o_11
+            item['total_prod'] = data.o_12
+            item['invoice_val'] = data.o_13
+            item['invoice_discount'] = data.o_14
+            item['invoice_vat'] = data.o_15
+            item['invoice_settl'] = data.o_16
+            item['createdUser'] = data.o_17
+            item['createdDate'] = glb_sv.formatValue(data.o_18, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -272,6 +321,7 @@ const ImportList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='import' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Link to="/page/order/ins-import" className="normalLink">
                                 <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                             </Link>
@@ -358,7 +408,7 @@ const ImportList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog maxWidth='md'
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

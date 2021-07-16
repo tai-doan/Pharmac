@@ -496,7 +496,7 @@ const EditImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_14 / 100 * (obj.o_10 * obj.o_13))
+                                    return acc + Math.round(obj.o_14 / 100 * Math.round(obj.o_10 * obj.o_13 * (1 - (obj.o_15 / 100))))
                                 }, 0) || 0}
                                 label={t('order.import.invoice_vat')}
                                 customInput={TextField}
@@ -511,7 +511,7 @@ const EditImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.o_10 * obj.o_13) - Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13)) - Math.round(obj.o_14 / 100 * (obj.o_10 * obj.o_13)))
+                                    return acc + Math.round(Math.round(obj.o_10 * obj.o_13) - Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13)))
                                 }, 0) || 0}
                                 label={t('order.import.invoice_needpay')}
                                 customInput={TextField}
@@ -561,7 +561,7 @@ const EditImport = ({ }) => {
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button size='small'
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}

@@ -33,6 +33,7 @@ import AddProduct from '../AddProduct'
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -59,6 +60,8 @@ const InsExportDestroy = ({ }) => {
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+
+    useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const exportDestroySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -194,6 +197,7 @@ const InsExportDestroy = ({ }) => {
     }
 
     const handleCreateInvoice = () => {
+        if (dataSource.length <= 0 || !ExportDestroy.exp_dt) return
         //bắn event tạo invoice
         const inputParam = [
             moment(ExportDestroy.exp_dt).format('YYYYMMDD'),
@@ -234,7 +238,7 @@ const InsExportDestroy = ({ }) => {
                                 <TableHead>
                                     <TableRow>
                                         {column.map(col => (
-                                            <TableCell nowrap="true"
+                                            <TableCell nowrap="true" align={col.align}
                                                 className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                                 key={col.field}
                                             >
@@ -364,7 +368,7 @@ const InsExportDestroy = ({ }) => {
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button size='small'
                                 onClick={() => {
                                     handleCreateInvoice();
                                 }}

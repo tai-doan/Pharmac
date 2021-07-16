@@ -25,6 +25,7 @@ import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -161,16 +162,49 @@ const ExportDestroyList = () => {
         }
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('invoice_no'), key: 'invoice_no' },
+        { label: t('order.import.order_dt'), key: 'order_dt' },
+        { label: t('products.product.name'), key: 'product_name' },
+        { label: t('order.import.lot_no'), key: 'lot_no' },
+        { label: t('order.export.qty'), key: 'qty' },
+        { label: t('order.import.unit_nm'), key: 'unit_nm' },
+        { label: t('order.import.price'), key: 'price' },
+        { label: t('order.import.vals'), key: 'vals' },
+        { label: t('report.reason_tp_nm'), key: 'reason_tp_nm' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['invoice_no'] = data.o_2
+            item['order_dt'] = glb_sv.formatValue(data.o_4, 'dated')
+            item['product_name'] = data.o_6
+            item['lot_no'] = data.o_7
+            item['qty'] = data.o_8
+            item['unit_nm'] = data.o_10
+            item['price'] = data.o_11
+            item['vals'] = data.o_12
+            item['reason_tp_nm'] = data.o_14
+            item['createdUser'] = data.o_15
+            item['createdDate'] = glb_sv.formatValue(data.o_16, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <ExportDestroySearch
@@ -186,11 +220,16 @@ const ExportDestroyList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.exportDestroy.titleList')}
+                    title={<>{t('order.exportDestroy.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='report-export-destroy' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                         </div>
                     }
                 />
@@ -207,7 +246,7 @@ const ExportDestroyList = () => {
                             <TableHead>
                                 <TableRow>
                                     {column.map(col => (
-                                        <TableCell nowrap="true"
+                                        <TableCell nowrap="true" align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >

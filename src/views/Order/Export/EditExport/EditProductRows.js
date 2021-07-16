@@ -23,6 +23,7 @@ import SnackBarService from '../../../../utils/service/snackbar_service'
 import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -37,6 +38,8 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productExportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -317,7 +320,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button
+                    <Button size='small'
                         onClick={e => {
                             handleEditProduct(null)
                             setProductInfo({ ...productExportModal })
@@ -328,7 +331,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     >
                         {t('btn.close')}
                     </Button>
-                    <Button
+                    <Button size='small'
                         onClick={() => {
                             handleEditProduct(productInfo);
                             setProductInfo({ ...productExportModal })

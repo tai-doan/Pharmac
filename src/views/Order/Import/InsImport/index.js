@@ -407,7 +407,7 @@ const ProductImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.vat_per / 100 * (obj.qty * obj.price))
+                                    return acc + Math.round(obj.vat_per / 100 * Math.round(obj.qty * obj.price * (1 - (obj.discount_per / 100))))
                                 }, 0) || 0}
                                 label={t('order.import.invoice_vat')}
                                 customInput={TextField}
@@ -422,7 +422,7 @@ const ProductImport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.qty * obj.price) - Math.round(obj.discount_per / 100 * (obj.qty * obj.price)) - Math.round(obj.vat_per / 100 * (obj.qty * obj.price)))
+                                    return acc + Math.round(Math.round(obj.qty * obj.price) - Math.round(obj.discount_per / 100 * (obj.qty * obj.price)))
                                 }, 0) || 0}
                                 label={t('order.import.invoice_needpay')}
                                 customInput={TextField}

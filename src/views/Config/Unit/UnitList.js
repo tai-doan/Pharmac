@@ -31,6 +31,7 @@ import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -314,6 +315,30 @@ const UnitList = () => {
         setShouldOpenModal(value)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('config.unit.name'), key: 'name' },
+        { label: t('config.unit.note'), key: 'note' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['name'] = data.o_2
+            item['note'] = data.o_3
+            item['createdUser'] = data.o_4
+            item['createdDate'] = glb_sv.formatValue(data.o_5, 'date')
+            item['titleBranch'] = data.o_6
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -346,6 +371,7 @@ const UnitList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='unit' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -419,7 +445,7 @@ const UnitList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

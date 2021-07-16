@@ -38,6 +38,7 @@ import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -318,14 +319,35 @@ const ProductGroupList = () => {
         setShouldOpenEditModal(value)
     }
 
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
     const handleCloseAddModal = value => {
         setId(0);
         setShouldOpenModal(value)
+    }
+
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('products.productGroup.name'), key: 'name' },
+        { label: t('products.productGroup.note'), key: 'note' },
+        { label: t('products.productGroup.main_group'), key: 'main_group' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['name'] = data.o_2
+            item['note'] = data.o_3
+            item['main_group'] = data.o_4 === 'Y' ? t('products.productGroup.isMain') : t('products.productGroup.notMain')
+            item['createdUser'] = data.o_5
+            item['createdDate'] = glb_sv.formatValue(data.o_6, 'date')
+            item['titleBranch'] = data.o_7
+            return item
+        })
+        return result
     }
 
     return (
@@ -360,6 +382,7 @@ const ProductGroupList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='product_group' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -438,7 +461,7 @@ const ProductGroupList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)
@@ -446,6 +469,7 @@ const ProductGroupList = () => {
             >
                 <Card>
                     <CardHeader title={t('products.productGroup.titleRemove', { name: name })} />
+                    <CardContent>{t('products.productGroup.name')}: {name}</CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
@@ -482,12 +506,6 @@ const ProductGroupList = () => {
                 productGroupNameFocus={productGroupNameFocus}
                 productGroupNoteFocus={productGroupNoteFocus}
                 handleUpdate={handleUpdate}
-            />
-
-            <ProductGroupView
-                id={id}
-                shouldOpenModal={shouldOpenViewModal}
-                handleCloseViewModal={handleCloseViewModal}
             />
         </>
     )

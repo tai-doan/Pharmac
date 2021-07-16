@@ -10,11 +10,17 @@ import { productExportRepayModal } from './Modal/ExportRepay.modal'
 import NumberFormat from 'react-number-format'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import LotNoByProduct_Autocomplete from '../../../components/LotNoByProduct'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const ProductExportRepayAdd = ({ handleAddProduct }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportRepayModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => { handleAddProduct(productInfo); setShouldOpenModal(false); setProductInfo({ ...productExportRepayModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleAddProduct(productInfo); setProductInfo({ ...productExportRepayModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productExportRepayModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -212,7 +218,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setProductInfo({ ...productExportRepayModal })
                                 setShouldOpenModal(false);
@@ -222,7 +228,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleAddProduct(productInfo);
                                 setProductInfo({ ...productExportRepayModal })
@@ -234,7 +240,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                         >
                             {t('btn.save')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleAddProduct(productInfo);
                                 setProductInfo({ ...productExportRepayModal })

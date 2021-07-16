@@ -19,9 +19,8 @@ import {
     KeyboardDatePicker
 } from '@material-ui/pickers';
 import moment from 'moment'
-import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
-import Customer_Autocomplete from '../../Partner/Customer/Control/Customer.Autocomplete'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
+import SearchIcon from '@material-ui/icons/Search';
 
 const ExportDestroySearch = ({ handleSearch }) => {
     const { t } = useTranslation()
@@ -190,7 +189,7 @@ const ExportDestroySearch = ({ handleSearch }) => {
                     />
                 </Grid>
                 <Grid item className='d-flex align-items-center'>
-                    <Button style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button size='small' endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

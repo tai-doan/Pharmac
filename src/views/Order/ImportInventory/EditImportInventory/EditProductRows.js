@@ -39,7 +39,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({...productImportModal}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {

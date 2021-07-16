@@ -26,9 +26,9 @@ const ProductImportAdd = ({ handleAddProduct }) => {
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f3', () => { handleAddProduct(productInfo); setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f4', () => { handleAddProduct(productInfo); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => { handleAddProduct(productInfo); setShouldOpenModal(false); setProductInfo({ ...productImportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleAddProduct(productInfo); setProductInfo({ ...productImportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productImportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };

@@ -1,7 +1,7 @@
 
 const tableColumn = [
-    { field: 'o_2', title: 'products.product.name', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_3', title: 'report.lot_no', show: true, disabled: true, minWidth: 100 },
+    { field: 'o_2', title: 'products.product.name', show: true, disabled: true, minWidth: 200 },
+    { field: 'o_3', title: 'report.lot_no', show: true, disabled: false, minWidth: 100 },
     { field: 'o_5', title: 'report.inven_qty', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_6', title: 'report.imp_qty', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_7', title: 'report.exp_qty', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },

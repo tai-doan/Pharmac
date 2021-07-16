@@ -41,6 +41,9 @@ import ExportSearch from './ExportSearch';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook';
+import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -103,6 +106,8 @@ const ExportList = () => {
     const saveContinue = useRef(false)
     const idRef = useRef(0)
 
+    useHotkeys('f2', () => history.push('/page/order/ins-export'), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status, '');
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -118,12 +123,6 @@ const ExportList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.EXPORT_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.EXPORT_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -179,47 +178,6 @@ const ExportList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        export_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            setShouldOpenModal(saveContinue.current)
-            dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        export_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            setShouldOpenEditModal(false)
-            dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999, searchModal.id_status, searchModal.vender_nm.trim())
-        }
-    }
-
     const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         export_SendReqFlag.current = false
@@ -229,7 +187,7 @@ const ExportList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
-        if (message['PROC_STATUS'] === 2) {
+        if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
@@ -276,17 +234,6 @@ const ExportList = () => {
         setName(item ? item.o_2 : '')
     }
 
-    const onEdit = item => {
-        setShouldOpenEditModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-        idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
-    }
-
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         e.preventDefault();
         idRef.current = id;
@@ -304,36 +251,56 @@ const ExportList = () => {
         }
     }
 
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleUpdate = dataObject => {
-        const inputParam = [dataObject.o_1, // id
-        dataObject.o_4, // nhà cung ứng
-        moment(dataObject.o_6).format('YYYYMMDD'), // ngày tạo HĐ
-        dataObject.o_8, // người giao hàng
-        dataObject.o_9, // người nhận hàng
-        dataObject.o_11 // note
-        ];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
     const handleChange = e => {
         const newModal = { ...deleteModalContent };
         newModal[e.target.name] = e.target.value
         setDeleteModalContent(newModal)
+    }
+
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.export.invoice_no'), key: 'invoice_no' },
+        { label: t('order.export.invoice_stat'), key: 'invoice_stat' },
+        { label: t('order.export.cust_nm_v'), key: 'cust_nm_v' },
+        { label: t('order.export.order_dt'), key: 'order_dt' },
+        { label: t('order.export.input_dt'), key: 'input_dt' },
+        { label: t('order.export.staff_nm'), key: 'staff_nm' },
+        { label: t('order.export.cancel_reason'), key: 'cancel_reason' },
+        { label: t('order.export.note'), key: 'note' },
+        { label: t('order.export.total_prod'), key: 'total_prod' },
+        { label: t('order.export.invoice_val'), key: 'invoice_val' },
+        { label: t('order.export.invoice_discount'), key: 'invoice_discount' },
+        { label: t('order.export.invoice_vat'), key: 'invoice_vat' },
+        { label: t('order.export.invoice_settl'), key: 'invoice_settl' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['invoice_no'] = data.o_2
+            item['invoice_stat'] = data.o_3 === '1' ? t('normal') : t('cancelled')
+            item['cust_nm_v'] = data.o_5
+            item['order_dt'] = glb_sv.formatValue(data.o_6, 'dated')
+            item['input_dt'] = glb_sv.formatValue(data.o_7, 'dated')
+            item['staff_nm'] = data.o_8
+            item['cancel_reason'] = data.o_9
+            item['note'] = data.o_10
+            item['total_prod'] = data.o_11
+            item['invoice_val'] = data.o_12
+            item['invoice_discount'] = data.o_13
+            item['invoice_vat'] = data.o_14
+            item['invoice_settl'] = data.o_15
+            item['createdUser'] = data.o_16
+            item['createdDate'] = glb_sv.formatValue(data.o_17, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
     }
 
     return (
@@ -341,11 +308,6 @@ const ExportList = () => {
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <ExportSearch
@@ -361,15 +323,18 @@ const ExportList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('order.export.titleList')}
+                    title={<>{t('order.export.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='export' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Link to="/page/order/ins-export" className="normalLink">
-                                <Button variant="contained" size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }}>
-                                    {t('btn.add')}
-                                </Button>
+                                <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                             </Link>
                         </div>
                     }
@@ -387,7 +352,7 @@ const ExportList = () => {
                             <TableHead>
                                 <TableRow>
                                     {column.map(col => (
-                                        <TableCell nowrap="true"
+                                        <TableCell nowrap="true" align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -407,14 +372,14 @@ const ExportList = () => {
                                                         case 'action':
                                                             return (
                                                                 <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
                                                                         <ReplayIcon style={{ color: 'red' }} fontSize="small" />
                                                                     </IconButton>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
                                                                             history.push('/page/order/edit-export', { id: item.o_1 })
                                                                         }}
@@ -454,7 +419,7 @@ const ExportList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)
@@ -463,6 +428,7 @@ const ExportList = () => {
                 <Card>
                     <CardHeader title={t('order.export.titleCancel', { name: name })} />
                     <CardContent>
+                        <Grid container spacing={2}>{t('order.export.invoice_no')}: {name}</Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
@@ -498,7 +464,7 @@ const ExportList = () => {
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
@@ -507,7 +473,7 @@ const ExportList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button onClick={handleDelete} variant="contained" color="secondary">
+                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

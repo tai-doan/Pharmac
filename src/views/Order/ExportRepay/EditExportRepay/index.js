@@ -36,6 +36,7 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -86,6 +87,8 @@ const EditExportRepay = ({ }) => {
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+
+    useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const exportRepaySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -208,7 +211,7 @@ const EditExportRepay = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            
+
         }
     }
 
@@ -285,7 +288,7 @@ const EditExportRepay = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!ExportRepay.invoice_id) {
+        if (!ExportRepay.invoice_id || dataSource.length <= 0 || !ExportRepay.supplier_id || !ExportRepay.order_dt) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         }
@@ -484,7 +487,7 @@ const EditExportRepay = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10))
+                                    return acc + Math.round(obj.o_12 / 100 * Math.round(obj.o_7 * obj.o_10 * (1 - (obj.o_11 / 100))))
                                 }, 0) || 0}
                                 label={t('order.exportRepay.invoice_vat')}
                                 customInput={TextField}
@@ -499,7 +502,7 @@ const EditExportRepay = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.o_7 * obj.o_10) - Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10)) - Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10)))
+                                    return acc + Math.round(Math.round(obj.o_7 * obj.o_10) - Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10)))
                                 }, 0) || 0}
                                 label={t('order.exportRepay.invoice_needpay')}
                                 customInput={TextField}
@@ -535,7 +538,7 @@ const EditExportRepay = ({ }) => {
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button size='small'
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}

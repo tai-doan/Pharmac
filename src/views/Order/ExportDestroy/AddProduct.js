@@ -10,11 +10,17 @@ import { productExportDestroyModal } from './Modal/ExportDestroy.modal'
 import NumberFormat from 'react-number-format'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import LotNoByProduct_Autocomplete from '../../../components/LotNoByProduct'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const ProductExportDestroyAdd = ({ handleAddProduct }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportDestroyModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+
+    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => { handleAddProduct(productInfo); setShouldOpenModal(false); setProductInfo({ ...productExportDestroyModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleAddProduct(productInfo); setProductInfo({ ...productExportDestroyModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productExportDestroyModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -192,7 +198,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setProductInfo({ ...productExportDestroyModal })
                                 setShouldOpenModal(false);
@@ -202,7 +208,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleAddProduct(productInfo);
                                 setProductInfo({ ...productExportDestroyModal })
@@ -214,7 +220,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                         >
                             {t('btn.save')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleAddProduct(productInfo);
                                 setProductInfo({ ...productExportDestroyModal })

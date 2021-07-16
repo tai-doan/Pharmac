@@ -31,6 +31,7 @@ import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -316,6 +317,34 @@ const UnitRateList = () => {
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('menu.product'), key: 'product' },
+        { label: t('menu.configUnit'), key: 'unit' },
+        { label: t('config.unitRate.rate'), key: 'rate' },
+        { label: t('config.unitRate.minRate'), key: 'minRate' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['product'] = data.o_3
+            item['unit'] = data.o_5
+            item['rate'] = data.o_6
+            item['minRate'] = data.o_8
+            item['createdUser'] = data.o_9
+            item['createdDate'] = glb_sv.formatValue(data.o_10, 'date')
+            item['titleBranch'] = data.o_11
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -348,6 +377,7 @@ const UnitRateList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='unitRate' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -419,7 +449,7 @@ const UnitRateList = () => {
                 </CardContent>
             </Card>
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

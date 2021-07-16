@@ -31,6 +31,7 @@ import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -308,6 +309,32 @@ const StoreLimitList = () => {
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('menu.product'), key: 'product' },
+        { label: t('menu.configUnit'), key: 'unit' },
+        { label: t('config.store_limit.minQuantity'), key: 'min_qty' },
+        { label: t('config.store_limit.maxQuantity'), key: 'max_qty' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['product'] = data.o_3
+            item['unit'] = data.o_5
+            item['min_qty'] = data.o_6
+            item['min_qty'] = data.o_7
+            item['createdUser'] = data.o_8
+            item['createdDate'] = glb_sv.formatValue(data.o_9, 'date')
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -339,6 +366,7 @@ const StoreLimitList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='storeLimit' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -411,7 +439,7 @@ const StoreLimitList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

@@ -10,8 +10,8 @@ const tableColumn = [
     { field: 'o_10', title: 'order.import.qty', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_12', title: 'order.import.unit_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'o_13', title: 'order.import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_14', title: 'order.import.invoice_discount', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_15', title: 'order.import.invoice_vat', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_14', title: 'report.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_15', title: 'report.vat_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_16', title: 'order.import.vals', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_17', title: 'updateUser', show: true, disabled: false, minWidth: 200 },
     { field: 'o_18', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }

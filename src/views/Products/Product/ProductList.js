@@ -30,6 +30,7 @@ import ProductAdd from './ProductAdd';
 import ProductEdit from './ProductEdit'
 import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -102,7 +103,7 @@ const ProductList = () => {
     const productNoteFocus = useRef(null)
     const idRef = useRef(0)
 
-    
+
 
     useEffect(() => {
         getList(999999999999, '');
@@ -349,14 +350,59 @@ const ProductList = () => {
         setShouldOpenEditModal(value)
     }
 
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
     const handleCloseAddModal = value => {
         setId(0);
         setShouldOpenModal(value)
+    }
+
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('menu.productGroup'), key: 'productGroup' },
+        { label: t('products.product.code'), key: 'code' },
+        { label: t('products.product.name'), key: 'name' },
+        { label: t('products.product.barcode'), key: 'barcode' },
+        { label: t('products.product.content'), key: 'content' },
+        { label: t('products.product.contraind'), key: 'contraind' },
+        { label: t('products.product.designate'), key: 'designate' },
+        { label: t('products.product.dosage'), key: 'dosage' },
+        { label: t('products.product.interact'), key: 'interact' },
+        { label: t('products.product.manufact'), key: 'manufact' },
+        { label: t('products.product.effect'), key: 'effect' },
+        { label: t('products.product.overdose'), key: 'overdose' },
+        { label: t('products.product.packing'), key: 'packing' },
+        { label: t('products.product.storages'), key: 'storages' },
+        { label: t('menu.configUnit'), key: 'unit' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['productGroup'] = data.o_3
+            item['code'] = data.o_4
+            item['name'] = data.o_5
+            item['barcode'] = data.o_6
+            item['content'] = data.o_7
+            item['contraind'] = data.o_8
+            item['designate'] = data.o_8
+            item['dosage'] = data.o_10
+            item['interact'] = data.o_11
+            item['manufact'] = data.o_12
+            item['effect'] = data.o_13
+            item['overdose'] = data.o_14
+            item['packing'] = data.o_15
+            item['storages'] = data.o_16
+            item['unit'] = data.o_18
+            item['createdUser'] = data.o_19
+            item['createdDate'] = glb_sv.formatValue(data.o_20, 'date')
+            item['titleBranch'] = data.o_21
+            return item
+        })
+        return result
     }
 
     return (
@@ -393,6 +439,7 @@ const ProductList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='product' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -466,7 +513,7 @@ const ProductList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

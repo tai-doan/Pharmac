@@ -36,6 +36,8 @@ import ImportSearch from './ImportSearch';
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook'
+import AddIcon from '@material-ui/icons/Add';
 
 const serviceInfo = {
     GET_ALL: {
@@ -288,11 +290,6 @@ const ImportList = () => {
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <ImportSearch
@@ -308,15 +305,17 @@ const ImportList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('settlement.import')}
+                    title={<>{t('settlement.import')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <Link to="/page/settlement/ins-import" className="normalLink">
-                                <Button variant="contained" size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }}>
-                                    {t('btn.add')}
-                                </Button>
+                                <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                             </Link>
                         </div>
                     }
@@ -334,7 +333,7 @@ const ImportList = () => {
                             <TableHead>
                                 <TableRow>
                                     {column.map(col => (
-                                        <TableCell nowrap="true"
+                                        <TableCell nowrap="true" align={col.align}
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -354,16 +353,15 @@ const ImportList = () => {
                                                         case 'action':
                                                             return (
                                                                 <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
                                                                         <ReplayIcon style={{ color: 'red' }} fontSize="small" />
                                                                     </IconButton>
-                                                                    <IconButton
+                                                                    <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {
-                                                                            // onEdit(item)
                                                                             history.push('/page/settlement/edit-import', { id: item.o_1 })
                                                                         }}
                                                                     >
@@ -402,7 +400,7 @@ const ImportList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)
@@ -411,6 +409,7 @@ const ImportList = () => {
                 <Card>
                     <CardHeader title={t('order.import.titleCancel', { name: name })} />
                     <CardContent>
+                        <Grid container spacing={2}>{t('order.import.invoice_no')}: {name}</Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>

@@ -36,6 +36,7 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
 import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -86,6 +87,8 @@ const EditExport = ({ }) => {
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+
+    useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -207,7 +210,7 @@ const EditExport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            
+
         }
     }
 
@@ -287,7 +290,7 @@ const EditExport = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!Export.invoice_id) {
+        if (!Export.invoice_id || dataSource.length <= 0 || !Export.customer_id || !Export.order_dt) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         }
@@ -486,7 +489,7 @@ const EditExport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10))
+                                    return acc + Math.round(obj.o_12 / 100 * Math.round(obj.o_7 * obj.o_10 * (1 - (obj.o_11 / 100))))
                                 }, 0) || 0}
                                 label={t('order.export.invoice_vat')}
                                 customInput={TextField}
@@ -501,7 +504,7 @@ const EditExport = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.o_7 * obj.o_10) - Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10)) - Math.round(obj.o_12 / 100 * (obj.o_7 * obj.o_10)))
+                                    return acc + Math.round(Math.round(obj.o_7 * obj.o_10) - Math.round(obj.o_11 / 100 * (obj.o_7 * obj.o_10)))
                                 }, 0) || 0}
                                 label={t('order.export.invoice_needpay')}
                                 customInput={TextField}
@@ -537,7 +540,7 @@ const EditExport = ({ }) => {
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button size='small'
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}

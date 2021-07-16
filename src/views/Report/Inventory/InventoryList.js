@@ -24,6 +24,7 @@ import InventorySearch from './InventorySearch';
 import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { Link } from 'react-router-dom'
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -142,16 +143,45 @@ const InventoryList = () => {
         }
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('products.product.name'), key: 'product_name' },
+        { label: t('report.lot_no'), key: 'lot_no' },
+        { label: t('report.inven_qty'), key: 'inven_qty' },
+        { label: t('report.imp_qty'), key: 'imp_qty' },
+        { label: t('report.exp_qty'), key: 'exp_qty' },
+        { label: t('report.exp_qty_rp'), key: 'exp_qty_rp' },
+        { label: t('report.exp_qty_cacl'), key: 'exp_qty_cacl' },
+        // { label: t('createdUser'), key: 'createdUser' },
+        // { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['product_name'] = data.o_2
+            item['lot_no'] =data.o_3
+            item['inven_qty'] = data.o_5
+            item['imp_qty'] = data.o_6
+            item['exp_qty'] = data.o_7
+            item['exp_qty_rp'] = data.o_8
+            item['exp_qty_cacl'] = data.o_9
+            // item['createdUser'] = data.o_19
+            // item['createdDate'] = glb_sv.formatValue(data.o_20, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
                 <CardHeader
                     title={t('lbl.search')}
-                    action={
-                        <IconButton style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
                 />
                 <CardContent>
                     <InventorySearch
@@ -167,11 +197,16 @@ const InventoryList = () => {
             />
             <Card>
                 <CardHeader
-                    title={t('list_of_products_in_stock_with_lot_details')}
+                    title={<>{t('list_of_products_in_stock_with_lot_details')}
+                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            <MoreVertIcon />
+                        </IconButton>
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='report-inventory' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                         </div>
                     }
                 />

@@ -32,6 +32,7 @@ import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -350,6 +351,62 @@ const CustomerList = () => {
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('partner.customer.cust_nm_v'), key: 'cust_nm_v' },
+        { label: t('partner.customer.cust_nm_e'), key: 'cust_nm_e' },
+        { label: t('partner.customer.cust_nm_short'), key: 'cust_nm_short' },
+        { label: t('partner.customer.address'), key: 'address' },
+        { label: t('partner.customer.phone'), key: 'phone' },
+        { label: t('partner.customer.fax'), key: 'fax' },
+        { label: t('partner.customer.email'), key: 'email' },
+        { label: t('partner.customer.website'), key: 'website' },
+        { label: t('partner.customer.tax_cd'), key: 'tax_cd' },
+        { label: t('partner.customer.bank_acnt_no'), key: 'bank_acnt_no' },
+        { label: t('partner.customer.bank_acnt_nm'), key: 'bank_acnt_nm' },
+        { label: t('partner.customer.bank_nm'), key: 'bank_nm' },
+        { label: t('partner.customer.agent_nm'), key: 'agent_nm' },
+        { label: t('partner.customer.agent_fun'), key: 'agent_fun' },
+        { label: t('partner.customer.agent_address'), key: 'agent_address' },
+        { label: t('partner.customer.agent_phone'), key: 'agent_phone' },
+        { label: t('partner.customer.agent_email'), key: 'agent_email' },
+        { label: t('partner.customer.default_yn'), key: 'default_yn' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['cust_nm_v'] = data.o_2
+            item['cust_nm_e'] = data.o_3
+            item['cust_nm_short'] = data.o_4
+            item['address'] = data.o_5
+            item['phone'] = data.o_6
+            item['fax'] = data.o_7
+            item['email'] = data.o_8
+            item['website'] = data.o_9
+            item['tax_cd'] = data.o_10
+            item['bank_acnt_no'] = data.o_11
+            item['bank_acnt_nm'] = data.o_12
+            item['bank_nm'] = data.o_14
+            item['agent_nm'] = data.o_15
+            item['agent_fun'] = data.o_16
+            item['agent_address'] = data.o_17
+            item['agent_phone'] = data.o_18
+            item['agent_email'] = data.o_19
+            item['default_yn'] = data.o_22
+            item['createdUser'] = data.o_20
+            item['createdDate'] = glb_sv.formatValue(data.o_21, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -379,6 +436,7 @@ const CustomerList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='customer' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
                         </div>
                     }
@@ -458,7 +516,7 @@ const CustomerList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog
+            <Dialog maxWidth='sm'
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

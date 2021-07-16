@@ -35,6 +35,7 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -62,6 +63,8 @@ const InsExportRepay = ({ }) => {
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+
+    useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const exportRepaySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -207,6 +210,7 @@ const InsExportRepay = ({ }) => {
     }
 
     const handleCreateInvoice = () => {
+        if (dataSource.length <= 0 || !ExportRepay.supplier || !ExportRepay.order_dt) return
         //bắn event tạo invoice
         const inputParam = [
             !!ExportRepay.invoice_no.trim() ? ExportRepay.invoice_no.trim() : 'AUTO',
@@ -249,7 +253,7 @@ const InsExportRepay = ({ }) => {
                                 <TableHead>
                                     <TableRow>
                                         {column.map(col => (
-                                            <TableCell nowrap="true"
+                                            <TableCell nowrap="true" align={col.align}
                                                 className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                                 key={col.field}
                                             >
@@ -396,7 +400,7 @@ const InsExportRepay = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.vat_per / 100 * (obj.qty * obj.price))
+                                    return acc + Math.round(obj.vat_per / 100 * Math.round(obj.qty * obj.price * (1 - (obj.discount_per / 100))))
                                 }, 0) || 0}
                                 label={t('order.exportRepay.invoice_vat')}
                                 customInput={TextField}
@@ -411,7 +415,7 @@ const InsExportRepay = ({ }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.qty * obj.price) - Math.round(obj.discount_per / 100 * (obj.qty * obj.price)) - Math.round(obj.vat_per / 100 * (obj.qty * obj.price)))
+                                    return acc + Math.round(Math.round(obj.qty * obj.price) - Math.round(obj.discount_per / 100 * (obj.qty * obj.price)))
                                 }, 0) || 0}
                                 label={t('order.exportRepay.invoice_needpay')}
                                 customInput={TextField}
@@ -449,7 +453,7 @@ const InsExportRepay = ({ }) => {
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button size='small'
                                 onClick={() => {
                                     handleCreateInvoice();
                                 }}

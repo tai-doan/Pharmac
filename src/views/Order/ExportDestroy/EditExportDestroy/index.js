@@ -34,6 +34,7 @@ import AddProduct from '../AddProduct'
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -83,6 +84,8 @@ const EditExportDestroy = ({ }) => {
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+
+    useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const exportDestroySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -271,7 +274,7 @@ const EditExportDestroy = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!ExportDestroy.invoice_id) {
+        if (!ExportDestroy.invoice_id || !ExportDestroy.exp_dt || dataSource.length <= 0) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         }
@@ -462,7 +465,7 @@ const EditExportDestroy = ({ }) => {
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button size='small'
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
