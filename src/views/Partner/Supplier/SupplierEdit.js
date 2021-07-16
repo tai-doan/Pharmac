@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import InputLabel from "@material-ui/core/InputLabel"
-import MenuItem from "@material-ui/core/MenuItem"
-import FormControl from "@material-ui/core/FormControl"
-import Select from "@material-ui/core/Select"
-import { Grid } from '@material-ui/core'
+import {
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog
+} from '@material-ui/core'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -15,7 +10,6 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Supplier.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import Dictionary from '../../../components/Dictionary'
 import { useHotkeys } from 'react-hotkeys-hook'
 

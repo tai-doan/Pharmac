@@ -1,8 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
+import { Card, CardHeader, CardContent, CardActions, Button, TextField, Dialog } from '@material-ui/core'
 import sendRequest from '../../../utils/service/sendReq';
 import reqFunction from '../../../utils/constan/functions';
 import { requestInfo } from '../../../utils/models/requestInfo';
@@ -11,7 +9,6 @@ import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service';
 import { config } from './Modal/ProductGroup.modal'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 
 const serviceInfo = {

@@ -1,16 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import Button from '@material-ui/core/Button'
+import {
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
+    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+} from '@material-ui/core'
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import Chip from '@material-ui/core/Chip';
-import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
@@ -29,7 +23,6 @@ import { tableColumn, config } from './Modal/Customer.modal'
 import CustomerAdd from './CustomerAdd';
 import CustomerEdit from './CustomerEdit'
 import SearchOne from '../../../components/SearchOne'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
 import ExportExcel from '../../../components/ExportExcel'

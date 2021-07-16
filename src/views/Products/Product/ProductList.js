@@ -1,20 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
+import {
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
+    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+} from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import AddIcon from '@material-ui/icons/Add';
-import Chip from '@material-ui/core/Chip';
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -29,7 +23,6 @@ import { tableColumn, config } from './Modal/Product.modal'
 import ProductAdd from './ProductAdd';
 import ProductEdit from './ProductEdit'
 import SearchOne from '../../../components/SearchOne'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {

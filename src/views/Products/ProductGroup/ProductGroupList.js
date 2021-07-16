@@ -1,26 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Paper from '@material-ui/core/Paper'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
+import {
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
+    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+} from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import Chip from '@material-ui/core/Chip';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
-import SearChComp from '../../../components/_Search'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -32,10 +21,8 @@ import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/ProductGroup.modal'
 import ProductGroupAdd from './ProductGroupAdd';
-import ProductGroupView from './ProductGroupView'
 import ProductGroupEdit from './ProductGroupEdit'
 import SearchOne from '../../../components/SearchOne'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
 import ExportExcel from '../../../components/ExportExcel'
@@ -280,11 +267,6 @@ const ProductGroupList = () => {
         setShouldOpenEditModal(item ? true : false)
         setId(item ? item.o_1 : 0)
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
-    }
-
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
     }
 
     const handleDelete = e => {

@@ -1,24 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook';
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import MenuItem from '@material-ui/core/MenuItem'
-import Accordion from '@material-ui/core/Accordion'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import Typography from '@material-ui/core/Typography'
+import {
+    Card, CardHeader, CardContent, CardActions, Tooltip, TextField, Grid, Button, Dialog, Accordion, AccordionDetails, AccordionSummary, Typography
+} from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Grid from '@material-ui/core/Grid'
-import Tooltip from '@material-ui/core/Tooltip'
-import NumberFormat from 'react-number-format'
-
-import ProductGroup_Autocomplete from '../ProductGroup/Control/ProductGroup.Autocomplete'
-import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import UnitAdd_Autocomplete from '../../Config/Unit/Control/UnitAdd.Autocomplete'
 import ProductGroupAdd_Autocomplete from '../ProductGroup/Control/ProductGroupAdd.Autocomplete'
-import Product_Autocomplete from './Control/Product.Autocomplete'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -26,7 +14,6 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Product.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {

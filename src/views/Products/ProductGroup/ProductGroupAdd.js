@@ -1,9 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { Card, CardHeader, CardContent, CardActions, Button, TextField, Dialog } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const ProductGroupAdd = ({ id, Bname, Bnote, shouldOpenModal, handleCloseAddModal, productGroupNameFocus, productGroupNoteFocus, handleCreate }) => {
