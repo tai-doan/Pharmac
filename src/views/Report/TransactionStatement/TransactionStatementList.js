@@ -29,10 +29,10 @@ import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
-        functionName: 'set_exp_repay',
+        functionName: 'state_prod',
         reqFunct: reqFunction.REPORT_TRANSACTION_STATEMENT,
         biz: 'report',
-        object: 'rp_settlement'
+        object: 'rp_statement'
     }
 }
 
@@ -94,9 +94,8 @@ const TransactionStatementList = () => {
         }
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            console.log('data: ', newData)
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[6] === 999999999999 && reqInfoMap.inputParam[7] === 999999999999) {
+                if (reqInfoMap.inputParam[3] === 999999999999) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
