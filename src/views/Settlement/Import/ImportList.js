@@ -38,6 +38,7 @@ import moment from 'moment'
 import { Link } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
 import AddIcon from '@material-ui/icons/Add';
+import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
@@ -285,6 +286,50 @@ const ImportList = () => {
         setDeleteModalContent(newModal)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('invoice_no'), key: 'invoice_no' },
+        { label: t('settlement.trans_biz_nm'), key: 'trans_biz_nm' },
+        { label: t('report.payment_method'), key: 'payment_method' },
+        { label: t('report.payment_date'), key: 'payment_date' },
+        { label: t('report.bank_transf_acc_number'), key: 'bank_transf_acc_number' },
+        { label: t('report.bank_transf_acc_name'), key: 'bank_transf_acc_name' },
+        { label: t('report.bank_transf_name'), key: 'bank_transf_name' },
+        { label: t('report.bank_recei_acc_number'), key: 'bank_recei_acc_number' },
+        { label: t('report.bank_recei_acc_name'), key: 'bank_recei_acc_name' },
+        { label: t('report.bank_recei_name'), key: 'bank_recei_name' },
+        { label: t('note'), key: 'note' },
+        { label: t('report.payment_amount'), key: 'payment_amount' },
+        { label: t('createdUser'), key: 'createdUser' },
+        { label: t('createdDate'), key: 'createdDate' },
+        // { label: t('titleBranch'), key: 'titleBranch' }
+    ]
+
+    const dataCSV = () => {
+        const result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['invoice_no'] = data.o_4
+            item['trans_biz_nm'] = data.o_6
+            item['payment_method'] = data.o_8
+            item['payment_date'] = glb_sv.formatValue(data.o_9, 'dated')
+            item['bank_transf_acc_number'] = data.o_11
+            item['bank_transf_acc_name'] = data.o_12
+            item['bank_transf_name'] = data.o_14
+            item['bank_recei_acc_number'] = data.o_15
+            item['bank_recei_acc_name'] = data.o_16
+            item['bank_recei_name'] = data.o_18
+            item['note'] = data.o_19
+            item['payment_amount'] =data.o_20
+            item['createdUser'] = data.o_21
+            item['createdDate'] = glb_sv.formatValue(data.o_22, 'date')
+            // item['titleBranch'] = data.o_9
+            return item
+        })
+        return result
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -314,6 +359,7 @@ const ImportList = () => {
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <ExportExcel filename='settlement-import' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <Link to="/page/settlement/ins-import" className="normalLink">
                                 <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                             </Link>
