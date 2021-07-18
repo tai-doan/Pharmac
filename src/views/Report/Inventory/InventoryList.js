@@ -47,7 +47,7 @@ const InventoryList = () => {
     const dataSourceRef = useRef([])
 
     useEffect(() => {
-        getList(999999999999, 'ZZZ', searchModal.group_id, searchModal.invent_yn);
+        getList(glb_sv.defaultValueSearch, 'ZZZ', searchModal.group_id, searchModal.invent_yn);
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -71,7 +71,7 @@ const InventoryList = () => {
     }, [])
 
     const getList = (last_product_id, last_lot_no_id, group_id, invent_yn) => {
-        const inputParam = [last_product_id || 999999999999, last_lot_no_id || 'ZZZ', group_id, invent_yn]
+        const inputParam = [last_product_id || glb_sv.defaultValueSearch, last_lot_no_id || 'ZZZ', group_id, invent_yn]
         sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
@@ -94,7 +94,7 @@ const InventoryList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[0] === 999999999999 && reqInfoMap.inputParam[1] === 'ZZZ') {
+                if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch && reqInfoMap.inputParam[1] === 'ZZZ') {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -130,7 +130,7 @@ const InventoryList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(999999999999, 'ZZZ', searchObject.group_id || 0, searchObject.invent_yn || 'Y')
+        getList(glb_sv.defaultValueSearch, 'ZZZ', searchObject.group_id || 0, searchObject.invent_yn || 'Y')
     }
 
     const getNextData = () => {

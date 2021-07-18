@@ -38,12 +38,6 @@ const serviceInfo = {
         biz: config.biz,
         object: config.object
     },
-    SUBMIT_DATA: {
-        funct: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
     DELETE: {
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
@@ -73,7 +67,7 @@ const UnitList = () => {
     const idRef = useRef(0)
 
     useEffect(() => {
-        getList(999999999999, '');
+        getList(glb_sv.defaultValueSearch, '');
         const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -109,13 +103,12 @@ const UnitList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-        console.log('handleTimeout compoent', e)
+        setProcessing(false)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         unit_SendReqFlag.current = false
-        setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -127,7 +120,7 @@ const UnitList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[0] === 999999999999) {
+                if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -152,15 +145,17 @@ const UnitList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
         setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
             dataSourceRef.current = []
             setName('')
+            setId(0);
             setDataSource([]);
             setTotalRecords(0)
-            getList(999999999999, searchValue)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -188,7 +183,7 @@ const UnitList = () => {
         setSearchValue(value)
         setPage(0)
         setTotalRecords(0)
-        getList(999999999999, value)
+        getList(glb_sv.defaultValueSearch, value)
     }
 
     const onRemove = item => {
@@ -205,10 +200,9 @@ const UnitList = () => {
 
     const handleDelete = e => {
         // e.preventDefault();
+        setProcessing(true)
         idRef.current = id;
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
-        setId(0)
-        setName('')
     }
 
     const getNextData = () => {
@@ -247,7 +241,7 @@ const UnitList = () => {
         dataSourceRef.current = []
         setPage(0)
         setTotalRecords(0)
-        getList(999999999999, searchValue)
+        getList(glb_sv.defaultValueSearch, searchValue)
     }
 
     return (
@@ -388,7 +382,7 @@ const UnitList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button disabled={processing} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

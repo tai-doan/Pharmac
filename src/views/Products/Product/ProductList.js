@@ -99,7 +99,7 @@ const ProductList = () => {
 
 
     useEffect(() => {
-        getList(999999999999, '');
+        getList(glb_sv.defaultValueSearch, '');
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -163,7 +163,7 @@ const ProductList = () => {
             console.log('msg: ', message)
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[0] === 999999999999) {
+                if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -203,7 +203,7 @@ const ProductList = () => {
                 setShouldOpenModal(false)
             }
             dataSourceRef.current = [];
-            getList(999999999999, searchValue)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -223,7 +223,7 @@ const ProductList = () => {
             setId(0)
             setShouldOpenEditModal(false)
             dataSourceRef.current = [];
-            getList(999999999999, searchValue)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -272,7 +272,7 @@ const ProductList = () => {
         setSearchValue(value)
         setPage(0)
         setTotalRecords(0)
-        getList(999999999999, value)
+        getList(glb_sv.defaultValueSearch, value)
     }
 
     const onRemove = item => {

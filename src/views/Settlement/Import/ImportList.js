@@ -93,7 +93,7 @@ const ImportList = () => {
     const idRef = useRef(0)
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, 999999999999);
+        getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch);
         const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -128,7 +128,7 @@ const ImportList = () => {
     }, [])
 
     const getList = (startdate, endDate, index) => {
-        const inputParam = [startdate, endDate, index || 999999999999]
+        const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch]
         sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
     }
 
@@ -153,7 +153,7 @@ const ImportList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[2] === 999999999999) {
+                if (reqInfoMap.inputParam[2] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -184,7 +184,7 @@ const ImportList = () => {
             setName('')
             setId(0)
             dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch)
         }
     }
 
@@ -203,7 +203,7 @@ const ImportList = () => {
         } else {
             setId(0)
             dataSourceRef.current = [];
-            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), 999999999999)
+            getList(moment(searchModal.start_dt).format('YYYYMMDD'), moment(searchModal.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch)
         }
     }
 
@@ -254,7 +254,7 @@ const ImportList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999)
+        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch)
     }
 
     const onRemove = item => {

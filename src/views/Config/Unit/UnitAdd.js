@@ -31,8 +31,8 @@ const UnitAdd = ({ onRefresh }) => {
     const inputRef = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f3', () => submit(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f4', () => { submit(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
@@ -90,7 +90,8 @@ const UnitAdd = ({ onRefresh }) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
-    const submit = () => {
+    const handleCreate = () => {
+        if (!name || !name.trim()) return
         const inputParam = [name, note];
         sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
     }
@@ -140,7 +141,7 @@ const UnitAdd = ({ onRefresh }) => {
                             className="uppercaseInput"
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
-                                    submit()
+                                    handleCreate()
                                 }
                             }}
                         />
@@ -157,7 +158,7 @@ const UnitAdd = ({ onRefresh }) => {
                             variant="outlined"
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
-                                    submit()
+                                    handleCreate()
                                 }
                             }}
                         />
@@ -176,7 +177,7 @@ const UnitAdd = ({ onRefresh }) => {
                         </Button>
                         <Button size='small'
                             onClick={() => {
-                                submit()
+                                handleCreate()
                             }}
                             variant="contained"
                             disabled={checkValidate()}
@@ -187,7 +188,7 @@ const UnitAdd = ({ onRefresh }) => {
                         <Button size='small'
                             onClick={() => {
                                 saveContinue.current = true
-                                submit()
+                                handleCreate()
                             }}
                             variant="contained"
                             disabled={checkValidate()}

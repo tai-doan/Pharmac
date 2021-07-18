@@ -80,7 +80,7 @@ const CustomerList = () => {
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        getList(999999999999, '');
+        getList(glb_sv.defaultValueSearch, '');
         const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -140,7 +140,7 @@ const CustomerList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[0] === 999999999999) {
+                if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -172,7 +172,7 @@ const CustomerList = () => {
             setId(0)
             setShouldOpenModal(saveContinue.current)
             dataSourceRef.current = [];
-            getList(999999999999, searchValue)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -192,7 +192,7 @@ const CustomerList = () => {
             setId(0)
             setShouldOpenEditModal(false)
             dataSourceRef.current = [];
-            getList(999999999999, searchValue)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -239,7 +239,7 @@ const CustomerList = () => {
         dataSourceRef.current = []
         setSearchValue(value)
         setTotalRecords(0)
-        getList(999999999999, value)
+        getList(glb_sv.defaultValueSearch, value)
     }
 
     const onRemove = item => {

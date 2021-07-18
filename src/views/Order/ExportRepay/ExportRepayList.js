@@ -91,7 +91,7 @@ const ExportRepayList = () => {
     useHotkeys('f2', () => history.push('/page/order/ins-exportRepay'), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, 999999999999, searchModal.id_status, '');
+        getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch, searchModal.id_status, '');
         const exportRepaySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -120,7 +120,7 @@ const ExportRepayList = () => {
     }, [])
 
     const getList = (startdate, endDate, index, status, name) => {
-        const inputParam = [startdate, endDate, index || 999999999999, status, name.trim() + '%']
+        const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status, name.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
@@ -146,7 +146,7 @@ const ExportRepayList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[2] === 999999999999) {
+                if (reqInfoMap.inputParam[2] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -208,7 +208,7 @@ const ExportRepayList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
-        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), 999999999999, searchObject.id_status, searchObject.supplier.trim())
+        getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch, searchObject.id_status, searchObject.supplier.trim())
     }
 
     const onRemove = item => {

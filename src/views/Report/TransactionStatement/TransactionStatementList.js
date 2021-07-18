@@ -48,7 +48,7 @@ const TransactionStatementList = () => {
     const dataSourceRef = useRef([])
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, searchModal.product_id, 999999999999);
+        getList(searchModal.start_dt, searchModal.end_dt, searchModal.product_id, glb_sv.defaultValueSearch);
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -72,7 +72,7 @@ const TransactionStatementList = () => {
     }, [])
 
     const getList = (startdate, endDate, product_id, lastID) => {
-        const inputParam = [startdate, endDate, product_id, lastID || 999999999999]
+        const inputParam = [startdate, endDate, product_id, lastID || glb_sv.defaultValueSearch]
         sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
@@ -95,7 +95,7 @@ const TransactionStatementList = () => {
         if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[3] === 999999999999) {
+                if (reqInfoMap.inputParam[3] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -135,7 +135,7 @@ const TransactionStatementList = () => {
             moment(searchObject.start_dt).format('YYYYMMDD'),
             moment(searchObject.end_dt).format('YYYYMMDD'),
             !!searchObject.product_id && searchObject.product_id !== 0 ? searchObject.product_id : 0,
-            999999999999
+            glb_sv.defaultValueSearch
         )
     }
 

@@ -48,7 +48,7 @@ const ImportPaymentList = () => {
     const dataSourceRef = useRef([])
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, searchModal.supplier_id, searchModal.invoice_no, 999999999999, 999999999999);
+        getList(searchModal.start_dt, searchModal.end_dt, searchModal.supplier_id, searchModal.invoice_no, glb_sv.defaultValueSearch, glb_sv.defaultValueSearch);
         const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
             if (msg) {
                 const cltSeqResult = msg['REQUEST_SEQ']
@@ -72,7 +72,7 @@ const ImportPaymentList = () => {
     }, [])
 
     const getList = (startdate, endDate, supplier_id, invoice_no, last_invoice_id, last_invoice_detail_id) => {
-        const inputParam = [startdate, endDate, supplier_id, invoice_no, last_invoice_id || 999999999999, last_invoice_detail_id || 999999999999]
+        const inputParam = [startdate, endDate, supplier_id, invoice_no, last_invoice_id || glb_sv.defaultValueSearch, last_invoice_detail_id || glb_sv.defaultValueSearch]
         sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
@@ -96,7 +96,7 @@ const ImportPaymentList = () => {
             let newData = message['PROC_DATA']
             console.log('message: ', message)
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[4] === 999999999999 && reqInfoMap.inputParam[5] === 999999999999) {
+                if (reqInfoMap.inputParam[4] === glb_sv.defaultValueSearch && reqInfoMap.inputParam[5] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -137,8 +137,8 @@ const ImportPaymentList = () => {
             moment(searchObject.end_dt).format('YYYYMMDD'),
             !!searchObject.supplier_id && searchObject.supplier_id !== 0 ? searchObject.supplier_id : 0,
             searchObject.invoice_no.trim() !== '' ? searchObject.invoice_no.trim() : '%',
-            999999999999,
-            999999999999
+            glb_sv.defaultValueSearch,
+            glb_sv.defaultValueSearch
         )
     }
 

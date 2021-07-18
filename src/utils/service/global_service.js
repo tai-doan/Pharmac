@@ -42,6 +42,7 @@ class globalService {
         this.setExpand = 'setExpand'
         // -- golobal variable
         this.timeoutNumber = 10000
+        this.defaultValueSearch = 999999999999
         this.objShareGlb = {} // -- for share info all component of object
         // -- common method share
         this.configInfo = {}

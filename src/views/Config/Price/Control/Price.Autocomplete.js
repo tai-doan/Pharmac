@@ -40,7 +40,7 @@ const Price_Autocomplete = ({ onSelect, label, style, size, value, disabled = fa
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = [999999999999, '%']
+        const inputParam = [glb_sv.defaultValueSearch, '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
 
         const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {

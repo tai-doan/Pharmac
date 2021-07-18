@@ -113,6 +113,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
     }
 
     const handleUpdate = () => {
+        if (!id || id === 0 || !name || !name.trim()) return
         const inputParam = [id, name, note];
         sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
     }
