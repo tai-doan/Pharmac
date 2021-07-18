@@ -11,6 +11,7 @@ import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 import AddIcon from '@material-ui/icons/Add';
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     CREATE: {
@@ -27,6 +28,7 @@ const UnitAdd = ({ onRefresh }) => {
     const [name, setName] = useState('')
     const [note, setNote] = useState('')
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
     const inputRef = useRef(null)
 
@@ -67,6 +69,7 @@ const UnitAdd = ({ onRefresh }) => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -88,10 +91,12 @@ const UnitAdd = ({ onRefresh }) => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
     }
 
     const handleCreate = () => {
         if (!name || !name.trim()) return
+        setProcess(true)
         const inputParam = [name, note];
         sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
     }
@@ -181,7 +186,8 @@ const UnitAdd = ({ onRefresh }) => {
                             }}
                             variant="contained"
                             disabled={checkValidate()}
-                            className={checkValidate() === false ? 'bg-success text-white' : ''}
+                            className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                            endIcon={process && <LoopIcon />}
                         >
                             {t('btn.save')}
                         </Button>
@@ -192,7 +198,8 @@ const UnitAdd = ({ onRefresh }) => {
                             }}
                             variant="contained"
                             disabled={checkValidate()}
-                            className={checkValidate() === false ? 'bg-success text-white' : ''}
+                            className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                            endIcon={process && <LoopIcon />}
                         >
                             {t('config.save_continue')}
                         </Button>

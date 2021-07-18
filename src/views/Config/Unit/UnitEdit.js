@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
+import { Dialog, TextField, Button, Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -16,6 +10,7 @@ import SnackBarService from '../../../utils/service/snackbar_service'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     UPDATE: {
@@ -37,6 +32,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
 
     const [name, setName] = useState('')
     const [note, setNote] = useState('')
+    const [process, setProcess] = useState(false)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => { setShouldOpenModal(false); setName(''); setNote('') }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -78,6 +74,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
     }
 
     const resultGetUnitByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
@@ -101,6 +98,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -114,6 +112,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
 
     const handleUpdate = () => {
         if (!id || id === 0 || !name || !name.trim()) return
+        setProcess(true)
         const inputParam = [id, name, note];
         sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
     }
@@ -200,7 +199,8 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
                         {t('btn.update')}
                     </Button>

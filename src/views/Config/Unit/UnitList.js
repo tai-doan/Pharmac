@@ -30,6 +30,7 @@ import UnitEdit from './UnitEdit';
 import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import ExportExcel from '../../../components/ExportExcel'
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_ALL: {
@@ -382,7 +383,7 @@ const UnitList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button disabled={processing} size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
