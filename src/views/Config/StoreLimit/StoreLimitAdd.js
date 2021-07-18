@@ -39,9 +39,14 @@ const StoreLimitAdd = ({ onRefresh }) => {
     const inputRef = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f3', () => handleCreate(false, StoreLimit), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f4', () => handleCreate(true, StoreLimit), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => {
+        setShouldOpenModal(false);
+        setStoreLimit({})
+        setProductSelect('')
+        setUnitSelect('')
+    }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const storeLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -149,6 +154,9 @@ const StoreLimitAdd = ({ onRefresh }) => {
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
+                    setStoreLimit({})
+                    setProductSelect('')
+                    setUnitSelect('')
                 }}
             >
                 <Card>
@@ -226,6 +234,9 @@ const StoreLimitAdd = ({ onRefresh }) => {
                         <Button size='small'
                             onClick={e => {
                                 setShouldOpenModal(false);
+                                setStoreLimit({})
+                                setProductSelect('')
+                                setUnitSelect('')
                             }}
                             variant="contained"
                             disableElevation

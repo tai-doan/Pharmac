@@ -71,11 +71,11 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     }, [])
 
     useEffect(() => {
-        if (id && id !== 0) {
+        if (shouldOpenModal && id && id !== 0) {
             setUnitRate({})
             sendRequest(serviceInfo.GET_UNIT_RATE_BY_ID, [id], null, true, handleTimeOut)
         }
-    }, [id])
+    }, [shouldOpenModal])
 
     const resultGetUnitRateByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
@@ -195,6 +195,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                     <Button size='small'
                         onClick={e => {
                             setShouldOpenModal(false);
+                            setUnitRate({})
                         }}
                         variant="contained"
                         disableElevation

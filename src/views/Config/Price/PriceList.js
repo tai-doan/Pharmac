@@ -1,20 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import Button from '@material-ui/core/Button'
+import { Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, Button, Chip, IconButton } from '@material-ui/core'
+
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import Chip from '@material-ui/core/Chip';
-import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import LoopIcon from '@material-ui/icons/Loop';
+
+import SearchOne from '../../../components/SearchOne'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
+import ExportExcel from '../../../components/ExportExcel'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -27,28 +23,11 @@ import sendRequest from '../../../utils/service/sendReq'
 import { tableColumn, config } from './Modal/Price.modal'
 import PriceAdd from './PriceAdd';
 import PriceEdit from './PriceEdit'
-import SearchOne from '../../../components/SearchOne'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import { useHotkeys } from 'react-hotkeys-hook';
-import AddIcon from '@material-ui/icons/Add';
-import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    CREATE: {
-        functionName: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        functionName: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
         biz: config.biz,
         object: config.object
     },
@@ -68,22 +47,16 @@ const PriceList = () => {
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
     const price_SendReqFlag = useRef(false)
-    const price_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
-    const saveContinue = useRef(false)
     const idRef = useRef(0)
-
-    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(glb_sv.defaultValueSearch, '');
@@ -100,12 +73,6 @@ const PriceList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.PRICE_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRICE_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRICE_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.PRICE_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -127,14 +94,13 @@ const PriceList = () => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        console.log('handleTimeOut: ', e)
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcessing(false)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         price_SendReqFlag.current = false
-        setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -161,47 +127,6 @@ const PriceList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        price_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            setShouldOpenModal(saveContinue.current)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        price_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            setShouldOpenEditModal(false)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
     const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         price_SendReqFlag.current = false
@@ -212,13 +137,17 @@ const PriceList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
         setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
+            dataSourceRef.current = []
+            setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -260,17 +189,11 @@ const PriceList = () => {
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
     }
 
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         // e.preventDefault();
         idRef.current = id;
+        setProcessing(true)
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
-        setId(0)
-        setName('')
     }
 
     const getNextData = () => {
@@ -279,34 +202,6 @@ const PriceList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(lastID, searchValue)
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleCreate = (actionType, dataObject) => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        saveContinue.current = actionType
-        const inputParam = [dataObject.product, dataObject.unit, dataObject.importPrice, dataObject.importVAT, dataObject.price, dataObject.wholePrice, dataObject.exportVAT, dataObject.note];
-        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleUpdate = dataObject => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        const inputParam = [dataObject.o_1, dataObject.o_4, dataObject.o_6, dataObject.o_7, dataObject.o_8, dataObject.o_9, dataObject.o_10, dataObject.o_11];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const headersCSV = [
@@ -345,6 +240,12 @@ const PriceList = () => {
         return result
     }
 
+    const handleRefresh = () => {
+        dataSourceRef.current = []
+        setTotalRecords(0)
+        getList(glb_sv.defaultValueSearch, searchValue)
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -377,7 +278,7 @@ const PriceList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='price' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+                            <PriceAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
@@ -478,27 +379,19 @@ const PriceList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
                 </Card>
             </Dialog>
 
-            {/* modal add */}
-            <PriceAdd
-                id={id}
-                shouldOpenModal={shouldOpenModal}
-                handleCloseAddModal={handleCloseAddModal}
-                handleCreate={handleCreate}
-            />
-
             {/* modal edit */}
             <PriceEdit
                 id={id}
-                shouldOpenEditModal={shouldOpenEditModal}
-                handleCloseEditModal={handleCloseEditModal}
-                handleUpdate={handleUpdate}
+                shouldOpenModal={shouldOpenEditModal}
+                setShouldOpenModal={setShouldOpenEditModal}
+                onRefresh={handleRefresh}
             />
         </>
     )

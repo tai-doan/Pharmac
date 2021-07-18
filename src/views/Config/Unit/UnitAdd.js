@@ -35,7 +35,11 @@ const UnitAdd = ({ onRefresh }) => {
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => {
+        setShouldOpenModal(false)
+        setName('')
+        setNote('')
+    }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {

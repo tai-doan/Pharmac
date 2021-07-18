@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { Card, CardHeader, CardContent, CardActions, Dialog, TextField, Button, Grid } from '@material-ui/core'
 import NumberFormat from 'react-number-format'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
+
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
+
+import SnackBarService from '../../../utils/service/snackbar_service'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -14,8 +15,8 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Price.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import { useHotkeys } from 'react-hotkeys-hook'
+
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_PRICE_BY_ID: {
@@ -23,17 +24,28 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    UPDATE: {
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
+const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const { t } = useTranslation()
 
     const [Price, setPrice] = useState({})
     const [unitSelect, setUnitSelect] = useState('')
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('f3', () => handleUpdate(Price), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => {
+        setShouldOpenModal(false)
+        setPrice({})
+        setUnitSelect('')
+    }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const PriceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -46,8 +58,15 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.PRICE_BY_ID) {
-                    resultGetPriceByID(msg, cltSeqResult, reqInfoMap)
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.PRICE_BY_ID:
+                        resultGetPriceByID(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.PRICE_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
                 }
             }
         })
@@ -57,10 +76,12 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
     }, [])
 
     useEffect(() => {
-        if (id) {
-            sendRequest(serviceInfo.GET_PRICE_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+        if (shouldOpenModal && !!id && id !== 0) {
+            setPrice({})
+            setUnitSelect('')
+            sendRequest(serviceInfo.GET_PRICE_BY_ID, [id], null, true, handleTimeOut)
         }
-    }, [id])
+    }, [shouldOpenModal])
 
     const resultGetPriceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
@@ -77,8 +98,40 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
         }
     }
 
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
+            setShouldOpenModal(false)
+            onRefresh()
+        }
+    }
+
+    const handleUpdate = () => {
+        if (!Price.o_1 || !Price.o_4 || !Price.o_6 || Price.o_6 <= 0 || !Price.o_7 || Price.o_7 <= 0 ||
+            !Price.o_8 || Price.o_8 <= 0 || !Price.o_9 || Price.o_9 <= 0 || !Price.o_10 || Price.o_10 <= 0) return
+        setProcess(true)
+        const inputParam = [Price.o_1, Price.o_4, Price.o_6, Price.o_7, Price.o_8, Price.o_9, Price.o_10, Price.o_11 || ''];
+        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
     const checkValidate = () => {
-        if (!!Price.o_1 && !!Price.o_2 && !!Price.o_4 && !!Price.o_6 && !!Price.o_7 && !!Price.o_8 && !!Price.o_9 && !!Price.o_10) {
+        if (!!Price.o_1 && !!Price.o_2 && !!Price.o_4 && !!Price.o_6 && Price.o_6 > 0 && !!Price.o_7 && Price.o_7 > 0 &&
+            !!Price.o_8 && Price.o_8 > 0 && !!Price.o_9 && Price.o_9 > 0 && !!Price.o_10 && Price.o_10 > 0) {
             return false
         }
         return true
@@ -128,9 +181,9 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenEditModal}
+            open={shouldOpenModal}
             onClose={e => {
-                handleCloseEditModal(false)
+                setShouldOpenModal(false)
             }}
         >
             <Card>
@@ -171,6 +224,11 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -193,6 +251,11 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                                     min: 0,
                                     max: 100
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
@@ -200,6 +263,7 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_8}
+                                autoFocus={true}
                                 label={t('config.price.price')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -210,6 +274,11 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                                 onValueChange={handlePriceChange}
                                 inputProps={{
                                     min: 0,
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
                                 }}
                             />
                         </Grid>
@@ -228,6 +297,11 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                                 onValueChange={handleWholePriceChange}
                                 inputProps={{
                                     min: 0,
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
                                 }}
                             />
                         </Grid>
@@ -249,6 +323,11 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                                     min: 0,
                                     max: 100
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -264,13 +343,20 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                             value={Price.o_11 || ''}
                             name='o_11'
                             variant="outlined"
+                            onKeyPress={event => {
+                                if (event.key === 'Enter') {
+                                    handleUpdate()
+                                }
+                            }}
                         />
                     </Grid>
                 </CardContent>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
-                            handleCloseEditModal(false);
+                            setShouldOpenModal(false);
+                            setPrice({})
+                            setUnitSelect('')
                         }}
                         variant="contained"
                         disableElevation
@@ -279,13 +365,14 @@ const PriceEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate
                     </Button>
                     <Button size='small'
                         onClick={() => {
-                            handleUpdate(Price);
+                            handleUpdate();
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </CardActions>
             </Card>

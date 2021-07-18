@@ -66,10 +66,10 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
     }, [])
 
     useEffect(() => {
-        if (id && id !== 0) {
+        if (shouldOpenModal && id && id !== 0) {
             sendRequest(serviceInfo.GET_UNIT_BY_ID, [id], null, true, handleTimeOut)
         }
-    }, [id])
+    }, [shouldOpenModal])
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {

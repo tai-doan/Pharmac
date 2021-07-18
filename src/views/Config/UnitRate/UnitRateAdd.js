@@ -41,7 +41,12 @@ const UnitRateAdd = ({ onRefresh }) => {
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => {
+        setShouldOpenModal(false)
+        setUnitRate({})
+        setUnitSelect('')
+        setProductSelect('')
+    }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const unitRateSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -144,6 +149,9 @@ const UnitRateAdd = ({ onRefresh }) => {
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
+                    setUnitRate({})
+                    setUnitSelect('')
+                    setProductSelect('')
                 }}
             >
                 <Card>

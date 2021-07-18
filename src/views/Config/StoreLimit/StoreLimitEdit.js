@@ -40,8 +40,12 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     const [unitSelect, setUnitSelect] = useState('')
     const [process, setProcess] = useState(false)
 
-    useHotkeys('f3', () => handleUpdate(StoreLimit), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => {
+        setShouldOpenModal(false)
+        setStoreLimit({})
+        setUnitSelect('')
+    }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const StoreLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -72,12 +76,12 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     }, [])
 
     useEffect(() => {
-        if (!!id && id !== 0) {
+        if (shouldOpenModal && !!id && id !== 0) {
             setStoreLimit({})
             setUnitSelect('')
             sendRequest(serviceInfo.GET_STORE_LIMIT_BY_ID, [id], null, true, handleTimeOut)
         }
-    }, [id])
+    }, [shouldOpenModal])
 
     const resultGetStoreLimitByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
@@ -233,6 +237,8 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                     <Button size='small'
                         onClick={e => {
                             setShouldOpenModal(false);
+                            setStoreLimit({})
+                            setUnitSelect('')
                         }}
                         variant="contained"
                         disableElevation
@@ -248,7 +254,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                         className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
                         endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </CardActions>
             </Card>
