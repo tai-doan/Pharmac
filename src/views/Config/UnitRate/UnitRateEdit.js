@@ -110,6 +110,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
 
     const handleUpdate = () => {
         if (!unitRate.o_1 || !unitRate.o_6 || unitRate.o_6 <= 0) return
+        setProcess(true)
         const inputParam = [unitRate.o_1, unitRate.o_6];
         sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }

@@ -1,20 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Dialog from '@material-ui/core/Dialog'
-import Button from '@material-ui/core/Button'
+import { Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, Button, Chip, IconButton } from '@material-ui/core'
+
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import Chip from '@material-ui/core/Chip';
-import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import LoopIcon from '@material-ui/icons/Loop';
+
+import SearchOne from '../../../components/SearchOne'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
+import ExportExcel from '../../../components/ExportExcel'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -27,10 +23,6 @@ import sendRequest from '../../../utils/service/sendReq'
 import { tableColumn, config } from './Modal/UnitRate.modal'
 import UnitRateAdd from './UnitRateAdd';
 import UnitRateEdit from './UnitRateEdit'
-import SearchOne from '../../../components/SearchOne'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import LoopIcon from '@material-ui/icons/Loop';
-import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {

@@ -182,6 +182,11 @@ const UnitRateAdd = ({ onRefresh }) => {
                                     variant="outlined"
                                     thousandSeparator={true}
                                     onValueChange={handleChange}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            handleCreate()
+                                        }
+                                    }}
                                     inputProps={{
                                         min: 0,
                                     }}
@@ -215,6 +220,7 @@ const UnitRateAdd = ({ onRefresh }) => {
                         </Button>
                         <Button size='small'
                             onClick={() => {
+                                saveContinue.current = true
                                 handleCreate();
                             }}
                             variant="contained"

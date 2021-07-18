@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { Card, CardHeader, CardContent, CardActions, Dialog, TextField, Button, Grid } from '@material-ui/core'
 import NumberFormat from 'react-number-format'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
+
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
+
+import SnackBarService from '../../../utils/service/snackbar_service'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -14,8 +15,8 @@ import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/StoreLimit.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import { useHotkeys } from 'react-hotkeys-hook'
+
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_STORE_LIMIT_BY_ID: {
@@ -23,17 +24,24 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    UPDATE: {
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
+const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const { t } = useTranslation()
 
     const [StoreLimit, setStoreLimit] = useState({})
     const [unitSelect, setUnitSelect] = useState('')
+    const [process, setProcess] = useState(false)
 
     useHotkeys('f3', () => handleUpdate(StoreLimit), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const StoreLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -46,8 +54,15 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.STORE_LIMIT_BY_ID) {
-                    resultGetStoreLimitByID(msg, cltSeqResult, reqInfoMap)
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.STORE_LIMIT_BY_ID:
+                        resultGetStoreLimitByID(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.STORE_LIMIT_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
                 }
             }
         })
@@ -57,8 +72,10 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
     }, [])
 
     useEffect(() => {
-        if (id) {
-            sendRequest(serviceInfo.GET_STORE_LIMIT_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+        if (!!id && id !== 0) {
+            setStoreLimit({})
+            setUnitSelect('')
+            sendRequest(serviceInfo.GET_STORE_LIMIT_BY_ID, [id], null, true, handleTimeOut)
         }
     }, [id])
 
@@ -75,6 +92,36 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
             setStoreLimit(newData.rows[0])
             setUnitSelect(newData.rows[0].o_5)
         }
+    }
+
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
+            setShouldOpenModal(false)
+            onRefresh()
+        }
+    }
+
+    const handleUpdate = () => {
+        if (!StoreLimit.o_1 || !StoreLimit.o_4 || !StoreLimit.o_6 || StoreLimit.o_6 <= 0 || !StoreLimit.o_7 || StoreLimit.o_7 <= 0) return
+        setProcess(true)
+        const inputParam = [StoreLimit.o_1, StoreLimit.o_4, StoreLimit.o_6, StoreLimit.o_7];
+        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
     }
 
     const checkValidate = () => {
@@ -106,9 +153,9 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenEditModal}
+            open={shouldOpenModal}
             onClose={e => {
-                handleCloseEditModal(false)
+                setShouldOpenModal(false)
             }}
         >
             <Card>
@@ -137,6 +184,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
+                                autoFocus={true}
                                 value={StoreLimit.o_6}
                                 label={t('config.store_limit.minQuantity')}
                                 customInput={TextField}
@@ -148,6 +196,11 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                                 onValueChange={handleMinQuantityChange}
                                 inputProps={{
                                     min: 0,
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
                                 }}
                             />
                         </Grid>
@@ -162,11 +215,15 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                                 margin="dense"
                                 type="text"
                                 variant="outlined"
-                                // suffix="%"
                                 thousandSeparator={true}
                                 onValueChange={handleMaxQuantityChange}
                                 inputProps={{
                                     min: 0,
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
                                 }}
                             />
                         </Grid>
@@ -175,7 +232,7 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
-                            handleCloseEditModal(false);
+                            setShouldOpenModal(false);
                         }}
                         variant="contained"
                         disableElevation
@@ -188,7 +245,8 @@ const StoreLimitEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleU
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
                         {t('btn.save')}
                     </Button>
