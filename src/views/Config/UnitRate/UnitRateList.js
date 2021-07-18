@@ -29,8 +29,7 @@ import UnitRateAdd from './UnitRateAdd';
 import UnitRateEdit from './UnitRateEdit'
 import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import { useHotkeys } from 'react-hotkeys-hook';
-import AddIcon from '@material-ui/icons/Add';
+import LoopIcon from '@material-ui/icons/Loop';
 import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
@@ -65,30 +64,19 @@ const UnitRateList = () => {
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
-    const [page, setPage] = useState(0)
     const [totalRecords, setTotalRecords] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(20)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
-    const [note, setNote] = useState('')
     const [processing, setProcessing] = useState(false)
 
     const unit_SendReqFlag = useRef(false)
-    const unit_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
-    const saveContinue = useRef(false)
-    const unitNameFocus = useRef(null)
-    const unitNoteFocus = useRef(null)
     const idRef = useRef(0)
-
-    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(glb_sv.defaultValueSearch, '');
@@ -105,15 +93,6 @@ const UnitRateList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.UNIT_RATE_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    // case reqFunction.GET_UNIT:
-                    //     resultGetById(msg, cltSeqResult, reqInfoMap)
-                    //     break
-                    case reqFunction.UNIT_RATE_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.UNIT_RATE_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.UNIT_RATE_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -136,12 +115,12 @@ const UnitRateList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcessing(false)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         unit_SendReqFlag.current = false
-        setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -168,47 +147,6 @@ const UnitRateList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            setShouldOpenModal(saveContinue.current)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            setShouldOpenEditModal(false)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
     const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         unit_SendReqFlag.current = false
@@ -219,13 +157,17 @@ const UnitRateList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
         setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
+            dataSourceRef.current = []
+            setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -251,7 +193,6 @@ const UnitRateList = () => {
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
-        setPage(0)
         setTotalRecords(0)
         getList(glb_sv.defaultValueSearch, value)
     }
@@ -268,17 +209,11 @@ const UnitRateList = () => {
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
     }
 
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         // e.preventDefault();
         idRef.current = id;
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
-        setId(0)
-        setName('')
+        setProcessing(true)
     }
 
     const getNextData = () => {
@@ -287,34 +222,6 @@ const UnitRateList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(lastID, searchValue)
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleCreate = (actionType, dataObject) => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        saveContinue.current = actionType
-        const inputParam = [dataObject.product, dataObject.unit, Number(dataObject.rate)];
-        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleUpdate = dataObject => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        const inputParam = [dataObject.o_1, dataObject.o_6];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const headersCSV = [
@@ -343,6 +250,12 @@ const UnitRateList = () => {
             return item
         })
         return result
+    }
+
+    const handleRefresh = () => {
+        dataSourceRef.current = []
+        setTotalRecords(0)
+        getList(glb_sv.defaultValueSearch, searchValue)
     }
 
     return (
@@ -378,7 +291,7 @@ const UnitRateList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='unitRate' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+                            <UnitRateAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
@@ -481,27 +394,19 @@ const UnitRateList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
                 </Card>
             </Dialog>
 
-            {/* modal add */}
-            <UnitRateAdd
-                id={id}
-                shouldOpenModal={shouldOpenModal}
-                handleCloseAddModal={handleCloseAddModal}
-                handleCreate={handleCreate}
-            />
-
             {/* modal edit */}
             <UnitRateEdit
                 id={id}
-                shouldOpenEditModal={shouldOpenEditModal}
-                handleCloseEditModal={handleCloseEditModal}
-                handleUpdate={handleUpdate}
+                shouldOpenModal={shouldOpenEditModal}
+                setShouldOpenModal={setShouldOpenEditModal}
+                onRefresh={handleRefresh}
             />
         </>
     )

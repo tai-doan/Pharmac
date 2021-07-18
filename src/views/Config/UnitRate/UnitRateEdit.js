@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
 import NumberFormat from 'react-number-format'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { Card, CardHeader, CardContent, CardActions, Grid, Button, TextField, Dialog } from '@material-ui/core'
+
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
-import sendRequest from '../../../utils/service/sendReq'
+
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
-import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/UnitRate.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
-import { useHotkeys } from 'react-hotkeys-hook'
+import SnackBarService from '../../../utils/service/snackbar_service'
+import reqFunction from '../../../utils/constan/functions';
+import sendRequest from '../../../utils/service/sendReq'
+
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_UNIT_RATE_BY_ID: {
@@ -26,16 +24,23 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    UPDATE: {
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
+const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('f3', () => handleUpdate(unitRate), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setUnitRate({}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const unitRateSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -48,8 +53,15 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.UNIT_RATE_BY_ID) {
-                    resultGetUnitRateByID(msg, cltSeqResult, reqInfoMap)
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.UNIT_RATE_BY_ID:
+                        resultGetUnitRateByID(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.UNIT_RATE_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
                 }
             }
         })
@@ -59,8 +71,9 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
     }, [])
 
     useEffect(() => {
-        if (id) {
-            sendRequest(serviceInfo.GET_UNIT_RATE_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+        if (id && id !== 0) {
+            setUnitRate({})
+            sendRequest(serviceInfo.GET_UNIT_RATE_BY_ID, [id], null, true, handleTimeOut)
         }
     }, [id])
 
@@ -76,6 +89,35 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
             let newData = message['PROC_DATA']
             setUnitRate(newData.rows[0])
         }
+    }
+
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
+            setShouldOpenModal(false)
+            onRefresh()
+        }
+    }
+
+    const handleUpdate = () => {
+        if (!unitRate.o_1 || !unitRate.o_6 || unitRate.o_6 <= 0) return
+        const inputParam = [unitRate.o_1, unitRate.o_6];
+        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
     }
 
     const checkValidate = () => {
@@ -95,9 +137,9 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenEditModal}
+            open={shouldOpenModal}
             onClose={e => {
-                handleCloseEditModal(false)
+                setShouldOpenModal(false)
             }}
         >
             <Card>
@@ -127,6 +169,7 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 style={{ width: '100%' }}
                                 required
                                 value={unitRate.o_6}
+                                autoFocus={true}
                                 label={t('config.unitRate.rate')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -135,6 +178,11 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 variant="outlined"
                                 thousandSeparator={true}
                                 onValueChange={handleChange}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                                 inputProps={{
                                     min: 0,
                                 }}
@@ -145,7 +193,7 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
-                            handleCloseEditModal(false);
+                            setShouldOpenModal(false);
                         }}
                         variant="contained"
                         disableElevation
@@ -154,13 +202,14 @@ const UnitRateEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     </Button>
                     <Button size='small'
                         onClick={() => {
-                            handleUpdate(unitRate);
+                            handleUpdate();
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </CardActions>
             </Card>

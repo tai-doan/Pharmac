@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress = () => null, disabled = false }) => {
+const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress = () => null, disabled = false, autoFocus = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -97,7 +97,8 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress 
             value={valueSelect || {}}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
-            renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+            openOnFocus={autoFocus}
+            renderInput={(params) => <TextField autoFocus={autoFocus} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

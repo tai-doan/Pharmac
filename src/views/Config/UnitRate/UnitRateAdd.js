@@ -1,33 +1,112 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Grid } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
 import NumberFormat from 'react-number-format'
+import { Card, CardHeader, CardContent, CardActions, Chip, Grid, Button, TextField, Dialog } from '@material-ui/core'
+
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
-import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import { useHotkeys } from 'react-hotkeys-hook'
 
-const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate }) => {
+import glb_sv from '../../../utils/service/global_service'
+import control_sv from '../../../utils/service/control_services'
+import socket_sv from '../../../utils/service/socket_service'
+import SnackBarService from '../../../utils/service/snackbar_service'
+import { requestInfo } from '../../../utils/models/requestInfo'
+import reqFunction from '../../../utils/constan/functions';
+import sendRequest from '../../../utils/service/sendReq'
+
+import AddIcon from '@material-ui/icons/Add';
+import LoopIcon from '@material-ui/icons/Loop';
+
+const serviceInfo = {
+    CREATE: {
+        functionName: 'insert',
+        reqFunct: reqFunction.UNIT_RATE_CREATE,
+        biz: 'common',
+        object: 'units_cvt'
+    }
+}
+
+const UnitRateAdd = ({ onRefresh }) => {
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
     const [productSelect, setProductSelect] = useState('')
     const [unitSelect, setUnitSelect] = useState('')
+    const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const [process, setProcess] = useState(false)
+    const saveContinue = useRef(false)
+    const inputRef = useRef(null)
 
-    useHotkeys('f3', () => handleCreate(false, unitRate), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('f4', () => handleCreate(true, unitRate), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseAddModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => setShouldOpenModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        if (shouldOpenModal) {
+        const unitRateSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+            if (msg) {
+                const cltSeqResult = msg['REQUEST_SEQ']
+                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
+                    return
+                }
+                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
+                if (reqInfoMap == null || reqInfoMap === undefined) {
+                    return
+                }
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.UNIT_RATE_CREATE:
+                        resultCreate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
+                }
+            }
+        })
+        return () => {
+            unitRateSub.unsubscribe()
+        }
+    }, [])
+
+    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
             setUnitRate({})
             setProductSelect('')
             setUnitSelect('')
+            onRefresh()
+            if (saveContinue.current) {
+                saveContinue.current = false
+                setTimeout(() => {
+                    if (inputRef.current) inputRef.current.focus()
+                }, 100)
+            } else {
+                setShouldOpenModal(false)
+            }
         }
-    }, [shouldOpenModal])
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
+    const handleCreate = () => {
+        if (!unitRate.product || !unitRate.unit || !unitRate.rate || unitRate.rate === 0) return
+        setProcess(true)
+        const inputParam = [unitRate.product, unitRate.unit, Number(unitRate.rate)]
+        sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
+    }
 
     const checkValidate = () => {
         if (!!unitRate.product && !!unitRate.unit && !!unitRate.rate && unitRate.rate !== 0) {
@@ -57,92 +136,98 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
     }
 
     return (
-        <Dialog
-            fullWidth={true}
-            maxWidth="md"
-            open={shouldOpenModal}
-            onClose={e => {
-                handleCloseAddModal(false)
-            }}
-        >
-            <Card>
-                <CardHeader title={t('config.unitRate.titleAdd')} />
-                <CardContent>
-                    <Grid container className="{}" spacing={2}>
-                        <Grid item xs={6} sm={4}>
-                            <Product_Autocomplete
-                                value={productSelect || ''}
-                                style={{ marginTop: 8, marginBottom: 4 }}
-                                size={'small'}
-                                label={t('menu.product')}
-                                onSelect={handleSelectProduct}
-                            />
+        <>
+            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+            <Dialog
+                fullWidth={true}
+                maxWidth="md"
+                open={shouldOpenModal}
+                onClose={e => {
+                    setShouldOpenModal(false)
+                }}
+            >
+                <Card>
+                    <CardHeader title={t('config.unitRate.titleAdd')} />
+                    <CardContent>
+                        <Grid container className="{}" spacing={2}>
+                            <Grid item xs={6} sm={4}>
+                                <Product_Autocomplete
+                                    autoFocus={true}
+                                    value={productSelect || ''}
+                                    style={{ marginTop: 8, marginBottom: 4 }}
+                                    size={'small'}
+                                    label={t('menu.product')}
+                                    onSelect={handleSelectProduct}
+                                />
+                            </Grid>
+                            <Grid item xs={6} sm={4}>
+                                <Unit_Autocomplete
+                                    value={unitSelect || ''}
+                                    style={{ marginTop: 8, marginBottom: 4 }}
+                                    size={'small'}
+                                    label={t('menu.configUnit')}
+                                    onSelect={handleSelectUnit}
+                                />
+                            </Grid>
+                            <Grid item xs={6} sm={4}>
+                                <NumberFormat
+                                    style={{ width: '100%' }}
+                                    required
+                                    value={unitRate.rate || 0}
+                                    label={t('config.unitRate.rate')}
+                                    customInput={TextField}
+                                    autoComplete="off"
+                                    margin="dense"
+                                    type="text"
+                                    variant="outlined"
+                                    thousandSeparator={true}
+                                    onValueChange={handleChange}
+                                    inputProps={{
+                                        min: 0,
+                                    }}
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Unit_Autocomplete
-                                value={unitSelect || ''}
-                                style={{ marginTop: 8, marginBottom: 4 }}
-                                size={'small'}
-                                label={t('menu.configUnit')}
-                                onSelect={handleSelectUnit}
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={unitRate.rate || 0}
-                                label={t('config.unitRate.rate')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                onValueChange={handleChange}
-                                inputProps={{
-                                    min: 0,
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                </CardContent>
-                <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                    <Button size='small'
-                        onClick={e => {
-                            handleCloseAddModal(false);
-                        }}
-                        variant="contained"
-                        disableElevation
-                    >
-                        {t('btn.close')}
-                    </Button>
-                    <Button size='small'
-                        onClick={() => {
-                            handleCreate(false, unitRate);
-                        }}
-                        variant="contained"
-                        disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
-                    >
-                        {t('btn.save')}
-                    </Button>
-                    <Button size='small'
-                        onClick={() => {
-                            setUnitRate({})
-                            setProductSelect('')
-                            setUnitSelect('')
-                            handleCreate(true, unitRate);
-                        }}
-                        variant="contained"
-                        disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
-                    >
-                        {t('config.save_continue')}
-                    </Button>
-                </CardActions>
-            </Card>
-        </Dialog >
+                    </CardContent>
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button size='small'
+                            onClick={e => {
+                                setShouldOpenModal(false);
+                                setUnitRate({})
+                                setProductSelect('')
+                                setUnitSelect('')
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button size='small'
+                            onClick={() => {
+                                handleCreate();
+                            }}
+                            variant="contained"
+                            disabled={checkValidate()}
+                            className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                            endIcon={process && <LoopIcon />}
+                        >
+                            {t('btn.save')}
+                        </Button>
+                        <Button size='small'
+                            onClick={() => {
+                                handleCreate();
+                            }}
+                            variant="contained"
+                            disabled={checkValidate()}
+                            className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                            endIcon={process && <LoopIcon />}
+                        >
+                            {t('config.save_continue')}
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Dialog >
+        </>
     )
 }
 
