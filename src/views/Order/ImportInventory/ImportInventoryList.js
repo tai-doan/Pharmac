@@ -120,7 +120,7 @@ const ImportInventoryList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         console.log('handleTimeOut: ', e)
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
@@ -153,7 +153,7 @@ const ImportInventoryList = () => {
         }
     }
 
-    const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         importInventory_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
@@ -162,11 +162,11 @@ const ImportInventoryList = () => {
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
+        setShouldOpenRemoveModal(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
-            setShouldOpenRemoveModal(false)
             dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
             setDataSource(dataSourceRef.current);
             setTotalRecords(dataSourceRef.current.length)
@@ -210,7 +210,7 @@ const ImportInventoryList = () => {
     }
 
     const handleDelete = e => {
-        e.preventDefault();
+        // e.preventDefault();
         idRef.current = id;
         const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
         sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
@@ -382,7 +382,18 @@ const ImportInventoryList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog maxWidth='sm'
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleDelete()
+                            }
+                        });
+                    }
+
+                }}
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

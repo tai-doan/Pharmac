@@ -30,7 +30,7 @@ const UnitRateAdd = ({ id, shouldOpenModal, handleCloseAddModal, handleCreate })
     }, [shouldOpenModal])
 
     const checkValidate = () => {
-        if (!!unitRate.product && !!unitRate.unit && !!unitRate.rate) {
+        if (!!unitRate.product && !!unitRate.unit && !!unitRate.rate && unitRate.rate !== 0) {
             return false
         }
         return true

@@ -125,7 +125,7 @@ const EditExportRepay = ({ }) => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const resultGetInvoiceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {

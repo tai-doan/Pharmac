@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
+import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, FormControl, MenuItem, InputLabel, Select } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -26,6 +26,7 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
+import Dictionary from '../../../../components/Dictionary';
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -39,10 +40,16 @@ const serviceInfo = {
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_CREATE,
         biz: 'import',
         object: 'imp_invoices_dt'
+    },
+    CREATE_SETTLEMENT: {
+        functionName: 'insert',
+        reqFunct: reqFunction.SETTLEMENT_IMPORT_CREATE,
+        biz: 'settlement',
+        object: 'imp_settl'
     }
 }
 
-const ProductImport = ({ }) => {
+const ProductImport = () => {
     const { t } = useTranslation()
     const [Import, setImport] = useState({ ...invoiceImportModal })
     const [supplierSelect, setSupplierSelect] = useState('')
@@ -74,6 +81,9 @@ const ProductImport = ({ }) => {
                     case reqFunction.PRODUCT_IMPORT_INVOICE_CREATE:
                         resultAddProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
+                    case reqFunction.SETTLEMENT_IMPORT_CREATE:
+                        console.log('msg settlement create: ', msg);
+                        return
                     default:
                         return
                 }
@@ -86,7 +96,7 @@ const ProductImport = ({ }) => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
@@ -104,29 +114,53 @@ const ProductImport = ({ }) => {
             let newData = message['PROC_DATA']
             if (!!newData.rows[0].o_1) {
                 newInvoiceId.current = newData.rows[0].o_1
-                for (let i = 0; i < dataSourceRef.current.length; i++) {
-                    const item = dataSourceRef.current[i];
-                    const inputParam = [
-                        newData.rows[0].o_1,
-                        item.imp_tp,
-                        item.prod_id,
-                        item.lot_no,
-                        item.made_dt,
-                        item.exp_dt,
-                        item.qty,
-                        item.unit_id,
-                        item.price,
-                        item.discount_per,
-                        item.vat_per
-                    ]
-                    sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
-                    if (i === dataSourceRef.current.length - 1) {
-                        dataSourceRef.current = [];
-                        setDataSource([])
-                        setImport({ ...invoiceImportModal })
-                        setSupplierSelect('')
-                    }
-                }
+                createSettlement(newData.rows[0].o_1)
+                addProductToInvoice(newData.rows[0].o_1)
+            }
+        }
+    }
+
+    const createSettlement = invoiceNo => {
+        const inputParams = [
+            '10',
+            invoiceNo || newInvoiceId.current,
+            Import.payment_type,
+            moment(Import.order_dt).format('YYYYMMDD'),
+            Import.payment_amount,
+            Import.bank_transf_acc_number,
+            Import.bank_transf_acc_name,
+            Import.bank_transf_name || '',
+            Import.bank_recei_acc_number,
+            Import.bank_recei_acc_name,
+            Import.bank_recei_name || '',
+            Import.note
+        ]
+        console.log('Import bắn event tạo settlement: ', Import)
+        sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, e => console.log(e), true, handleTimeOut)
+    }
+
+    const addProductToInvoice = invoiceNo => {
+        for (let i = 0; i < dataSourceRef.current.length; i++) {
+            const item = dataSourceRef.current[i];
+            const inputParam = [
+                invoiceNo || newInvoiceId.current,
+                item.imp_tp,
+                item.prod_id,
+                item.lot_no,
+                item.made_dt,
+                item.exp_dt,
+                item.qty,
+                item.unit_id,
+                item.price,
+                item.discount_per,
+                item.vat_per
+            ]
+            sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
+            if (i === dataSourceRef.current.length - 1) {
+                dataSourceRef.current = [];
+                setDataSource([])
+                setImport({ ...invoiceImportModal })
+                setSupplierSelect('')
             }
         }
     }
@@ -144,7 +178,6 @@ const ProductImport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
             let newData = message['PROC_DATA']
-            console.log('message thêm sản phẩm vô HĐ: ', message, newData)
         }
     }
 
@@ -164,6 +197,36 @@ const ProductImport = ({ }) => {
     const handleChange = e => {
         const newImport = { ...Import };
         newImport[e.target.name] = e.target.value
+        if (e.target.name === 'payment_type' && e.target.value === '1') {
+            newImport['bank_transf_name'] = null
+            newImport['bank_transf_acc_name'] = ''
+            newImport['bank_transf_acc_number'] = ''
+            newImport['bank_recei_name'] = null
+            newImport['bank_recei_acc_number'] = ''
+            newImport['bank_recei_acc_number'] = ''
+            setImport(newImport)
+        } else {
+            setImport(newImport)
+        }
+    }
+
+    const handleAmountChange = value => {
+        const newImport = { ...Import };
+        newImport['payment_amount'] = Math.round(value.floatValue)
+        setImport(newImport)
+    }
+
+    const handleSelectTransfBank = obj => {
+        const newImport = { ...Import };
+        newImport['bank_transf_name'] = !!obj ? obj?.o_1 : null
+        newImport['bank_transf_name_s'] = !!obj ? obj?.o_2 : null
+        setImport(newImport)
+    }
+
+    const handleSelectReceiBank = obj => {
+        const newImport = { ...Import };
+        newImport['bank_recei_name'] = !!obj ? obj?.o_1 : null
+        newImport['bank_recei_name_s'] = !!obj ? obj?.o_1 : null
         setImport(newImport)
     }
 
@@ -208,6 +271,10 @@ const ProductImport = ({ }) => {
 
     const handleCreateInvoice = () => {
         if (dataSource.length <= 0 || !Import.supplier || !Import.order_dt) return
+        if (!Import.payment_type || !Import.payment_amount || Import.payment_amount === 0) return
+        if (!Import.payment_type === '2' &&
+            (!Import.bank_transf_acc_name || !Import.bank_transf_acc_number || !Import.bank_transf_name
+                || !Import.bank_recei_acc_name || !Import.bank_recei_acc_number || !Import.bank_recei_name)) return
         //bắn event tạo invoice
         const inputParam = [
             !!Import.invoice_no ? Import.invoice_no : 'AUTO',
@@ -338,7 +405,7 @@ const ProductImport = ({ }) => {
                                     size={'small'}
                                     label={t('menu.supplier')}
                                     onSelect={handleSelectSupplier}
-                                    onCreate={id => setImport({ ...Import, ...{ supplier: id } })}
+                                    onCreate={id => setImport(prevState => { return { ...prevState, ...{ supplier: id } } })}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -418,6 +485,102 @@ const ProductImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={Import.payment_amount}
+                                label={t('settlement.payment_amount')}
+                                onValueChange={handleAmountChange}
+                                name='payment_amount'
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                            />
+                            <FormControl margin="dense" variant="outlined" className='w-100'>
+                                <InputLabel id="payment_type">{t('settlement.payment_type')}</InputLabel>
+                                <Select
+                                    labelId="payment_type"
+                                    id="payment_type-select"
+                                    value={Import.payment_type || '1'}
+                                    onChange={handleChange}
+                                    label={t('settlement.payment_type')}
+                                    name='payment_type'
+                                >
+                                    <MenuItem value="1">{t('settlement.cash')}</MenuItem>
+                                    <MenuItem value="2">{t('settlement.bank_transfer')}</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <Dictionary
+                                value={Import.bank_transf_name_s || ''}
+                                disabled={Import.payment_type === '1'}
+                                diectionName='bank_cd'
+                                onSelect={handleSelectTransfBank}
+                                label={t('report.bank_transf_name')}
+                                style={{ width: '100%' }}
+                            />
+                            <TextField
+                                disabled={Import.payment_type === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('report.bank_transf_acc_name')}
+                                onChange={handleChange}
+                                value={Import.bank_transf_acc_name || ''}
+                                name='bank_transf_acc_name'
+                                variant="outlined"
+                            />
+                            <TextField
+                                disabled={Import.payment_type === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('report.bank_transf_acc_number')}
+                                onChange={handleChange}
+                                value={Import.bank_transf_acc_number || ''}
+                                name='bank_transf_acc_number'
+                                variant="outlined"
+                            />
+                            <Dictionary
+                                value={Import.bank_recei_name_s || ''}
+                                disabled={Import.payment_type === '1'}
+                                diectionName='bank_cd'
+                                onSelect={handleSelectReceiBank}
+                                label={t('report.bank_recei_name')}
+                                style={{ width: '100%' }}
+                            />
+                            <TextField
+                                disabled={Import.payment_type === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('report.bank_recei_acc_name')}
+                                onChange={handleChange}
+                                value={Import.bank_recei_acc_name || ''}
+                                name='bank_recei_acc_name'
+                                variant="outlined"
+                            />
+                            <TextField
+                                disabled={Import.payment_type === '1'}
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('report.bank_recei_acc_number')}
+                                onChange={handleChange}
+                                value={Import.bank_recei_acc_number || ''}
+                                name='bank_recei_acc_number'
+                                variant="outlined"
+                            />
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -475,4 +638,4 @@ const ProductImport = ({ }) => {
     )
 }
 
-export default ProductImport
+export default memo(ProductImport)

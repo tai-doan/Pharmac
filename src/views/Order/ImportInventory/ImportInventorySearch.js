@@ -46,7 +46,7 @@ const ImportInventorySearch = ({ handleSearch }) => {
     return (
         <>
             <Grid container spacing={2}>
-                <Grid item xs={3}>
+                <Grid item xs>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
                             disableToolbar
@@ -65,7 +65,7 @@ const ImportInventorySearch = ({ handleSearch }) => {
                         />
                     </MuiPickersUtilsProvider>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
                             disableToolbar
@@ -84,7 +84,7 @@ const ImportInventorySearch = ({ handleSearch }) => {
                         />
                     </MuiPickersUtilsProvider>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs>
                     <FormControl margin="dense" variant="outlined" className='w-100'>
                         <InputLabel id="status">{t('order.import.invoice_type')}</InputLabel>
                         <Select
@@ -100,8 +100,8 @@ const ImportInventorySearch = ({ handleSearch }) => {
                         </Select>
                     </FormControl>
                 </Grid>
-                <Grid item xs={3} className='d-flex align-items-center'>
-                    <Button endIcon={<SearchIcon />} size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                <Grid item className='d-flex align-items-center'>
+                    <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

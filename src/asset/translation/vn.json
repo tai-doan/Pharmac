@@ -762,6 +762,9 @@
         "payment_date":"Ngày thanh toán",
         "date_input": "Ngày nhập hệ thống",
         "payment_amount": "Số tiền thanh toán",
-        "note": "Ghi chú"
+        "note": "Ghi chú",
+        "payment_type": "Loại hình thanh toán",
+        "cash": "Tiền mặt",
+        "bank_transfer": "Chuyển khoản"
     }
 }

@@ -127,10 +127,11 @@ const ExportRepayList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         console.log('handleTimeOut: ', e)
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        console.log('mess', message)
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         exportRepay_SendReqFlag.current = false
         setProcessing(false)
@@ -217,7 +218,7 @@ const ExportRepayList = () => {
     }
 
     const handleDelete = e => {
-        e.preventDefault();
+        // e.preventDefault();
         idRef.current = id;
         const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
         sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
@@ -401,7 +402,18 @@ const ExportRepayList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog maxWidth='sm'
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleDelete()
+                            }
+                        });
+                    }
+
+                }}
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)

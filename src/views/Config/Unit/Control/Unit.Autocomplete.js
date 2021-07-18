@@ -80,7 +80,7 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const handleChangeInput = (event, value, reson) => {

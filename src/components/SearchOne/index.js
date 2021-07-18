@@ -24,7 +24,7 @@ const SearchOne = ({ label, name, searchSubmit }) => {
                 />
             </Grid>
             <Grid item className='d-flex align-items-center'>
-                <Button size='small' endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => searchSubmit(searchValue)} variant="contained">{t('search_btn')}</Button>
+                <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => searchSubmit(searchValue)} variant="contained">{t('search_btn')}</Button>
             </Grid>
         </Grid>
     )

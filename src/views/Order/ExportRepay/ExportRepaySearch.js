@@ -116,10 +116,8 @@ const ExportRepaySearch = ({ handleSearch }) => {
                         variant="outlined"
                     />
                 </Grid>
-            </Grid>
-            <Grid container spacing={1}>
-                <Grid item>
-                    <Button endIcon={<SearchIcon />} size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                <Grid item className='d-flex align-items-center'>
+                    <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

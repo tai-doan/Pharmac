@@ -5,12 +5,6 @@ import { requestInfo } from '../models/requestInfo';
 import { inputPrmRq } from '../models/inputPrmRq';
 
 let sendRequestFlag = false //-- cờ đánh dấu các bước xử lý (từ khi gửi request xuống server, tới khi nhận được phản hồi or tới khi time out)
-let unit_ProcTimeOut //-- đối tượng control timeout, sẽ được clear nếu nhận được phản hồi từ server trước 15s
-let unit_ProcTimeOut2 //-- đối tượng control timeout, sẽ được clear nếu nhận được phản hồi từ server trước 15s
-let subcr_ClientReqRcv //-- Đối tượng subscribe (ghi nhận) phản hồi từ server
-let onChangeEvTimeoutDelay // xử lý debounce event Onchange Input
-let saveContinue = false
-let currentId = 0
 
 const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOut = true, onTimeout = () => null, time, isClearReqInfoMap) => {
     //-- Kiểm tra cờ xem hệ thống đã thực hiện chưa -> tránh việc double khi click vào button nhiều liền
@@ -24,6 +18,7 @@ const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOu
     if (!socket_sv.getSocketStat()) {
         sendRequestFlag = false
         console.warn('mạng không ổn định, vui lòng thử lại ')
+        onTimeout({ type: 'network', inputParams })
         return
     }
 
@@ -55,7 +50,7 @@ const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOu
 }
 
 //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-const solving_TimeOut = (props, controlTimeOutKey, serviceInfo, inputParam, onTimeout, clientSeq = 0) => {
+const solving_TimeOut = (controlTimeOutKey, serviceInfo, inputParam, onTimeout, clientSeq = 0) => {
     if (clientSeq == null || clientSeq === undefined || isNaN(clientSeq)) {
         return
     }
@@ -75,7 +70,7 @@ const solving_TimeOut = (props, controlTimeOutKey, serviceInfo, inputParam, onTi
         sendRequestFlag = false
     }
     console.warn('không nhận được phản hồi')
-    onTimeout({ type: 'timeout', inputParam })
+    onTimeout({ type: 'noReceiveFeedback', inputParam })
 }
 
 export default sendRequest

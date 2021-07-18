@@ -90,7 +90,17 @@ const invoiceImportModal = {
     invoice_no: '',
     person_s: '',
     person_r: '',
-    note: ''
+    note: '',
+    payment_type: '1',
+    payment_amount: 0,
+    bank_transf_name: null,
+    bank_transf_name_s: '',
+    bank_transf_acc_name: '',
+    bank_transf_acc_number: '',
+    bank_recei_name: null,
+    bank_recei_name_s: '',
+    bank_recei_acc_name: '',
+    bank_recei_acc_number: ''
 }
 
 const tableListAddColumn = [

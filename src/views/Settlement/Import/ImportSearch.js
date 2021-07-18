@@ -94,7 +94,7 @@ const ImportSearch = ({ handleSearch }) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
                 <Grid item xs={3} className='align-items-center d-flex'>
-                    <Button endIcon={<SearchIcon />} size="small" style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

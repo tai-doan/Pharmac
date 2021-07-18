@@ -28,7 +28,7 @@ const serviceInfo = {
     }
 }
 
-const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false }) => {
+const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -112,7 +112,7 @@ const SupplierAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const handleChangeInput = (event, value, reson) => {

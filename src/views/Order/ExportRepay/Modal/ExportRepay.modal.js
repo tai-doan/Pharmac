@@ -15,9 +15,9 @@ const tableColumn = [
     { field: 'o_12', title: 'order.exportRepay.invoice_val', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_13', title: 'order.exportRepay.invoice_discount', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_14', title: 'order.exportRepay.invoice_vat', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_15', title: 'order.exportRepay.invoice_settl', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_16', title: 'updateUser', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_17', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }
+    // { field: 'o_15', title: 'order.exportRepay.invoice_settl', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_15', title: 'updateUser', show: true, disabled: false, minWidth: 200 },
+    { field: 'o_16', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]
 
 const config = {

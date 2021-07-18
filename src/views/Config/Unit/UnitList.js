@@ -26,11 +26,9 @@ import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/Unit.modal'
 import UnitAdd from './UnitAdd';
-import UnitView from './UnitView';
+import UnitEdit from './UnitEdit';
 import SearchOne from '../../../components/SearchOne'
 import { Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
-import { useHotkeys } from 'react-hotkeys-hook';
-import AddIcon from '@material-ui/icons/Add';
 import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
@@ -61,27 +59,18 @@ const UnitList = () => {
     const [searchValue, setSearchValue] = useState('')
     const [page, setPage] = useState(0)
     const [totalRecords, setTotalRecords] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(20)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
+    const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
-    const [note, setNote] = useState('')
     const [processing, setProcessing] = useState(false)
 
     const unit_SendReqFlag = useRef(false)
-    const unit_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
-    const saveContinue = useRef(false)
-    const unitNameFocus = useRef(null)
-    const unitNoteFocus = useRef(null)
     const idRef = useRef(0)
-
-    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(999999999999, '');
@@ -98,15 +87,6 @@ const UnitList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.GET_UNIT_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    // case reqFunction.GET_UNIT:
-                    //     resultGetById(msg, cltSeqResult, reqInfoMap)
-                    //     break
-                    case reqFunction.INS_UNIT:
-                        resultSubmit(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.MOD_UNIT:
-                        resultSubmit(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.DEL_UNIT:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -128,7 +108,8 @@ const UnitList = () => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        SnackBarService.alert(t('message.noReceiveFeedback'), true, 4, 3000)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        console.log('handleTimeout compoent', e)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
@@ -161,67 +142,25 @@ const UnitList = () => {
         }
     }
 
-    const onSubmit = (data, type) => {
-        const svInfo = serviceInfo.SUBMIT_DATA
-        svInfo.functionName = config[type].functionName
-        svInfo.reqFunct = config[type].reqFunct
-        svInfo.operation = config[type].operation
-        sendRequest(svInfo, data, e => console.log(e), true, handleTimeOut)
-    }
-
-    const resultSubmit = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        // clearTimeout(unit_ProcTimeOut.current)
         unit_SendReqFlag.current = false
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+
+        setShouldOpenRemoveModal(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
+            dataSourceRef.current = []
             setName('')
-            setNote('')
-            setId(0)
-            if (saveContinue.current) {
-                setShouldOpenModal(true)
-                setTimeout(() => {
-                    if (unitNameFocus.current) unitNameFocus.current.focus()
-                }, 100)
-            } else {
-                setShouldOpenModal(false)
-            }
-            dataSourceRef.current = [];
+            setDataSource([]);
+            setTotalRecords(0)
             getList(999999999999, searchValue)
-            // if (reqInfoMap.reqFunct === 'MOD_UNIT') {
-            //     const index = dataSourceRef.current.findIndex(item => item.o_1 === reqInfoMap.inputParam[0])
-            //     dataSourceRef.current[index].o_2 = reqInfoMap.inputParam[1]
-            //     dataSourceRef.current[index].o_3 = reqInfoMap.inputParam[2]
-            //     setDataSource([...dataSourceRef.current])
-            // } else {
-            // }
-        }
-    }
-
-    const resultRemove = (props, message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        unit_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
-            setShouldOpenRemoveModal(false)
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
         }
     }
 
@@ -243,7 +182,7 @@ const UnitList = () => {
     }
 
     const searchSubmit = value => {
-        if (value === searchRef.current) return
+        // if (value === searchRef.current) return
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
@@ -259,34 +198,13 @@ const UnitList = () => {
     }
 
     const onEdit = item => {
-        setShouldOpenModal(item ? true : false)
         setId(item ? item.o_1 : 0)
-        setName(item && item.o_1 > 0 ? item.o_2 : '')
-        setNote(item && item.o_1 > 0 ? item.o_3 : '')
+        setShouldOpenEditModal(true)
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
     }
 
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setName(item && item.o_1 > 0 ? item.o_2 : '')
-        setNote(item && item.o_1 > 0 ? item.o_3 : '')
-    }
-
-    const handleSubmit = (actionType, newName, newNote) => {
-        if (!newName || !newNote) return
-        let data = [],
-            type = 'insert'
-        if (id > 0) {
-            data.push(id)
-            type = 'update'
-        }
-        saveContinue.current = actionType
-        data = data.concat([newName, newNote])
-        onSubmit(data, type)
-    }
-
     const handleDelete = e => {
-        e.preventDefault();
+        // e.preventDefault();
         idRef.current = id;
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
         setId(0)
@@ -299,20 +217,6 @@ const UnitList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(lastID, searchValue)
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setName('')
-        setNote('')
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setName('')
-        setNote('')
-        setShouldOpenModal(value)
     }
 
     const headersCSV = [
@@ -337,6 +241,13 @@ const UnitList = () => {
             return item
         })
         return result
+    }
+
+    const handleRefresh = () => {
+        dataSourceRef.current = []
+        setPage(0)
+        setTotalRecords(0)
+        getList(999999999999, searchValue)
     }
 
     return (
@@ -372,7 +283,7 @@ const UnitList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='unit' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+                            <UnitAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
@@ -445,7 +356,18 @@ const UnitList = () => {
             </Card>
 
             {/* modal delete */}
-            <Dialog maxWidth='sm'
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleDelete()
+                            }
+                        });
+                    }
+
+                }}
                 open={shouldOpenRemoveModal}
                 onClose={e => {
                     setShouldOpenRemoveModal(false)
@@ -473,24 +395,12 @@ const UnitList = () => {
                 </Card>
             </Dialog>
 
-            {/* modal add/edit */}
-            <UnitAdd
+            {/* modal edit */}
+            <UnitEdit
                 id={id}
-                Bname={name}
-                Bnote={note}
-                shouldOpenModal={shouldOpenModal}
-                handleCloseAddModal={handleCloseAddModal}
-                unitNameFocus={unitNameFocus}
-                unitNoteFocus={unitNoteFocus}
-                handleSubmit={handleSubmit}
-            />
-
-            {/* modal view */}
-            <UnitView
-                Bname={name}
-                Bnote={note}
-                shouldOpenModal={shouldOpenViewModal}
-                handleCloseViewModal={handleCloseViewModal}
+                shouldOpenModal={shouldOpenEditModal}
+                setShouldOpenModal={setShouldOpenEditModal}
+                onRefresh={handleRefresh}
             />
         </>
     )
