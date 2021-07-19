@@ -3,8 +3,8 @@ import reqFunction from '../../../../utils/constan/functions';
 const tableColumn = [
     { field: 'action', title: 'lbl.action', show: true, disabled: true, minWidth: 100 },
     { field: 'o_2', title: 'partner.customer.cust_nm_v', show: true, disabled: true, minWidth: 200 },
-    { field: 'o_3', title: 'partner.customer.cust_nm_e', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_4', title: 'partner.customer.cust_nm_short', show: true, disabled: false, minWidth: 100 },
+    // { field: 'o_3', title: 'partner.customer.cust_nm_e', show: true, disabled: false, minWidth: 200 },
+    // { field: 'o_4', title: 'partner.customer.cust_nm_short', show: true, disabled: false, minWidth: 100 },
     { field: 'o_5', title: 'partner.customer.address', show: true, disabled: false, minWidth: 300 },
     { field: 'o_6', title: 'partner.customer.phone', show: true, disabled: false, minWidth: 100 },
     { field: 'o_7', title: 'partner.customer.fax', show: true, disabled: false, minWidth: 100 },
