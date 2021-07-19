@@ -93,6 +93,7 @@ const ProductImport = () => {
                         console.log('msg settlement create: ', msg, reqInfoMap);
                         SnackBarService.alert(msg['PROC_MESSAGE'], true, msg['PROC_STATUS'], 3000)
                         importDataRef.current = invoiceImportModal
+                        setImport({ ...invoiceImportModal })
                         return
                     default:
                         return
@@ -139,7 +140,6 @@ const ProductImport = () => {
             let newData = message['PROC_DATA']
             if (!!newData.rows[0].o_1) {
                 newInvoiceId.current = newData.rows[0].o_1
-                createSettlement(newData.rows[0].o_1)
                 addProductToInvoice(newData.rows[0].o_1)
             }
         }
@@ -183,8 +183,8 @@ const ProductImport = () => {
             if (i === dataSourceRef.current.length - 1) {
                 dataSourceRef.current = [];
                 setDataSource([])
-                setImport({ ...invoiceImportModal })
                 setSupplierSelect('')
+                createSettlement(invoiceNo || newInvoiceId.current)
             }
         }
     }
