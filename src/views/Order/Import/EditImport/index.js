@@ -10,6 +10,7 @@ import {
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
@@ -21,7 +22,7 @@ import sendRequest from '../../../../utils/service/sendReq'
 
 import { tableListEditColumn, invoiceImportModal } from '../Modal/Import.modal'
 import moment from 'moment'
-import AddProduct from '../AddProduct'
+import AddProduct from '../AddProductClone'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
@@ -77,6 +78,7 @@ const EditImport = ({ }) => {
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+    const [paymentInfo, setPaymentInfo] = useState({})
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
@@ -107,9 +109,9 @@ const EditImport = ({ }) => {
                     case reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
-                        resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
+                    // case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
+                    //     resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
+                    //     break
                     default:
                         return
                 }
@@ -118,7 +120,7 @@ const EditImport = ({ }) => {
 
         if (id !== 0) {
             sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], e => console.log(e), true, handleTimeOut)
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, handleTimeOut)
         }
         return () => {
             importSub.unsubscribe()
@@ -126,8 +128,19 @@ const EditImport = ({ }) => {
     }, [])
 
     useEffect(() => {
-        console.log('import data: ', Import)
-    }, [Import])
+        const newData = { ...paymentInfo }
+        newData['invoice_val'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.qty * obj.price)
+        }, 0) || 0
+        newData['invoice_discount'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.discount_per / 100 * newData.invoice_val)
+        }, 0) || 0
+        newData['invoice_vat'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.vat_per / 100 * Math.round(newData.invoice_val * (1 - (obj.discount_per / 100))))
+        }, 0) || 0
+        newData['invoice_needpay'] = newData.invoice_val - newData.invoice_discount + newData.invoice_vat || 0
+        setPaymentInfo(newData)
+    }, [dataSource])
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
@@ -190,7 +203,7 @@ const EditImport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, handleTimeOut)
         }
     }
 
@@ -230,7 +243,9 @@ const EditImport = ({ }) => {
     }
 
     const handleAddProduct = productObject => {
-        if (!productObject) {
+        if (!productObject || !productObject.prod_id || !productObject.lot_no || !productObject.qty || productObject.qty <= 0 ||
+            !productObject.unit_id || !productObject.price || productObject.price <= 0 || !productObject.discount_per || productObject.discount_per <= 0 ||
+            productObject.discount_per > 100 || !productObject.vat_per || productObject.vat_per <= 0 || productObject.vat_per > 100) {
             SnackBarService.alert(t('wrongData'), true, 'error', 3000)
             return
         }
@@ -248,26 +263,6 @@ const EditImport = ({ }) => {
             productObject.vat_per
         ]
         sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleEditProduct = productObject => {
-        if (productObject === null) {
-            setProductEditData({})
-            setProductEditID(-1);
-            return
-        }
-        const inputParam = [
-            Import.invoice_id,
-            productEditID,
-            productObject.imp_tp,
-            productObject.qty,
-            productObject.price,
-            productObject.discount_per,
-            productObject.vat_per
-        ]
-        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
-        setProductEditData({})
-        setProductEditID(-1);
     }
 
     const onRemove = item => {
@@ -311,10 +306,16 @@ const EditImport = ({ }) => {
         setProductEditID(rowData.o_1)
     }
 
+    const handleRefresh = () => {
+        sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, handleTimeOut)
+        setProductEditID(-1)
+    }
+
     return (
         <Grid container spacing={1}>
-            <EditProductRows productEditID={productEditID} productData={productEditData} handleEditProduct={handleEditProduct} />
+            <EditProductRows productEditID={productEditID} invoiceID={Import.invoice_id} onRefresh={handleRefresh} />
             <Grid item md={9} xs={12}>
+                <AddProduct handleAddProduct={handleAddProduct} />
                 <Card>
                     {/* <div className='d-flex justify-content-between align-items-center mr-2'>
                         <Link to="/page/order/import" className="normalLink">
@@ -326,9 +327,6 @@ const EditImport = ({ }) => {
                     </div> */}
                     <CardHeader
                         title={t('order.import.productImportList')}
-                        action={
-                            <AddProduct handleAddProduct={handleAddProduct} />
-                        }
                     />
                     <CardContent>
                         <TableContainer className="tableContainer">
@@ -369,6 +367,13 @@ const EditImport = ({ }) => {
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            onClick={e => {
+                                                                                onDoubleClickRow(item)
+                                                                            }}
+                                                                        >
+                                                                            <EditIcon fontSize="small" />
                                                                         </IconButton>
                                                                     </TableCell>
                                                                 )
@@ -445,90 +450,6 @@ const EditImport = ({ }) => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_10 * obj.o_13)
-                                }, 0) || 0}
-                                label={t('order.import.invoice_val')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13))
-                                }, 0) || 0}
-                                label={t('order.import.invoice_discount')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_14 / 100 * Math.round(obj.o_10 * obj.o_13 * (1 - (obj.o_15 / 100))))
-                                }, 0) || 0}
-                                label={t('order.import.invoice_vat')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.o_10 * obj.o_13) - Math.round(obj.o_15 / 100 * (obj.o_10 * obj.o_13)))
-                                }, 0) || 0}
-                                label={t('order.import.invoice_needpay')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_s')}
-                                onChange={handleChange}
-                                value={Import.person_s || ''}
-                                name='person_s'
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_r')}
-                                onChange={handleChange}
-                                value={Import.person_r || ''}
-                                name='person_r'
-                                variant="outlined"
-                            />
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -541,6 +462,58 @@ const EditImport = ({ }) => {
                                 value={Import.note || ''}
                                 name='note'
                                 variant="outlined"
+                            />
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={paymentInfo.invoice_val}
+                                label={t('order.import.invoice_val')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={paymentInfo.invoice_discount}
+                                label={t('order.import.invoice_discount')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={paymentInfo.invoice_vat}
+                                label={t('order.import.invoice_vat')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={paymentInfo.invoice_needpay}
+                                label={t('order.import.invoice_needpay')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
                             />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>

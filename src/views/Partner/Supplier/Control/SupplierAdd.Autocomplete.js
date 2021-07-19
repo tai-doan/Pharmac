@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Card, CardHeader, CardContent, CardActions, TextField, Button, Dialog, Tooltip, Grid, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
+import { Card, CardHeader, CardContent, CardActions, TextField, Button, Dialog, Tooltip, Grid, FormControl, InputLabel, Select, MenuItem, InputAdornment } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
@@ -132,6 +132,7 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
     }
 
     const handleCreateSupplier = () => {
+        if (!supplierInfo.vender_nm_v.trim()) return
         const inputParam = [
             supplierInfo.vender_nm_v.trim(),
             supplierInfo.vender_nm_e.trim(),
@@ -161,13 +162,6 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
         setSupplierInfo(newSupplier)
     }
 
-    const handleSelectBank = obj => {
-        let newSupplier = { ...supplierInfo };
-        newSupplier['bank_cd'] = !!obj ? obj?.o_1 : null
-        setSupplierInfo(newSupplier)
-    }
-
-
     return (
         <>
             <Autocomplete
@@ -179,14 +173,37 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                 options={dataSource}
                 value={valueSelect}
                 getOptionLabel={(option) => option.o_2 || ''}
-                style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
-                renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                renderInput={(params) => {
+                    let newParams = {
+                        ...params, ...{
+                            InputProps: {
+                                ...params.InputProps,
+                                // endAdornment: Object.assign(params.InputProps.endAdornment, (
+                                //     <Tooltip title={t('partner.supplier.titleAdd')} aria-label="add">
+                                //         <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
+                                //     </Tooltip>
+                                // )),
+                                startAdornment: (
+                                    <Tooltip title={t('partner.supplier.titleAdd')} aria-label="add">
+                                        <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
+                                    </Tooltip>
+                                )
+                            }
+                        }
+                    }
+                    return <TextField
+                        {...newParams}
+                        label={!!label ? label : ''}
+                        variant="outlined"
+                    />
+                }}
             />
-            {!disabled &&
+            {/* {!disabled &&
                 <Tooltip title={t('partner.supplier.titleAdd')} aria-label="add">
                     <AddCircleIcon style={{ width: '20%', color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                 </Tooltip>
-            }
+            } */}
 
             <Dialog
                 fullWidth={true}
@@ -219,34 +236,6 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    className="uppercaseInput"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.vender_nm_e')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.vender_nm_e || ''}
-                                    name='vender_nm_e'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    className="uppercaseInput"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.vender_nm_short')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.vender_nm_short || ''}
-                                    name='vender_nm_short'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
                                     autoComplete="off"
                                     label={t('partner.supplier.address')}
                                     onChange={handleChange}
@@ -255,7 +244,7 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid item xs={6} sm={4}>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -264,177 +253,6 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                     onChange={handleChange}
                                     value={supplierInfo.phone || ''}
                                     name='phone'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.fax')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.fax || ''}
-                                    name='fax'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.email')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.email || ''}
-                                    name='email'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.website')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.website || ''}
-                                    name='website'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.tax_cd')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.tax_cd || ''}
-                                    name='tax_cd'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.bank_acnt_no')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.bank_acnt_no || ''}
-                                    name='bank_acnt_no'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={4}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.bank_acnt_nm')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.bank_acnt_nm || ''}
-                                    name='bank_acnt_nm'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                                <Dictionary
-                                    diectionName='bank_cd'
-                                    onSelect={handleSelectBank}
-                                    label={t('partner.supplier.bank_cd')}
-                                    style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                                <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="default_yn">{t('partner.supplier.default_yn')}</InputLabel>
-                                    <Select
-                                        labelId="default_yn"
-                                        id="default_yn-select"
-                                        value={supplierInfo.default_yn || 'Y'}
-                                        onChange={handleChange}
-                                        label={t('partner.supplier.default_yn')}
-                                        name='default_yn'
-                                    >
-                                        <MenuItem value="Y">{t('yes')}</MenuItem>
-                                        <MenuItem value="N">{t('no')}</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={supplierInfo.vender_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.agent_nm')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.agent_nm || ''}
-                                    name='agent_nm'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={supplierInfo.vender_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.agent_fun')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.agent_fun || ''}
-                                    name='agent_fun'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={supplierInfo.vender_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.agent_phone')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.agent_phone || ''}
-                                    name='agent_phone'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={supplierInfo.vender_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.agent_email')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.agent_email || ''}
-                                    name='agent_email'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12}>
-                                <TextField
-                                    disabled={supplierInfo.agent_nm === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    rows={2}
-                                    autoComplete="off"
-                                    label={t('partner.supplier.agent_address')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.agent_address || ''}
-                                    name='agent_address'
                                     variant="outlined"
                                 />
                             </Grid>

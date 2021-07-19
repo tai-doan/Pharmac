@@ -177,14 +177,39 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                 options={dataSource}
                 value={valueSelect}
                 getOptionLabel={(option) => option.o_2 || ''}
-                style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
-                renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+                // style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
+                // renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                renderInput={(params) => {
+                    let newParams = {
+                        ...params, ...{
+                            InputProps: {
+                                ...params.InputProps,
+                                // endAdornment: Object.assign(params.InputProps.endAdornment, (
+                                //     <Tooltip title={t('partner.customer.titleAdd')} aria-label="add">
+                                //         <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
+                                //     </Tooltip>
+                                // )),
+                                startAdornment: (
+                                    <Tooltip title={t('partner.customer.titleAdd')} aria-label="add">
+                                        <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
+                                    </Tooltip>
+                                )
+                            }
+                        }
+                    }
+                    return <TextField
+                        {...newParams}
+                        label={!!label ? label : ''}
+                        variant="outlined"
+                    />
+                }}
             />
-            {!disabled &&
+            {/* {!disabled &&
                 <Tooltip title={t('partner.customer.titleAdd')} aria-label="add">
                     <AddCircleIcon style={{ width: '20%', color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                 </Tooltip>
-            }
+            } */}
 
             <Dialog
                 fullWidth={true}

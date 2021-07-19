@@ -12,6 +12,7 @@ import {
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
@@ -89,7 +90,7 @@ const ProductImport = () => {
                         resultAddProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.SETTLEMENT_IMPORT_CREATE:
-                        console.log('msg settlement create: ', msg);
+                        console.log('msg settlement create: ', msg, reqInfoMap);
                         SnackBarService.alert(msg['PROC_MESSAGE'], true, msg['PROC_STATUS'], 3000)
                         importDataRef.current = invoiceImportModal
                         return
@@ -375,6 +376,14 @@ const ProductImport = () => {
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            onClick={e => {
+                                                                                setProductEditData(item);
+                                                                                setProductEditID(index)
+                                                                            }}
+                                                                        >
+                                                                            <EditIcon fontSize="small" />
                                                                         </IconButton>
                                                                     </TableCell>
                                                                 )

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputLabel, MenuItem, FormControl, Select } from '@material-ui/core'
+import { Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputLabel, MenuItem, FormControl, Select, FormControlLabel, Checkbox } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -20,6 +20,7 @@ import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 import { useHotkeys } from 'react-hotkeys-hook'
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -27,13 +28,29 @@ const serviceInfo = {
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID,
         biz: 'import',
         object: 'imp_invoices_dt'
+    },
+    UPDATE_PRODUCT_TO_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE,
+        biz: 'import',
+        object: 'imp_invoices_dt'
+    },
+    CREATE_SETTLEMENT_BY_PRODUCT: {
+        functionName: 'insert',
+        reqFunct: reqFunction.SETTLEMENT_IMPORT_CREATE,
+        biz: 'settlement',
+        object: 'imp_settl'
     }
 }
 
-const EditProductRows = ({ productEditID, handleEditProduct }) => {
+const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const [checked, setChecked] = useState(true)
+    const [process, setProcess] = useState(false)
+
+    const productInfoRef = useRef(productImportModal)
 
     useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -52,6 +69,13 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     case reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
+                    case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
+                        resultUpdateProduct(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.SETTLEMENT_IMPORT_CREATE:
+                        console.log('msg settlement create: ', msg, reqInfoMap);
+                        SnackBarService.alert(msg['PROC_MESSAGE'], true, msg['PROC_STATUS'], 3000)
+                        return
                     default:
                         return
                 }
@@ -100,7 +124,27 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 vat_per: newData.rows[0].o_14,
                 discount_per: newData.rows[0].o_15
             }
+            productInfoRef.current = dataConvert
             setProductInfo(dataConvert)
+        }
+    }
+
+    const resultUpdateProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            onRefresh()
+            setShouldOpenModal(false)
+            productInfoRef.current = productImportModal
+            setProductInfo({ ...productImportModal })
         }
     }
 
@@ -154,6 +198,41 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
         setProductInfo(newProductInfo)
     }
 
+    const handleCheckedChange = e => {
+        setChecked(e.target.checked)
+    }
+
+    const handleUpdate = () => {
+        if (!productInfo.price || productInfo.price <= 0 || !productInfo.qty || productInfo.qty <= 0 ||
+            !productInfo.vat_per || productInfo.vat_per <= 0 || productInfo.vat_per > 100 || !productInfo.discount_per || productInfo.discount_per <= 0 || productInfo.discount_per > 100) return
+        const inputParam = [
+            invoiceID,
+            productEditID,
+            productInfo.imp_tp,
+            productInfo.qty,
+            productInfo.price,
+            productInfo.discount_per,
+            productInfo.vat_per
+        ]
+        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
+
+        if (checked) {
+            const oldTotalPaided = Math.round(
+                (productInfoRef.current.price * productInfoRef.current.qty) * (1 - (productInfoRef.current.discount_per / 100)) * (1 + (productInfoRef.current.vat_per / 100))
+            )
+            const newTotalPaided = Math.round(
+                (productInfo.price * productInfo.qty) * (1 - (productInfo.discount_per / 100)) * (1 + (productInfo.vat_per / 100))
+            )
+            if (oldTotalPaided > newTotalPaided) {
+                const inputParams = ['11', invoiceID, '1', moment().format('YYYYMMDD'), oldTotalPaided - newTotalPaided, '', '', '', '', '', '', '',]
+                sendRequest(serviceInfo.CREATE_SETTLEMENT_BY_PRODUCT, inputParams, null, true, handleTimeOut)
+            } else if (oldTotalPaided < newTotalPaided) {
+                const inputParams = ['10', invoiceID, '1', moment().format('YYYYMMDD'), newTotalPaided - oldTotalPaided, '', '', '', '', '', '', '',]
+                sendRequest(serviceInfo.CREATE_SETTLEMENT_BY_PRODUCT, inputParams, null, true, handleTimeOut)
+            } else return
+        }
+    }
+
     const checkValidate = () => {
         if (!!productInfo.imp_tp && productInfo.imp_tp === '1') {
             if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price && !!productInfo.discount_per && !!productInfo.vat_per) {
@@ -175,7 +254,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
-                    handleEditProduct(null)
+                    setProductInfo({...productImportModal})
                     setShouldOpenModal(false)
                 }}
             >
@@ -340,9 +419,12 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
+                    <FormControlLabel
+                        control={<Checkbox checked={checked} onChange={handleCheckedChange} name="auto_update" />}
+                        label={t('auto_update')}
+                    />
                     <Button size='small'
                         onClick={e => {
-                            handleEditProduct(null)
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false);
                         }}
@@ -353,13 +435,12 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     </Button>
                     <Button size='small'
                         onClick={() => {
-                            handleEditProduct(productInfo);
-                            setProductInfo({ ...productImportModal })
-                            setShouldOpenModal(false)
+                            handleUpdate()
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
                         {t('btn.save')}
                     </Button>

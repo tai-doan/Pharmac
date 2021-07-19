@@ -391,7 +391,7 @@ const ImportList = () => {
                             <TableBody>
                                 {dataSource.map((item, index) => {
                                     return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                        <TableRow className='table-row-p8' hover role="checkbox" tabIndex={-1} key={index}>
                                             {column.map((col, indexRow) => {
                                                 let value = item[col.field]
                                                 if (col.show) {
