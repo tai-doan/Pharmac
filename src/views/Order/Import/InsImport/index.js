@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, FormControl, MenuItem, InputLabel, Select } from '@material-ui/core'
+import {
+    Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button,
+    TextField, Card, CardHeader, CardContent, FormControl, MenuItem, InputLabel, Select, Dialog, Link as LinkMT
+} from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -18,15 +21,16 @@ import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 
-import { tableListAddColumn, invoiceImportModal } from '../Modal/Import.modal'
+import { tableListAddColumn, invoiceImportModal, productImportModal } from '../Modal/Import.modal'
 import moment from 'moment'
-import AddProduct from '../AddProduct'
+// import AddProduct from '../AddProduct'
 
 import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Dictionary from '../../../../components/Dictionary';
+import AddProduct from '../AddProductClone'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -57,9 +61,12 @@ const ProductImport = () => {
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListAddColumn])
+    const [shouldOpenPaymentModal, setShouldOpenPaymentModal] = useState(false)
+    const [paymentInfo, setPaymentInfo] = useState({})
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+    const importDataRef = useRef(invoiceImportModal)
 
     useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -83,6 +90,8 @@ const ProductImport = () => {
                         break
                     case reqFunction.SETTLEMENT_IMPORT_CREATE:
                         console.log('msg settlement create: ', msg);
+                        SnackBarService.alert(msg['PROC_MESSAGE'], true, msg['PROC_STATUS'], 3000)
+                        importDataRef.current = invoiceImportModal
                         return
                     default:
                         return
@@ -93,6 +102,21 @@ const ProductImport = () => {
             importSub.unsubscribe()
         }
     }, [])
+
+    useEffect(() => {
+        const newData = { ...paymentInfo }
+        newData['invoice_val'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.qty * obj.price)
+        }, 0) || 0
+        newData['invoice_discount'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.discount_per / 100 * newData.invoice_val)
+        }, 0) || 0
+        newData['invoice_vat'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.vat_per / 100 * Math.round(newData.invoice_val * (1 - (obj.discount_per / 100))))
+        }, 0) || 0
+        newData['invoice_needpay'] = newData.invoice_val - newData.invoice_discount + newData.invoice_vat || 0
+        setPaymentInfo(newData)
+    }, [dataSource])
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
@@ -124,19 +148,18 @@ const ProductImport = () => {
         const inputParams = [
             '10',
             invoiceNo || newInvoiceId.current,
-            Import.payment_type,
-            moment(Import.order_dt).format('YYYYMMDD'),
-            Import.payment_amount,
-            Import.bank_transf_acc_number,
-            Import.bank_transf_acc_name,
-            Import.bank_transf_name || '',
-            Import.bank_recei_acc_number,
-            Import.bank_recei_acc_name,
-            Import.bank_recei_name || '',
-            Import.note
+            importDataRef.current.payment_type,
+            moment(importDataRef.current.order_dt).format('YYYYMMDD'),
+            importDataRef.current.payment_amount,
+            importDataRef.current.bank_transf_acc_number,
+            importDataRef.current.bank_transf_acc_name,
+            importDataRef.current.bank_transf_name || '',
+            importDataRef.current.bank_recei_acc_number,
+            importDataRef.current.bank_recei_acc_name,
+            importDataRef.current.bank_recei_name || '',
+            importDataRef.current.note
         ]
-        console.log('Import bắn event tạo settlement: ', Import)
-        sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, null, true, handleTimeOut)
     }
 
     const addProductToInvoice = invoiceNo => {
@@ -184,13 +207,22 @@ const ProductImport = () => {
     const handleSelectSupplier = obj => {
         const newImport = { ...Import };
         newImport['supplier'] = !!obj ? obj?.o_1 : null
+        importDataRef.current = newImport
         setSupplierSelect(!!obj ? obj?.o_2 : '')
+        setImport(newImport)
+    }
+
+    const handleCreateSupplier = id => {
+        const newImport = { ...Import };
+        newImport['supplier'] = id
+        importDataRef.current = newImport
         setImport(newImport)
     }
 
     const handleDateChange = date => {
         const newImport = { ...Import };
         newImport['order_dt'] = date;
+        importDataRef.current = newImport
         setImport(newImport)
     }
 
@@ -204,8 +236,10 @@ const ProductImport = () => {
             newImport['bank_recei_name'] = null
             newImport['bank_recei_acc_number'] = ''
             newImport['bank_recei_acc_number'] = ''
+            importDataRef.current = newImport
             setImport(newImport)
         } else {
+            importDataRef.current = newImport
             setImport(newImport)
         }
     }
@@ -213,6 +247,7 @@ const ProductImport = () => {
     const handleAmountChange = value => {
         const newImport = { ...Import };
         newImport['payment_amount'] = Math.round(value.floatValue)
+        importDataRef.current = newImport
         setImport(newImport)
     }
 
@@ -220,6 +255,7 @@ const ProductImport = () => {
         const newImport = { ...Import };
         newImport['bank_transf_name'] = !!obj ? obj?.o_1 : null
         newImport['bank_transf_name_s'] = !!obj ? obj?.o_2 : null
+        importDataRef.current = newImport
         setImport(newImport)
     }
 
@@ -227,6 +263,7 @@ const ProductImport = () => {
         const newImport = { ...Import };
         newImport['bank_recei_name'] = !!obj ? obj?.o_1 : null
         newImport['bank_recei_name_s'] = !!obj ? obj?.o_1 : null
+        importDataRef.current = newImport
         setImport(newImport)
     }
 
@@ -263,7 +300,7 @@ const ProductImport = () => {
     }
 
     const checkValidate = () => {
-        if (dataSource.length > 0 && !!Import.supplier && !!Import.order_dt) {
+        if (dataSource.length > 0 && !!Import.supplier && !!Import.order_dt && Import.payment_amount > 0) {
             return false
         }
         return true
@@ -271,7 +308,7 @@ const ProductImport = () => {
 
     const handleCreateInvoice = () => {
         if (dataSource.length <= 0 || !Import.supplier || !Import.order_dt) return
-        if (!Import.payment_type || !Import.payment_amount || Import.payment_amount === 0) return
+        if (!Import.payment_type || !Import.payment_amount || Import.payment_amount <= 0) return
         if (!Import.payment_type === '2' &&
             (!Import.bank_transf_acc_name || !Import.bank_transf_acc_number || !Import.bank_transf_name
                 || !Import.bank_recei_acc_name || !Import.bank_recei_acc_number || !Import.bank_recei_name)) return
@@ -284,26 +321,17 @@ const ProductImport = () => {
             Import.person_r,
             Import.note
         ];
-        sendRequest(serviceInfo.CREATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.CREATE_INVOICE, inputParam, null, true, handleTimeOut)
     }
 
     return (
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} productData={productEditData} handleEditProduct={handleEditProduct} />
             <Grid item md={9} xs={12}>
-                {/* <div className='d-flex justify-content-between  align-items-center mr-2'>
-                    <Link to="/page/order/import" className="normalLink">
-                        <Button variant="contained" size="small">
-                            {t('btn.back')}
-                        </Button>
-                    </Link>
-                </div> */}
+                <AddProduct onAddProduct={handleAddProduct} />
                 <Card>
                     <CardHeader
                         title={t('order.import.productImportList')}
-                        action={
-                            <AddProduct handleAddProduct={handleAddProduct} />
-                        }
                     />
                     <CardContent>
                         <TableContainer className="tableContainer">
@@ -405,7 +433,7 @@ const ProductImport = () => {
                                     size={'small'}
                                     label={t('menu.supplier')}
                                     onSelect={handleSelectSupplier}
-                                    onCreate={id => setImport(prevState => { return { ...prevState, ...{ supplier: id } } })}
+                                    onCreate={handleCreateSupplier}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -425,12 +453,23 @@ const ProductImport = () => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                autoComplete="off"
+                                rows={2}
+                                rowsMax={5}
+                                label={t('order.import.note')}
+                                onChange={handleChange}
+                                value={Import.note || ''}
+                                name='note'
+                                variant="outlined"
+                            />
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.qty * obj.price)
-                                }, 0) || 0}
+                                value={paymentInfo.invoice_val}
                                 label={t('order.import.invoice_val')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -443,9 +482,7 @@ const ProductImport = () => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.discount_per / 100 * (obj.qty * obj.price))
-                                }, 0) || 0}
+                                value={paymentInfo.invoice_discount}
                                 label={t('order.import.invoice_discount')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -458,9 +495,7 @@ const ProductImport = () => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.vat_per / 100 * Math.round(obj.qty * obj.price * (1 - (obj.discount_per / 100))))
-                                }, 0) || 0}
+                                value={paymentInfo.invoice_vat}
                                 label={t('order.import.invoice_vat')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -473,9 +508,7 @@ const ProductImport = () => {
                             <NumberFormat
                                 style={{ width: '100%' }}
                                 required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.qty * obj.price) - Math.round(obj.discount_per / 100 * (obj.qty * obj.price)))
-                                }, 0) || 0}
+                                value={paymentInfo.invoice_needpay}
                                 label={t('order.import.invoice_needpay')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -499,125 +532,22 @@ const ProductImport = () => {
                                 variant="outlined"
                                 thousandSeparator={true}
                             />
-                            <FormControl margin="dense" variant="outlined" className='w-100'>
-                                <InputLabel id="payment_type">{t('settlement.payment_type')}</InputLabel>
-                                <Select
-                                    labelId="payment_type"
-                                    id="payment_type-select"
-                                    value={Import.payment_type || '1'}
-                                    onChange={handleChange}
-                                    label={t('settlement.payment_type')}
-                                    name='payment_type'
-                                >
-                                    <MenuItem value="1">{t('settlement.cash')}</MenuItem>
-                                    <MenuItem value="2">{t('settlement.bank_transfer')}</MenuItem>
-                                </Select>
-                            </FormControl>
-                            <Dictionary
-                                value={Import.bank_transf_name_s || ''}
-                                disabled={Import.payment_type === '1'}
-                                diectionName='bank_cd'
-                                onSelect={handleSelectTransfBank}
-                                label={t('report.bank_transf_name')}
+                            <NumberFormat
                                 style={{ width: '100%' }}
-                            />
-                            <TextField
-                                disabled={Import.payment_type === '1'}
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
+                                required
+                                value={Import.payment_amount - paymentInfo.invoice_needpay}
+                                label={t('settlement.excess_cash')}
+                                customInput={TextField}
                                 autoComplete="off"
-                                label={t('report.bank_transf_acc_name')}
-                                onChange={handleChange}
-                                value={Import.bank_transf_acc_name || ''}
-                                name='bank_transf_acc_name'
-                                variant="outlined"
-                            />
-                            <TextField
-                                disabled={Import.payment_type === '1'}
-                                fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('report.bank_transf_acc_number')}
-                                onChange={handleChange}
-                                value={Import.bank_transf_acc_number || ''}
-                                name='bank_transf_acc_number'
+                                type="text"
                                 variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
                             />
-                            <Dictionary
-                                value={Import.bank_recei_name_s || ''}
-                                disabled={Import.payment_type === '1'}
-                                diectionName='bank_cd'
-                                onSelect={handleSelectReceiBank}
-                                label={t('report.bank_recei_name')}
-                                style={{ width: '100%' }}
-                            />
-                            <TextField
-                                disabled={Import.payment_type === '1'}
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('report.bank_recei_acc_name')}
-                                onChange={handleChange}
-                                value={Import.bank_recei_acc_name || ''}
-                                name='bank_recei_acc_name'
-                                variant="outlined"
-                            />
-                            <TextField
-                                disabled={Import.payment_type === '1'}
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('report.bank_recei_acc_number')}
-                                onChange={handleChange}
-                                value={Import.bank_recei_acc_number || ''}
-                                name='bank_recei_acc_number'
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_s')}
-                                onChange={handleChange}
-                                value={Import.person_s || ''}
-                                name='person_s'
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.import.person_r')}
-                                onChange={handleChange}
-                                value={Import.person_r || ''}
-                                name='person_r'
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                autoComplete="off"
-                                rows={2}
-                                rowsMax={5}
-                                label={t('order.import.note')}
-                                onChange={handleChange}
-                                value={Import.note || ''}
-                                name='note'
-                                variant="outlined"
-                            />
+                            <LinkMT href="#" onClick={() => setShouldOpenPaymentModal(true)} variant="body2" color='error'>
+                                {t('settlement.payment_type')} ({Import.payment_type === '1' ? t('settlement.cash') : t('settlement.bank_transfer')})
+                            </LinkMT>
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button
@@ -628,10 +558,126 @@ const ProductImport = () => {
                                 disabled={checkValidate()}
                                 className={checkValidate() === false ? 'bg-success text-white' : ''}
                             >
-                                {t('btn.save')}
+                                {t('btn.payment')}
                             </Button>
                         </Grid>
                     </CardContent>
+
+                    <Dialog fullWidth={true}
+                        maxWidth="md"
+                        open={shouldOpenPaymentModal}
+                        onClose={e => {
+                            setShouldOpenPaymentModal(false)
+                        }}
+                    >
+                        <CardHeader title={t('settlement.payment_type')} />
+                        <CardContent>
+                            <Grid container spacing={2}>
+                                <Grid item xs>
+                                    <FormControl margin="dense" variant="outlined" className='w-100'>
+                                        <InputLabel id="payment_type">{t('settlement.payment_type')}</InputLabel>
+                                        <Select
+                                            labelId="payment_type"
+                                            id="payment_type-select"
+                                            value={Import.payment_type || '1'}
+                                            onChange={handleChange}
+                                            label={t('settlement.payment_type')}
+                                            name='payment_type'
+                                        >
+                                            <MenuItem value="1">{t('settlement.cash')}</MenuItem>
+                                            <MenuItem value="2">{t('settlement.bank_transfer')}</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs>
+                                    <Dictionary
+                                        value={Import.bank_transf_name_s || ''}
+                                        disabled={Import.payment_type === '1'}
+                                        required={Import.payment_type === '2'}
+                                        diectionName='bank_cd'
+                                        onSelect={handleSelectTransfBank}
+                                        label={t('report.bank_transf_name')}
+                                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                    />
+                                </Grid>
+                                <Grid item xs>
+                                    <TextField
+                                        disabled={Import.payment_type === '1'}
+                                        fullWidth={true}
+                                        margin="dense"
+                                        required={Import.payment_type === '2'}
+                                        autoComplete="off"
+                                        label={t('report.bank_transf_acc_name')}
+                                        onChange={handleChange}
+                                        value={Import.bank_transf_acc_name || ''}
+                                        name='bank_transf_acc_name'
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs>
+                                    <TextField
+                                        disabled={Import.payment_type === '1'}
+                                        required={Import.payment_type === '2'}
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        rows={1}
+                                        autoComplete="off"
+                                        label={t('report.bank_transf_acc_number')}
+                                        onChange={handleChange}
+                                        value={Import.bank_transf_acc_number || ''}
+                                        name='bank_transf_acc_number'
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={2}>
+                                <Grid item xs>
+                                    <Dictionary
+                                        value={Import.bank_recei_name_s || ''}
+                                        disabled={Import.payment_type === '1'}
+                                        required={Import.payment_type === '2'}
+                                        diectionName='bank_cd'
+                                        onSelect={handleSelectReceiBank}
+                                        label={t('report.bank_recei_name')}
+                                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                    />
+                                </Grid>
+                                <Grid item xs>
+                                    <TextField
+                                        disabled={Import.payment_type === '1'}
+                                        required={Import.payment_type === '2'}
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        rows={1}
+                                        autoComplete="off"
+                                        label={t('report.bank_recei_acc_name')}
+                                        onChange={handleChange}
+                                        value={Import.bank_recei_acc_name || ''}
+                                        name='bank_recei_acc_name'
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs>
+                                    <TextField
+                                        disabled={Import.payment_type === '1'}
+                                        required={Import.payment_type === '2'}
+                                        fullWidth={true}
+                                        margin="dense"
+                                        multiline
+                                        rows={1}
+                                        autoComplete="off"
+                                        label={t('report.bank_recei_acc_number')}
+                                        onChange={handleChange}
+                                        value={Import.bank_recei_acc_number || ''}
+                                        name='bank_recei_acc_number'
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Dialog>
                 </Card>
             </Grid>
         </Grid>

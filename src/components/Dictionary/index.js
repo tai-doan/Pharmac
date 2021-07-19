@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Dictionary = ({ diectionName, onSelect, label, style, size, value, dictionaryID = null, disabled = false }) => {
+const Dictionary = ({ diectionName, onSelect, label, style, size, value, required = false, dictionaryID = null, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -105,7 +105,7 @@ const Dictionary = ({ diectionName, onSelect, label, style, size, value, diction
             getOptionLabel={(option) => option.o_2 || ''}
             inputValue={value}
             style={style}
-            renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField required={required} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }
