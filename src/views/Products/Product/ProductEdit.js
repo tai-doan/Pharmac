@@ -7,13 +7,16 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ProductGroup_Autocomplete from '../ProductGroup/Control/ProductGroup.Autocomplete'
 import UnitAdd_Autocomplete from '../../Config/Unit/Control/UnitAdd.Autocomplete'
 import sendRequest from '../../../utils/service/sendReq'
+import SnackBarService from '../../../utils/service/snackbar_service'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
 import reqFunction from '../../../utils/constan/functions';
-import { config } from './Modal/Product.modal'
+import { config, productDefaulModal } from './Modal/Product.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
 import { useHotkeys } from 'react-hotkeys-hook'
+
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -21,17 +24,24 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    UPDATE: {
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditModal, handleEdit }) => {
+const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const { t } = useTranslation()
 
     const [product, setProduct] = useState({})
     const [isExpanded, setIsExpanded] = useState(false)
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('f3', () => handleEdit(product), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProduct(productDefaulModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -44,8 +54,15 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_BY_ID) {
-                    resultGetProductByID(msg, cltSeqResult, reqInfoMap)
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.PRODUCT_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.PRODUCT_BY_ID:
+                        resultGetProductByID(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
                 }
             }
         })
@@ -56,16 +73,19 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
     }, [])
 
     useEffect(() => {
-        if (id) {
-            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+        if (shouldOpenModal && id && id !== 0) {
+            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [id], null, true, handleTimeOut)
         }
-    }, [id])
+    }, [shouldOpenModal])
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
 
     const resultGetProductByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        // if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-        //     return
-        // }
         reqInfoMap.procStat = 2
         if (message['PROC_STATUS'] === 2) {
             reqInfoMap.resSucc = false
@@ -95,6 +115,32 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
             }
             setProduct(newConvertData)
         }
+    }
+
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
+            setProduct(productDefaulModal)
+            setShouldOpenModal(false)
+            onRefresh()
+        }
+    }
+
+    const handleUpdate = () => {
+        if (!product?.o_1 || !product?.o_2 || product?.o_3?.trim().length <= 0 || !product?.o_5) return
+        setProcess(true)
+        let inputParam = Object.keys(product).map(key => product[key])
+        inputParam.splice(-2); // xóa mã sp + tên units
+        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
     }
 
     const checkValidate = () => {
@@ -133,8 +179,8 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
             maxWidth="md"
             open={shouldOpenModal}
             onClose={(e) => {
-                handleCloseEditModal(false)
-                setProduct({})
+                setShouldOpenModal(false)
+                setProduct(productDefaulModal)
             }}
         >
             <Card>
@@ -160,17 +206,21 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                         <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
-                                required
-                                autoFocus
+                                required={true}
+                                autoFocus={true}
                                 autoComplete="off"
                                 margin="dense"
                                 label={t('products.product.name')}
                                 onChange={handleChange}
                                 value={product.o_3}
-                                inputRef={productNameFocus}
                                 name="o_3"
                                 variant="outlined"
                                 className="uppercaseInput"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
 
@@ -185,13 +235,6 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                         </Grid>
 
                         <Grid item xs={6} sm={3} className='d-flex align-items-center'>
-                            {/* <Unit_Autocomplete
-                                value={product.o_17}
-                                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                size={'small'}
-                                label={t('menu.configUnit')}
-                                onSelect={handleSelectUnit}
-                            /> */}
                             <UnitAdd_Autocomplete
                                 value={product.o_17}
                                 style={{ marginTop: 8, marginBottom: 4 }}
@@ -214,6 +257,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                     value={product.o_4}
                                     name="o_4"
                                     variant="outlined"
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            handleUpdate()
+                                        }
+                                    }}
                                 />
                             </Tooltip>
                         </Grid>
@@ -229,6 +277,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                 value={product.o_15}
                                 name="o_15"
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
 
@@ -243,6 +296,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                 value={product.o_6}
                                 name="o_6"
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -269,6 +327,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_8}
                                         name="o_8"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6}>
@@ -282,6 +345,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_7}
                                         name="o_7"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                             </Grid>
@@ -299,6 +367,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_9}
                                         name="o_9"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6}>
@@ -312,6 +385,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_11}
                                         name="o_11"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                             </Grid>
@@ -329,6 +407,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_10}
                                         name="o_10"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6}>
@@ -342,6 +425,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_14}
                                         name="o_14"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                             </Grid>
@@ -359,6 +447,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_12}
                                         name="o_12"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6}>
@@ -372,6 +465,11 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                                         value={product.o_13}
                                         name="o_13"
                                         variant="outlined"
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
                                     />
                                 </Grid>
                             </Grid>
@@ -381,8 +479,8 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={(e) => {
-                            handleCloseEditModal(false)
-                            setProduct({})
+                            setShouldOpenModal(false)
+                            setProduct(productDefaulModal)
                         }}
                         variant="contained"
                         disableElevation
@@ -390,12 +488,13 @@ const ProductEdit = ({ id, productNameFocus, shouldOpenModal, handleCloseEditMod
                         {t('btn.close')}
                     </Button>
                     <Button size='small'
-                        onClick={() => handleEdit(product)}
+                        onClick={() => handleUpdate()}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </CardActions>
             </Card>

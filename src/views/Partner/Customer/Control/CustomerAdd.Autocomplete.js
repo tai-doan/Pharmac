@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Card, CardHeader, CardContent, CardActions, TextField, Button, Dialog, Tooltip, Grid, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
+import { Card, CardHeader, CardContent, CardActions, TextField, Button, Dialog, Tooltip, Grid } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
@@ -10,8 +10,8 @@ import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
 import socket_sv from '../../../../utils/service/socket_service'
-import Dictionary from '../../../../components/Dictionary';
 import { defaultModalAdd } from '../Modal/Customer.modal';
+import LoopIcon from '@material-ui/icons/Loop'
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -36,6 +36,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
     const [inputValue, setInputValue] = useState('')
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [customerInfo, setCustomerInfo] = useState({ ...defaultModalAdd })
+    const [process, setProcess] = useState(false)
     const idCreated = useRef(-1)
 
     useEffect(() => {
@@ -101,8 +102,9 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
         } else {
             let data = message['PROC_DATA']
             idCreated.current = data.rows[0].o_1;
+            setProcess(false)
             onCreate(data.rows[0].o_1)
-            setCustomerInfo({ ...defaultModalAdd  })
+            setCustomerInfo({ ...defaultModalAdd })
             setShouldOpenModal(false)
             // Lấy dữ liệu mới nhất
             const inputParam = ['customers', '%']
@@ -132,8 +134,10 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
     }
 
     const handleCreateCustomer = () => {
+        if (!customerInfo.cust_nm_v.trim()) return
+        setProcess(true)
         const inputParam = [
-            customerInfo.cust_nm_v,
+            customerInfo.cust_nm_v.trim(),
             customerInfo.cust_nm_e,
             customerInfo.cust_nm_short,
             customerInfo.address,
@@ -161,13 +165,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
         newCustomer[e.target.name] = e.target.value
         setCustomerInfo(newCustomer)
     }
-
-    const handleSelectBank = obj => {
-        let newCustomer = { ...customerInfo };
-        newCustomer['bank_cd'] = !!obj ? obj?.o_1 : null
-        setCustomerInfo(newCustomer)
-    }
-
 
     return (
         <>
@@ -220,34 +217,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    className="uppercaseInput"
-                                    autoComplete="off"
-                                    label={t('partner.customer.cust_nm_e')}
-                                    onChange={handleChange}
-                                    value={customerInfo.cust_nm_e || ''}
-                                    name='cust_nm_e'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    className="uppercaseInput"
-                                    autoComplete="off"
-                                    label={t('partner.customer.cust_nm_short')}
-                                    onChange={handleChange}
-                                    value={customerInfo.cust_nm_short || ''}
-                                    name='cust_nm_short'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={6}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
                                     autoComplete="off"
                                     label={t('partner.customer.address')}
                                     onChange={handleChange}
@@ -256,7 +225,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid item xs={6} sm={4}>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -265,193 +234,6 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     onChange={handleChange}
                                     value={customerInfo.phone || ''}
                                     name='phone'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.fax')}
-                                    onChange={handleChange}
-                                    value={customerInfo.fax || ''}
-                                    name='fax'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.email')}
-                                    onChange={handleChange}
-                                    value={customerInfo.email || ''}
-                                    name='email'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.website')}
-                                    onChange={handleChange}
-                                    value={customerInfo.website || ''}
-                                    name='website'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.tax_cd')}
-                                    onChange={handleChange}
-                                    value={customerInfo.tax_cd || ''}
-                                    name='tax_cd'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.bank_acnt_no')}
-                                    onChange={handleChange}
-                                    value={customerInfo.bank_acnt_no || ''}
-                                    name='bank_acnt_no'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.bank_acnt_nm')}
-                                    onChange={handleChange}
-                                    value={customerInfo.bank_acnt_nm || ''}
-                                    name='bank_acnt_nm'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <Dictionary
-                                    diectionName='bank_cd'
-                                    onSelect={handleSelectBank}
-                                    label={t('partner.supplier.bank_cd')}
-                                    style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="default_yn">{t('partner.customer.default_yn')}</InputLabel>
-                                    <Select
-                                        labelId="default_yn"
-                                        id="default_yn-select"
-                                        value={customerInfo.default_yn || 'Y'}
-                                        onChange={handleChange}
-                                        label={t('partner.customer.default_yn')}
-                                        name='default_yn'
-                                    >
-                                        <MenuItem value="Y">{t('yes')}</MenuItem>
-                                        <MenuItem value="N">{t('no')}</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="cust_tp">{t('partner.customer.cust_tp')}</InputLabel>
-                                    <Select
-                                        labelId="cust_tp"
-                                        id="cust_tp-select"
-                                        value={customerInfo.cust_tp || '1'}
-                                        onChange={handleChange}
-                                        label={t('partner.customer.cust_tp')}
-                                        name='cust_tp'
-                                    >
-                                        <MenuItem value="1">{t('partner.customer.individual_customers')}</MenuItem>
-                                        <MenuItem value="2">{t('partner.customer.institutional_customers')}</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={customerInfo.cust_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.agent_nm')}
-                                    onChange={handleChange}
-                                    value={customerInfo.agent_nm || ''}
-                                    name='agent_nm'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={customerInfo.cust_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.agent_fun')}
-                                    onChange={handleChange}
-                                    value={customerInfo.agent_fun || ''}
-                                    name='agent_fun'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={customerInfo.cust_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.agent_phone')}
-                                    onChange={handleChange}
-                                    value={customerInfo.agent_phone || ''}
-                                    name='agent_phone'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <TextField
-                                    disabled={customerInfo.cust_tp === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.agent_email')}
-                                    onChange={handleChange}
-                                    value={customerInfo.agent_email || ''}
-                                    name='agent_email'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12}>
-                                <TextField
-                                    disabled={customerInfo.agent_nm === '1'}
-                                    fullWidth={true}
-                                    margin="dense"
-                                    multiline
-                                    rows={2}
-                                    autoComplete="off"
-                                    label={t('partner.customer.agent_address')}
-                                    onChange={handleChange}
-                                    value={customerInfo.agent_address || ''}
-                                    name='agent_address'
                                     variant="outlined"
                                 />
                             </Grid>
@@ -471,11 +253,11 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                         <Button
                             onClick={() => {
                                 handleCreateCustomer();
-                                setCustomerInfo({ ...defaultModalAdd })
                             }}
                             variant="contained"
                             disabled={checkValidate()}
-                            className={checkValidate() === false ? 'bg-success text-white' : ''}
+                            className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                            endIcon={process && <LoopIcon />}
                         >
                             {t('btn.save')}
                         </Button>

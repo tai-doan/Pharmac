@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHotkeys } from 'react-hotkeys-hook'
 import {
-    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog
+    Card, CardHeader, CardContent, CardActions, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog
 } from '@material-ui/core'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
+import SnackBarService from '../../../utils/service/snackbar_service';
 import reqFunction from '../../../utils/constan/functions';
-import { config } from './Modal/Supplier.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
+
+import { config, defaultModalAdd } from './Modal/Supplier.modal'
 import Dictionary from '../../../components/Dictionary'
-import { useHotkeys } from 'react-hotkeys-hook'
+
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_SUPPLIER_BY_ID: {
@@ -19,16 +23,23 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    UPDATE: {
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
+const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const { t } = useTranslation()
 
     const [Supplier, setSupplier] = useState({})
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('f3', () => handleUpdate(Supplier), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setSupplier({ ...defaultModalAdd }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const SupplierSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -41,8 +52,15 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.SUPPLIER_BY_ID) {
-                    resultGetSupplierByID(msg, cltSeqResult, reqInfoMap)
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.SUPPLIER_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.SUPPLIER_BY_ID:
+                        resultGetSupplierByID(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
                 }
             }
         })
@@ -52,10 +70,10 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
     }, [])
 
     useEffect(() => {
-        if (id) {
+        if (shouldOpenModal && id !== 0) {
             sendRequest(serviceInfo.GET_SUPPLIER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
-    }, [id])
+    }, [shouldOpenModal])
 
     const resultGetSupplierByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
@@ -71,8 +89,59 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
         }
     }
 
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
+            setSupplier({ ...defaultModalAdd })
+            setShouldOpenModal(false)
+            onRefresh()
+        }
+    }
+
+    const handleUpdate = () => {
+        if (!Supplier?.o_1 || !Supplier?.o_2?.trim()) return
+        setProcess(true)
+        const inputParam = [
+            Supplier.o_1, //id
+            Supplier.o_2.trim(), //tên tv
+            Supplier.o_3, //tên ta
+            Supplier.o_4, //tên ngắn
+            Supplier.o_5, //địa chỉ
+            Supplier.o_6, //sđt
+            Supplier.o_7, //fax
+            Supplier.o_8, //email
+            Supplier.o_9, //web
+            Supplier.o_10, //taxt
+            Supplier.o_11, //tk ngân hàng
+            Supplier.o_12, //tên tk ngân hàng
+            Supplier.o_13, //mã ngân hàng
+            Supplier.o_15, //tên người đại diện
+            Supplier.o_16, //chức vụ
+            Supplier.o_17, //địa chỉ
+            Supplier.o_18, //sđt
+            Supplier.o_19, //email
+            Supplier.o_22 //xét mặc định
+        ];
+        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
     const checkValidate = () => {
-        if (!!Supplier.o_1 && !!Supplier.o_2) {
+        if (!!Supplier.o_1 && !!Supplier.o_2.trim()) {
             return false
         }
         return true
@@ -94,16 +163,16 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenEditModal}
+            open={shouldOpenModal}
             onClose={e => {
-                handleCloseEditModal(false)
+                setShouldOpenModal(false)
             }}
         >
             <Card>
                 <CardHeader title={t('partner.supplier.titleEdit', { name: Supplier.o_3 })} />
                 <CardContent>
                     <Grid container spacing={2}>
-                        <Grid item xs={6} sm={4}>
+                        <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -115,37 +184,14 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_2 || ''}
                                 name='o_2'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                className="uppercaseInput"
-                                autoComplete="off"
-                                label={t('partner.supplier.vender_nm_e')}
-                                onChange={handleChange}
-                                value={Supplier.o_3 || ''}
-                                name='o_3'
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                className="uppercaseInput"
-                                autoComplete="off"
-                                label={t('partner.supplier.vender_nm_short')}
-                                onChange={handleChange}
-                                value={Supplier.o_4 || ''}
-                                name='o_4'
-                                variant="outlined"
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6} sm={6}>
+                        <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -155,6 +201,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_5 || ''}
                                 name='o_5'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -167,6 +218,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_6 || ''}
                                 name='o_6'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -179,6 +235,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_7 || ''}
                                 name='o_7'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -193,6 +254,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_8 || ''}
                                 name='o_8'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -205,6 +271,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_9 || ''}
                                 name='o_9'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -217,6 +288,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_10 || ''}
                                 name='o_10'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -229,6 +305,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_11 || ''}
                                 name='o_11'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -243,25 +324,21 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_12 || ''}
                                 name='o_12'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Dictionary
+                                value={Supplier.o_14}
                                 diectionName='bank_cd'
                                 onSelect={handleSelectBank}
                                 label={t('partner.supplier.bank_cd')}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                             />
-                            {/* <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                autoComplete="off"
-                                label={t('partner.supplier.bank_cd')}
-                                onChange={handleChange}
-                                value={Supplier.o_13 || ''}
-                                name='o_13'
-                                variant="outlined"
-                            /> */}
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <FormControl margin="dense" variant="outlined" className='w-100'>
@@ -292,6 +369,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_15 || ''}
                                 name='o_15'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -305,6 +387,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_16 || ''}
                                 name='o_16'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -318,6 +405,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_18 || ''}
                                 name='o_18'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -331,6 +423,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_19 || ''}
                                 name='o_19'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -348,6 +445,11 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Supplier.o_17 || ''}
                                 name='o_17'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -355,7 +457,8 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
-                            handleCloseEditModal(false);
+                            setShouldOpenModal(false);
+                            setSupplier({ ...defaultModalAdd })
                         }}
                         variant="contained"
                         disableElevation
@@ -364,13 +467,14 @@ const SupplierEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                     </Button>
                     <Button size='small'
                         onClick={() => {
-                            handleUpdate(Supplier);
+                            handleUpdate();
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </CardActions>
             </Card>

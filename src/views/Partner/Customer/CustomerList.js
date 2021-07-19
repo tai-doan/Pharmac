@@ -24,25 +24,13 @@ import CustomerAdd from './CustomerAdd';
 import CustomerEdit from './CustomerEdit'
 import SearchOne from '../../../components/SearchOne'
 import { useHotkeys } from 'react-hotkeys-hook';
-import AddIcon from '@material-ui/icons/Add';
+import LoopIcon from '@material-ui/icons/Loop';
 import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    CREATE: {
-        functionName: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        functionName: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
         biz: config.biz,
         object: config.object
     },
@@ -95,12 +83,6 @@ const CustomerList = () => {
                     case reqFunction.CUSTOMER_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.CUSTOMER_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.CUSTOMER_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
                     case reqFunction.CUSTOMER_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
                         break
@@ -121,14 +103,13 @@ const CustomerList = () => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        console.log('handleTimeOut: ', e)
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcessing(false)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         customer_SendReqFlag.current = false
-        setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -155,47 +136,6 @@ const CustomerList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            setShouldOpenModal(saveContinue.current)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            setShouldOpenEditModal(false)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
     const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         customer_SendReqFlag.current = false
@@ -206,13 +146,17 @@ const CustomerList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
         setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
+            dataSourceRef.current = []
+            setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -234,7 +178,7 @@ const CustomerList = () => {
     }
 
     const searchSubmit = value => {
-        if (value === searchRef.current) return
+        // if (value === searchRef.current) return
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
@@ -254,17 +198,10 @@ const CustomerList = () => {
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
     }
 
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
     const handleDelete = e => {
         // e.preventDefault();
         idRef.current = id;
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
-        setId(0)
-        setName('')
     }
 
     const getNextData = () => {
@@ -273,75 +210,6 @@ const CustomerList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(lastID, searchValue)
         }
-    }
-
-    const handleCloseViewModal = value => {
-        setId(0);
-        setShouldOpenViewModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleCreate = (actionType, dataObject) => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        saveContinue.current = actionType
-        const inputParam = [
-            dataObject.cust_nm_v,
-            dataObject.cust_nm_e,
-            dataObject.cust_nm_short,
-            dataObject.address,
-            dataObject.phone,
-            dataObject.fax,
-            dataObject.email,
-            dataObject.website,
-            dataObject.tax_cd,
-            dataObject.bank_acnt_no,
-            dataObject.bank_acnt_nm,
-            dataObject.bank_cd,
-            dataObject.agent_nm,
-            dataObject.agent_fun,
-            dataObject.agent_address,
-            dataObject.agent_phone,
-            dataObject.agent_email,
-            dataObject.default_yn,
-            dataObject.cust_tp
-        ];
-        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleUpdate = dataObject => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        const inputParam = [
-            dataObject.o_1, //id
-            dataObject.o_2, //tên tv
-            dataObject.o_3, //tên ta
-            dataObject.o_4, //tên ngắn
-            dataObject.o_5, //địa chỉ
-            dataObject.o_6, //sđt
-            dataObject.o_7, //fax
-            dataObject.o_8, //email
-            dataObject.o_9, //web
-            dataObject.o_10, //taxt
-            dataObject.o_11, //tk ngân hàng
-            dataObject.o_12, //tên tk ngân hàng
-            dataObject.o_13, //mã ngân hàng
-            dataObject.o_15, //tên người đại diện
-            dataObject.o_16, //chức vụ
-            dataObject.o_17, //địa chỉ
-            dataObject.o_18, //sđt
-            dataObject.o_19, //email
-            dataObject.o_22, //xét mặc định
-            dataObject.o_23 //phân loại KH
-        ];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const headersCSV = [
@@ -400,6 +268,12 @@ const CustomerList = () => {
         return result
     }
 
+    const handleRefresh = () => {
+        dataSourceRef.current = []
+        setTotalRecords(0)
+        getList(glb_sv.defaultValueSearch, searchValue)
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -430,7 +304,7 @@ const CustomerList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='customer' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+                            <CustomerAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
@@ -541,27 +415,19 @@ const CustomerList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
                 </Card>
             </Dialog>
 
-            {/* modal add */}
-            <CustomerAdd
-                id={id}
-                shouldOpenModal={shouldOpenModal}
-                handleCloseAddModal={handleCloseAddModal}
-                handleCreate={handleCreate}
-            />
-
             {/* modal edit */}
             <CustomerEdit
                 id={id}
-                shouldOpenEditModal={shouldOpenEditModal}
-                handleCloseEditModal={handleCloseEditModal}
-                handleUpdate={handleUpdate}
+                shouldOpenModal={shouldOpenEditModal}
+                setShouldOpenModal={setShouldOpenEditModal}
+                onRefresh={handleRefresh}
             />
         </>
     )

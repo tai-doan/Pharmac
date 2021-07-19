@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHotkeys } from 'react-hotkeys-hook'
 import {
     Card, CardHeader, CardContent, CardActions, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog
 } from '@material-ui/core'
+
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
 import socket_sv from '../../../utils/service/socket_service'
+import SnackBarService from '../../../utils/service/snackbar_service';
 import reqFunction from '../../../utils/constan/functions';
-import { config } from './Modal/Customer.modal'
 import { requestInfo } from '../../../utils/models/requestInfo'
+
+import { config, defaultModalAdd } from './Modal/Customer.modal'
 import Dictionary from '../../../components/Dictionary'
-import { useHotkeys } from 'react-hotkeys-hook'
+
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_CUSTOMER_BY_ID: {
@@ -19,16 +24,23 @@ const serviceInfo = {
         reqFunct: config['byId'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    UPDATE: {
+        functionName: config['update'].functionName,
+        reqFunct: config['update'].reqFunct,
+        biz: config.biz,
+        object: config.object
     }
 }
 
-const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpdate }) => {
+const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const { t } = useTranslation()
 
-    const [Customer, setCustomer] = useState({})
+    const [Customer, setCustomer] = useState(defaultModalAdd)
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('f3', () => handleUpdate(Customer), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-    useHotkeys('esc', () => handleCloseEditModal(false), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setCustomer({ ...defaultModalAdd }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const CustomerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -41,8 +53,15 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 if (reqInfoMap == null || reqInfoMap === undefined) {
                     return
                 }
-                if (reqInfoMap.reqFunct === reqFunction.CUSTOMER_BY_ID) {
-                    resultGetCustomerByID(msg, cltSeqResult, reqInfoMap)
+                switch (reqInfoMap.reqFunct) {
+                    case reqFunction.CUSTOMER_UPDATE:
+                        resultUpdate(msg, cltSeqResult, reqInfoMap)
+                        break
+                    case reqFunction.CUSTOMER_BY_ID:
+                        resultGetCustomerByID(msg, cltSeqResult, reqInfoMap)
+                        break
+                    default:
+                        return
                 }
             }
         })
@@ -52,10 +71,10 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
     }, [])
 
     useEffect(() => {
-        if (id) {
+        if (shouldOpenModal && id !== 0) {
             sendRequest(serviceInfo.GET_CUSTOMER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
-    }, [id])
+    }, [shouldOpenModal])
 
     const resultGetCustomerByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
@@ -71,8 +90,60 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
         }
     }
 
+    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+        } else {
+            setCustomer({ ...defaultModalAdd })
+            setShouldOpenModal(false)
+            onRefresh()
+        }
+    }
+
+    const handleUpdate = () => {
+        if (!Customer?.o_1 || !Customer?.o_2?.trim()) return
+        setProcess(true)
+        const inputParam = [
+            Customer.o_1, //id
+            Customer.o_2, //tên tv
+            Customer.o_3, //tên ta
+            Customer.o_4, //tên ngắn
+            Customer.o_5, //địa chỉ
+            Customer.o_6, //sđt
+            Customer.o_7, //fax
+            Customer.o_8, //email
+            Customer.o_9, //web
+            Customer.o_10, //tax
+            Customer.o_11, //tk ngân hàng
+            Customer.o_12, //tên tk ngân hàng
+            Customer.o_13, //mã ngân hàng
+            Customer.o_15, //tên người đại diện
+            Customer.o_16, //chức vụ
+            Customer.o_17, //địa chỉ
+            Customer.o_18, //sđt
+            Customer.o_19, //email
+            Customer.o_22, //xét mặc định
+            Customer.o_23 //phân loại KH
+        ];
+        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
     const checkValidate = () => {
-        if (!!Customer.o_1 && !!Customer.o_2) {
+        if (!!Customer.o_1 && !!Customer.o_2.trim()) {
             return false
         }
         return true
@@ -94,16 +165,17 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
         <Dialog
             fullWidth={true}
             maxWidth="md"
-            open={shouldOpenEditModal}
+            open={shouldOpenModal}
             onClose={e => {
-                handleCloseEditModal(false)
+                setShouldOpenModal(false)
+                setCustomer({ ...defaultModalAdd })
             }}
         >
             <Card>
                 <CardHeader title={t('partner.customer.titleEdit', { name: Customer.o_3 })} />
                 <CardContent>
                     <Grid container spacing={2}>
-                        <Grid item xs={6} sm={4}>
+                        <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -115,37 +187,14 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_2 || ''}
                                 name='o_2'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                className="uppercaseInput"
-                                autoComplete="off"
-                                label={t('partner.customer.cust_nm_e')}
-                                onChange={handleChange}
-                                value={Customer.o_3 || ''}
-                                name='o_3'
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                className="uppercaseInput"
-                                autoComplete="off"
-                                label={t('partner.customer.cust_nm_short')}
-                                onChange={handleChange}
-                                value={Customer.o_4 || ''}
-                                name='o_4'
-                                variant="outlined"
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6} sm={6}>
+                        <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -155,6 +204,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_5 || ''}
                                 name='o_5'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -167,6 +221,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_6 || ''}
                                 name='o_6'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -179,6 +238,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_7 || ''}
                                 name='o_7'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -193,6 +257,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_8 || ''}
                                 name='o_8'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -205,6 +274,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_9 || ''}
                                 name='o_9'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -217,6 +291,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_10 || ''}
                                 name='o_10'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -229,6 +308,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_11 || ''}
                                 name='o_11'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -243,25 +327,21 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_12 || ''}
                                 name='o_12'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
                             <Dictionary
+                                value={Customer.o_14}
                                 diectionName='bank_cd'
                                 onSelect={handleSelectBank}
                                 label={t('partner.supplier.bank_cd')}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                             />
-                            {/* <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                autoComplete="off"
-                                label={t('partner.customer.bank_cd')}
-                                onChange={handleChange}
-                                value={Customer.o_13 || ''}
-                                name='o_13'
-                                variant="outlined"
-                            /> */}
                         </Grid>
                         <Grid item xs={6} sm={3}>
                             <FormControl margin="dense" variant="outlined" className='w-100'>
@@ -308,6 +388,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_15 || ''}
                                 name='o_15'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -321,6 +406,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_16 || ''}
                                 name='o_16'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -334,6 +424,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_18 || ''}
                                 name='o_18'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={3}>
@@ -347,6 +442,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_19 || ''}
                                 name='o_19'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -364,6 +464,11 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                                 value={Customer.o_17 || ''}
                                 name='o_17'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -371,7 +476,8 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
-                            handleCloseEditModal(false);
+                            setShouldOpenModal(false);
+                            setCustomer({ ...defaultModalAdd })
                         }}
                         variant="contained"
                         disableElevation
@@ -384,9 +490,10 @@ const CustomerEdit = ({ id, shouldOpenEditModal, handleCloseEditModal, handleUpd
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </CardActions>
             </Card>

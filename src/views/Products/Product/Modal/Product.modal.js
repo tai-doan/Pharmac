@@ -54,7 +54,26 @@ const config = {
     },
 }
 
+const  productDefaulModal = {
+    barcode: '',
+    code: '',
+    content: '',
+    contraind: '',
+    designate: '',
+    dosage: '',
+    effect: '',
+    interact: '',
+    manufact: '',
+    name: '',
+    overdose: '',
+    packing: '',
+    productGroup: null,
+    storages: '',
+    unit: null
+}
+
 export {
+    productDefaulModal,
     tableColumn,
     config
 }

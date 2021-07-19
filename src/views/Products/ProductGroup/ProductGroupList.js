@@ -1,11 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
-    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Button, Dialog, Table, TableBody, TableCell, TableRow, TableContainer, TableHead
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -23,26 +21,13 @@ import { tableColumn, config } from './Modal/ProductGroup.modal'
 import ProductGroupAdd from './ProductGroupAdd';
 import ProductGroupEdit from './ProductGroupEdit'
 import SearchOne from '../../../components/SearchOne'
-import { useHotkeys } from 'react-hotkeys-hook';
-import AddIcon from '@material-ui/icons/Add';
+import LoopIcon from '@material-ui/icons/Loop';
 import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    CREATE: {
-        funct: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        funct: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
         biz: config.biz,
         object: config.object
     },
@@ -59,30 +44,19 @@ const ProductGroupList = () => {
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
-    const [page, setPage] = useState(0)
     const [totalRecords, setTotalRecords] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(20)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
-    const [note, setNote] = useState('')
     const [processing, setProcessing] = useState(false)
 
     const productGroup_SendReqFlag = useRef(false)
-    const productGroup_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
-    const saveContinue = useRef(false)
-    const productGroupNameFocus = useRef(null)
-    const productGroupNoteFocus = useRef(null)
     const idRef = useRef(0)
-
-    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(glb_sv.defaultValueSearch, '');
@@ -99,15 +73,6 @@ const ProductGroupList = () => {
                 switch (reqInfoMap.reqFunct) {
                     case reqFunction.PRODUCT_GROUP_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    // case reqFunction.PRODUCT_GROUP_BY_ID:
-                    //     resultGetById(msg, cltSeqResult, reqInfoMap)
-                    //     break
-                    case reqFunction.PRODUCT_GROUP_ADD:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_GROUP_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.PRODUCT_GROUP_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
@@ -130,12 +95,12 @@ const ProductGroupList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcessing(false)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         productGroup_SendReqFlag.current = false
-        setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -162,53 +127,6 @@ const ProductGroupList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        productGroup_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setNote('')
-            setId(0)
-            if (saveContinue.current) {
-                setShouldOpenModal(true)
-                setTimeout(() => {
-                    if (productGroupNameFocus.current) productGroupNameFocus.current.focus()
-                }, 100)
-            } else {
-                setShouldOpenModal(false)
-            }
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            setShouldOpenEditModal(false)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
 
     const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
@@ -220,13 +138,17 @@ const ProductGroupList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
         setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
+            dataSourceRef.current = []
+            setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -252,7 +174,6 @@ const ProductGroupList = () => {
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
-        setPage(0)
         setTotalRecords(0)
         getList(glb_sv.defaultValueSearch, value)
     }
@@ -271,10 +192,9 @@ const ProductGroupList = () => {
 
     const handleDelete = e => {
         // e.preventDefault();
+        setProcessing(true)
         idRef.current = id;
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
-        setId(0)
-        setName('')
     }
 
     const getNextData = () => {
@@ -283,27 +203,6 @@ const ProductGroupList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(lastID, searchValue)
         }
-    }
-
-    const handleCreate = (actionType, newName, newNote) => {
-        saveContinue.current = actionType
-        const inputParam = [newName, newNote]
-        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleUpdate = newProductGroupData => {
-        const inputParam = [newProductGroupData.o_1, newProductGroupData.o_3, newProductGroupData.o_3]
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
     }
 
     const headersCSV = [
@@ -330,6 +229,12 @@ const ProductGroupList = () => {
             return item
         })
         return result
+    }
+
+    const handleRefresh = () => {
+        dataSourceRef.current = []
+        setTotalRecords(0)
+        getList(glb_sv.defaultValueSearch, searchValue)
     }
 
     return (
@@ -365,7 +270,7 @@ const ProductGroupList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='product_group' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+                            <ProductGroupAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
@@ -473,32 +378,18 @@ const ProductGroupList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
                 </Card>
             </Dialog>
 
-            {/* modal add */}
-            <ProductGroupAdd
-                id={id}
-                Bname={name}
-                Bnote={note}
-                shouldOpenModal={shouldOpenModal}
-                handleCloseAddModal={handleCloseAddModal}
-                productGroupNameFocus={productGroupNameFocus}
-                productGroupNoteFocus={productGroupNoteFocus}
-                handleCreate={handleCreate}
-            />
-
             <ProductGroupEdit
                 id={id}
                 shouldOpenModal={shouldOpenEditModal}
-                handleCloseEditModal={handleCloseEditModal}
-                productGroupNameFocus={productGroupNameFocus}
-                productGroupNoteFocus={productGroupNoteFocus}
-                handleUpdate={handleUpdate}
+                setShouldOpenModal={setShouldOpenEditModal}
+                onRefresh={handleRefresh}
             />
         </>
     )

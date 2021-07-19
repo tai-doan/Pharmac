@@ -26,7 +26,7 @@ const serviceInfo = {
     }
 }
 
-const UnitAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false }) => {
+const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, unitID = null, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -65,6 +65,14 @@ const UnitAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, d
             unitSub.unsubscribe()
         }
     }, [])
+
+    useEffect(() => {
+        if (!!unitID && unitID !== 0) {
+            setValueSelect(dataSource.find(x => x.o_1 === unitID))
+        } else {
+            setValueSelect({})
+        }
+    }, [unitID])
 
     useEffect(() => {
         if (value !== null || value !== undefined) {
@@ -148,11 +156,11 @@ const UnitAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, d
                 disabled={disabled}
                 onChange={onChange}
                 onInputChange={handleChangeInput}
-                size={!!size ? size : 'small'}
+                size={size}
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
-                getOptionLabel={(option) => option.o_2 || ''}
+                getOptionLabel={(option) => option?.o_2 || ''}
                 style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
                 renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
             />

@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Dictionary = ({ diectionName, onSelect, label, style, size, value, disabled = false }) => {
+const Dictionary = ({ diectionName, onSelect, label, style, size, value, dictionaryID = null, disabled = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -49,6 +49,14 @@ const Dictionary = ({ diectionName, onSelect, label, style, size, value, disable
             dictionnarySub.unsubscribe()
         }
     }, [])
+
+    useEffect(() => {
+        if (!!dictionaryID && dictionaryID !== 0) {
+            setValueSelect(dataSource.find(x => x.o_1 === dictionaryID))
+        } else {
+            setValueSelect({})
+        }
+    }, [dictionaryID, dataSource])
 
     useEffect(() => {
         if (value !== null || value !== undefined) {

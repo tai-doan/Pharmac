@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
-    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Button, Dialog, Table, TableBody, TableCell, TableRow, TableContainer, TableHead
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import AddIcon from '@material-ui/icons/Add';
+import LoopIcon from '@material-ui/icons/Loop';
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -32,18 +31,6 @@ const serviceInfo = {
         biz: config.biz,
         object: config.object
     },
-    CREATE: {
-        functionName: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        functionName: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
     DELETE: {
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
@@ -57,43 +44,18 @@ const ProductList = () => {
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
-    const [page, setPage] = useState(0)
     const [totalRecords, setTotalRecords] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(20)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
+    const [processing, setProcessing] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
-    const [processing, setProcessing] = useState(false)
-    const [productData, setProductData] = useState({
-        barcode: '',
-        code: '',
-        content: '',
-        contraind: '',
-        designate: '',
-        dosage: '',
-        effect: '',
-        interact: '',
-        manufact: '',
-        name: '',
-        overdose: '',
-        packing: '',
-        productGroup: null,
-        storages: '',
-        unit: null
-    })
 
     const product_SendReqFlag = useRef(false)
-    const product_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
-    const saveContinue = useRef(false)
-    const productNameFocus = useRef(null)
-    const productNoteFocus = useRef(null)
     const idRef = useRef(0)
 
 
@@ -114,15 +76,6 @@ const ProductList = () => {
                     case reqFunction.PRODUCT_LIST:
                         resultGetList(msg, cltSeqResult, reqInfoMap)
                         break
-                    // case reqFunction.PRODUCT_BY_ID:
-                    //     resultGetById(msg, cltSeqResult, reqInfoMap)
-                    //     break
-                    case reqFunction.PRODUCT_ADD:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
                     case reqFunction.PRODUCT_DELETE:
                         resultRemove(msg, cltSeqResult, reqInfoMap)
                         break
@@ -138,18 +91,18 @@ const ProductList = () => {
 
     const getList = (lastIndex, value) => {
         const inputParam = [lastIndex, value.trim() + '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcessing(false)
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         product_SendReqFlag.current = false
-        setProcessing(false)
         if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
             return
         }
@@ -160,7 +113,6 @@ const ProductList = () => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         }
         if (message['PROC_DATA']) {
-            console.log('msg: ', message)
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch) {
@@ -178,55 +130,6 @@ const ProductList = () => {
         }
     }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        // clearTimeout(product_ProcTimeOut.current)
-        product_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setName('')
-            setId(0)
-            if (saveContinue.current) {
-                setShouldOpenModal(true)
-                setTimeout(() => {
-                    if (productNameFocus.current) productNameFocus.current.focus()
-                }, 100)
-            } else {
-                setShouldOpenModal(false)
-            }
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        product_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            setId(0)
-            setShouldOpenEditModal(false)
-            dataSourceRef.current = [];
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
-    }
-
     const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         product_SendReqFlag.current = false
@@ -237,14 +140,18 @@ const ProductList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
 
         setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
+            dataSourceRef.current = []
+            setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
+            getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
 
@@ -266,11 +173,10 @@ const ProductList = () => {
     }
 
     const searchSubmit = value => {
-        if (value === searchRef.current) return
+        // if (value === searchRef.current) return
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
-        setPage(0)
         setTotalRecords(0)
         getList(glb_sv.defaultValueSearch, value)
     }
@@ -287,47 +193,11 @@ const ProductList = () => {
         idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
     }
 
-    const onView = item => {
-        setShouldOpenViewModal(item ? true : false)
-        setId(item ? item.o_1 : 0)
-    }
-
-    const handleCreate = (actionType, dataObject) => {
-        if (dataObject && Object.keys(dataObject).length === 0 && dataObject.constructor === Object) return
-        const inputParam = [
-            dataObject.productGroup,
-            !dataObject.code || dataObject.code.trim() === '' ? 'AUTO' : dataObject.code.trim(),
-            dataObject.name,
-            dataObject.barcode,
-            dataObject.unit,
-            dataObject.content || '',
-            dataObject.contraind || '',
-            dataObject.designate || '',
-            dataObject.dosage || '',
-            dataObject.interact || '',
-            dataObject.manufact || '',
-            dataObject.effect || '',
-            dataObject.overdose || '',
-            dataObject.storages || '',
-            dataObject.packing || ''
-        ]
-        saveContinue.current = actionType
-        sendRequest(serviceInfo.CREATE, inputParam, e => console.log(e), true, handleTimeOut)
-    }
-
-    const handleEdit = newData => {
-        if (newData && Object.keys(newData).length === 0 && newData.constructor === Object) return
-        let data = Object.keys(newData).map(key => newData[key])
-        data.splice(-2); // xóa mã sp + tên units
-        sendRequest(serviceInfo.UPDATE, data, e => console.log(e), true, handleTimeOut)
-    }
-
     const handleDelete = e => {
         // e.preventDefault();
         idRef.current = id;
+        setProcessing(true)
         sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
-        setId(0)
-        setName('')
     }
 
     const getNextData = () => {
@@ -336,16 +206,6 @@ const ProductList = () => {
             const lastID = dataSourceRef.current[lastIndex].o_1
             getList(lastID, searchValue)
         }
-    }
-
-    const handleCloseEditModal = value => {
-        setId(0);
-        setShouldOpenEditModal(value)
-    }
-
-    const handleCloseAddModal = value => {
-        setId(0);
-        setShouldOpenModal(value)
     }
 
     const headersCSV = [
@@ -398,6 +258,12 @@ const ProductList = () => {
         return result
     }
 
+    const handleRefresh = () => {
+        dataSourceRef.current = []
+        setTotalRecords(0)
+        getList(glb_sv.defaultValueSearch, searchValue)
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -433,7 +299,7 @@ const ProductList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='product' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
+                            <ProductAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
@@ -539,30 +405,19 @@ const ProductList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>
                 </Card>
             </Dialog>
 
-            {/* modal add */}
-            <ProductAdd
-                id={id}
-                productData={productData}
-                shouldOpenModal={shouldOpenModal}
-                productNameFocus={productNameFocus}
-                handleCloseAddModal={handleCloseAddModal}
-                handleCreate={handleCreate}
-            />
-
             {/* modal edit */}
             <ProductEdit
                 id={id}
                 shouldOpenModal={shouldOpenEditModal}
-                productNameFocus={productNameFocus}
-                handleCloseEditModal={handleCloseEditModal}
-                handleEdit={handleEdit}
+                setShouldOpenModal={setShouldOpenEditModal}
+                onRefresh={handleRefresh}
             />
         </>
     )
