@@ -317,7 +317,7 @@ const InsExportDestroy = ({ }) => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {

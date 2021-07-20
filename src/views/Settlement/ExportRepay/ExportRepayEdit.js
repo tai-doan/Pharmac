@@ -275,7 +275,7 @@ const ExportRepayEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh })
                         </Grid>
 
                         <Grid item xs={6} sm={3}>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={settlement.settl_amt}

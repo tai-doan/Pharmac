@@ -28,9 +28,9 @@ const serviceInfo = {
         biz: 'import',
         object: 'imp_inventory'
     },
-    GET_ALL_PRODUCT_BY_INVOICE_ID: {
+    GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID: {
         functionName: 'get_all',
-        reqFunct: reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID,
+        reqFunct: reqFunction.GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID,
         biz: 'import',
         object: 'imp_inventory_dt'
     },
@@ -82,12 +82,15 @@ const EditImportInventory = ({ }) => {
                     case reqFunction.PRODUCT_IMPORT_INVOICE_CREATE:
                         resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
-                    case reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID:
+                    case reqFunction.GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
                         resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
+                    case reqFunction.PRODUCT_IMPORT_INVOICE_DELETE:
+                        resultDeleteProduct(msg, cltSeqResult, reqInfoMap)
+                        return
                     default:
                         return
                 }
@@ -96,7 +99,7 @@ const EditImportInventory = ({ }) => {
 
         if (id !== 0) {
             sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], e => console.log(e), true, handleTimeOut)
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
         }
         return () => {
             importSub.unsubscribe()
@@ -162,7 +165,23 @@ const EditImportInventory = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [ImportInventory.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID, [ImportInventory.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+        }
+    }
+
+    const resultDeleteProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID, [id], null, true, handleTimeOut)
         }
     }
 
@@ -334,7 +353,7 @@ const EditImportInventory = ({ }) => {
                                 name='invoice_no'
                                 variant="outlined"
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {

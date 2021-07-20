@@ -163,7 +163,7 @@ const WarnTimeAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={warnTime.warn_amt || ''}

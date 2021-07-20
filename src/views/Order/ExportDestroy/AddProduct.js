@@ -138,7 +138,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                         </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.qty}
@@ -156,7 +156,7 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.price}

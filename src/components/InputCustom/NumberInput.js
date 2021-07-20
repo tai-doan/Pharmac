@@ -23,7 +23,7 @@ const TextInput = (props) => {
     return (
         <Grid item sm={props.columnswidth} xs={12}>
             <BootstrapTooltip title={props.tooltipContent ? props.t(props.tooltipContent) : props.t(props.label)}>
-                <NumberFormat
+                <NumberFormat className='inputNumber' 
                     {...props}
                 />
             </BootstrapTooltip>

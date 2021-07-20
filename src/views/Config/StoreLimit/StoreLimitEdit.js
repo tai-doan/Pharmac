@@ -185,7 +185,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 autoFocus={true}
@@ -209,7 +209,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={StoreLimit.o_7}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-    Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button,
+    Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, Divider,
     TextField, Card, CardHeader, CardContent, FormControl, MenuItem, InputLabel, Select, Dialog, Link as LinkMT
 } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
@@ -454,6 +454,7 @@ const ProductImport = () => {
                             </Tooltip>
                             <div className='d-flex align-items-center w-100'>
                                 <SupplierAdd_Autocomplete
+                                    autoFocus={true}
                                     value={supplierSelect || ''}
                                     size={'small'}
                                     label={t('menu.supplier')}
@@ -491,7 +492,7 @@ const ProductImport = () => {
                                 name='note'
                                 variant="outlined"
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_val}
@@ -504,7 +505,7 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_discount}
@@ -517,7 +518,7 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_vat}
@@ -530,7 +531,8 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <Divider orientation="horizontal" />
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_needpay}
@@ -543,7 +545,7 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Import.payment_amount}
@@ -557,7 +559,8 @@ const ProductImport = () => {
                                 variant="outlined"
                                 thousandSeparator={true}
                             />
-                            <NumberFormat
+                            <Divider orientation="horizontal" flexItem />
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Import.payment_amount - paymentInfo.invoice_needpay}
@@ -575,7 +578,7 @@ const ProductImport = () => {
                             </LinkMT>
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
-                            <Button
+                            <Button fullWidth={true}
                                 onClick={() => {
                                     handleCreateInvoice();
                                 }}
@@ -615,14 +618,17 @@ const ProductImport = () => {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs>
-                                    <Dictionary
-                                        value={Import.bank_transf_name_s || ''}
+                                    <TextField
                                         disabled={Import.payment_type === '1'}
                                         required={Import.payment_type === '2'}
-                                        diectionName='bank_cd'
-                                        onSelect={handleSelectTransfBank}
-                                        label={t('report.bank_transf_name')}
-                                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('report.bank_transf_acc_number')}
+                                        onChange={handleChange}
+                                        value={Import.bank_transf_acc_number || ''}
+                                        name='bank_transf_acc_number'
+                                        variant="outlined"
                                     />
                                 </Grid>
                                 <Grid item xs>
@@ -640,30 +646,30 @@ const ProductImport = () => {
                                     />
                                 </Grid>
                                 <Grid item xs>
+                                    <Dictionary
+                                        value={Import.bank_transf_name_s || ''}
+                                        disabled={Import.payment_type === '1'}
+                                        required={Import.payment_type === '2'}
+                                        diectionName='bank_cd'
+                                        onSelect={handleSelectTransfBank}
+                                        label={t('report.bank_transf_name')}
+                                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={2}>
+                                <Grid item xs>
                                     <TextField
                                         disabled={Import.payment_type === '1'}
                                         required={Import.payment_type === '2'}
                                         fullWidth={true}
                                         margin="dense"
                                         autoComplete="off"
-                                        label={t('report.bank_transf_acc_number')}
+                                        label={t('report.bank_recei_acc_number')}
                                         onChange={handleChange}
-                                        value={Import.bank_transf_acc_number || ''}
-                                        name='bank_transf_acc_number'
+                                        value={Import.bank_recei_acc_number || ''}
+                                        name='bank_recei_acc_number'
                                         variant="outlined"
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Grid container spacing={2}>
-                                <Grid item xs>
-                                    <Dictionary
-                                        value={Import.bank_recei_name_s || ''}
-                                        disabled={Import.payment_type === '1'}
-                                        required={Import.payment_type === '2'}
-                                        diectionName='bank_cd'
-                                        onSelect={handleSelectReceiBank}
-                                        label={t('report.bank_recei_name')}
-                                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                     />
                                 </Grid>
                                 <Grid item xs>
@@ -681,17 +687,14 @@ const ProductImport = () => {
                                     />
                                 </Grid>
                                 <Grid item xs>
-                                    <TextField
+                                    <Dictionary
+                                        value={Import.bank_recei_name_s || ''}
                                         disabled={Import.payment_type === '1'}
                                         required={Import.payment_type === '2'}
-                                        fullWidth={true}
-                                        margin="dense"
-                                        autoComplete="off"
-                                        label={t('report.bank_recei_acc_number')}
-                                        onChange={handleChange}
-                                        value={Import.bank_recei_acc_number || ''}
-                                        name='bank_recei_acc_number'
-                                        variant="outlined"
+                                        diectionName='bank_cd'
+                                        onSelect={handleSelectReceiBank}
+                                        label={t('report.bank_recei_name')}
+                                        style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                                     />
                                 </Grid>
                             </Grid>

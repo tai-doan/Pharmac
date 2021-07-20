@@ -351,7 +351,7 @@ const InsExport = ({ }) => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
@@ -366,7 +366,7 @@ const InsExport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
@@ -381,7 +381,7 @@ const InsExport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
@@ -396,7 +396,7 @@ const InsExport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {

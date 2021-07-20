@@ -200,7 +200,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 autoFocus={true}
@@ -219,7 +219,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.price}
@@ -237,7 +237,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.discount_per}
@@ -257,7 +257,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.vat_per}

@@ -172,7 +172,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                             </MuiPickersUtilsProvider>
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.qty}
@@ -201,7 +201,7 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                     </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.price}

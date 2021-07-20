@@ -167,7 +167,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 autoFocus={true}

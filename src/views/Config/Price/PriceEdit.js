@@ -209,7 +209,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_6}
@@ -234,7 +234,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                     </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_7}
@@ -259,7 +259,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_8}
@@ -283,7 +283,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_9}
@@ -306,7 +306,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_10}

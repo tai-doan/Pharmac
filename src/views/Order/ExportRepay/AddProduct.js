@@ -136,7 +136,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                         </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.qty}
@@ -154,7 +154,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.price}
@@ -172,7 +172,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.discount_per}
@@ -192,7 +192,7 @@ const ProductExportRepayAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.vat_per}

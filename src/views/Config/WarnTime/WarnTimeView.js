@@ -97,7 +97,7 @@ const WarnTimeView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                         />
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             disabled={true}
                             style={{ width: '100%' }}
                             required

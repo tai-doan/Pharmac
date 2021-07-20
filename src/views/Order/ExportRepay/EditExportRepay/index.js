@@ -108,6 +108,9 @@ const EditExportRepay = ({ }) => {
                     case reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_UPDATE:
                         resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
+                        case reqFunction.PRODUCT_EXPORT_REPAY_INVOICE_DELETE:
+                            resultDeleteProduct(msg, cltSeqResult, reqInfoMap)
+                            return
                     default:
                         return
                 }
@@ -203,6 +206,22 @@ const EditExportRepay = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
 
+        }
+    }
+
+    const resultDeleteProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_REPAY_ID, [id], null, true, handleTimeOut)
         }
     }
 
@@ -444,7 +463,7 @@ const EditExportRepay = ({ }) => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
@@ -459,7 +478,7 @@ const EditExportRepay = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
@@ -474,7 +493,7 @@ const EditExportRepay = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {
@@ -489,7 +508,7 @@ const EditExportRepay = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={dataSource.reduce(function (acc, obj) {

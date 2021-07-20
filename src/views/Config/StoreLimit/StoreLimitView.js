@@ -107,7 +107,7 @@ const StoreLimitView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                         />
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             disabled={true}
                             style={{ width: '100%' }}
                             required
@@ -127,7 +127,7 @@ const StoreLimitView = ({ id, shouldOpenViewModal, handleCloseViewModal }) => {
                 </Grid>
                 <Grid container spacing={2}>
                 <Grid item xs={6} sm={4}>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             disabled={true}
                             style={{ width: '100%' }}
                             required

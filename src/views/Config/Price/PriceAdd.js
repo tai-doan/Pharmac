@@ -208,7 +208,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs={6} sm={4}>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.importPrice || ''}
@@ -233,7 +233,7 @@ const PriceAdd = ({ onRefresh }) => {
                         </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.importVAT || ''}
@@ -258,7 +258,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.price || ''}
@@ -281,7 +281,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.wholePrice || ''}
@@ -304,7 +304,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.exportVAT || ''}

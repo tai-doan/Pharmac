@@ -530,7 +530,7 @@ const EditImport = ({ }) => {
                                 name='note'
                                 variant="outlined"
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_val}
@@ -543,7 +543,7 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_discount}
@@ -556,7 +556,7 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_vat}
@@ -569,7 +569,7 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={paymentInfo.invoice_needpay}
@@ -582,7 +582,7 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat
+                            <NumberFormat className='inputNumber' 
                                 style={{ width: '100%' }}
                                 required
                                 value={Import.invoice_settl}

@@ -51,19 +51,19 @@ const AddProduct = ({ onAddProduct }) => {
 
     const handleQuantityChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['qty'] = Number(obj.value)
+        newProductInfo['qty'] = Number(obj.value) >= 0 ? Math.round(obj.value) : 0
         setProductInfo(newProductInfo)
     }
 
     const handlePriceChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['price'] = Number(obj.value)
+        newProductInfo['price'] = Number(obj.value) >= 0 ? Math.round(obj.value) : 0
         setProductInfo(newProductInfo)
     }
 
     const handleDiscountChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Number(obj.value) >= 0 && Number(obj.value) <= 100 ? Math.round(obj.value) : 10
+        newProductInfo['discount_per'] = Number(obj.value) >= 0 && Number(obj.value) < 100 ? Math.round(obj.value) : 10
         setProductInfo(newProductInfo)
     }
 
@@ -75,12 +75,12 @@ const AddProduct = ({ onAddProduct }) => {
 
     const checkValidate = () => {
         if (!!productInfo.imp_tp && productInfo.imp_tp === '1') {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price && !!productInfo.discount_per && !!productInfo.vat_per) {
+            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && productInfo.price > -1 && productInfo.discount_per > -1 && productInfo.discount_per < 100 && productInfo.vat_per > -1) {
                 return false
             } else
                 return true
         } else {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id) {
+            if (!!productInfo.prod_id && !!productInfo.lot_no && productInfo.qty > 0 && !!productInfo.unit_id) {
                 return false
             }
             return true
@@ -91,22 +91,9 @@ const AddProduct = ({ onAddProduct }) => {
         <Card className='mb-2'>
             <CardHeader
                 title={t('order.import.productAdd')}
-                action={
-                    <Button size='small'
-                        onClick={() => {
-                            onAddProduct(productInfo);
-                            setProductInfo({ ...productImportModal })
-                        }}
-                        variant="contained"
-                        disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
-                    >
-                        {t('btn.save')}
-                    </Button>
-                }
             />
             <CardContent>
-                <Grid container spacing={2}>
+                <Grid container spacing={1}>
                     <Grid item xs={3}>
                         <FormControl margin="dense" variant="outlined" className='w-100'>
                             <InputLabel id="import_type">{t('order.import.import_type')}</InputLabel>
@@ -123,7 +110,7 @@ const AddProduct = ({ onAddProduct }) => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={3}>
+                    <Grid item xs={4}>
                         <Product_Autocomplete
                             value={productInfo.prod_nm}
                             style={{ marginTop: 8, marginBottom: 4 }}
@@ -132,7 +119,7 @@ const AddProduct = ({ onAddProduct }) => {
                             onSelect={handleSelectProduct}
                         />
                     </Grid>
-                    <Grid item xs={3}>
+                    <Grid item xs={2}>
                         <TextField
                             fullWidth={true}
                             margin="dense"
@@ -180,9 +167,9 @@ const AddProduct = ({ onAddProduct }) => {
                         </MuiPickersUtilsProvider>
                     </Grid>
                 </Grid>
-                <Grid container spacing={2}>
+                <Grid container spacing={1}>
                     <Grid item xs>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             style={{ width: '100%' }}
                             required
                             value={productInfo.qty}
@@ -216,7 +203,7 @@ const AddProduct = ({ onAddProduct }) => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             style={{ width: '100%' }}
                             required
                             disabled={productInfo.imp_tp !== '1'}
@@ -242,7 +229,7 @@ const AddProduct = ({ onAddProduct }) => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             style={{ width: '100%' }}
                             required
                             disabled={productInfo.imp_tp !== '1'}
@@ -270,7 +257,7 @@ const AddProduct = ({ onAddProduct }) => {
                         />
                     </Grid>
                     <Grid item xs>
-                        <NumberFormat
+                        <NumberFormat className='inputNumber' 
                             style={{ width: '100%' }}
                             required
                             disabled={productInfo.imp_tp !== '1'}
@@ -296,6 +283,19 @@ const AddProduct = ({ onAddProduct }) => {
                                 }
                             }}
                         />
+                    </Grid>
+                    <Grid item className='d-flex align-items-center'>
+                        <Button
+                            onClick={() => {
+                                onAddProduct(productInfo);
+                                setProductInfo({ ...productImportModal })
+                            }}
+                            variant="contained"
+                            disabled={checkValidate()}
+                            className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        >
+                            {t('btn.save')}
+                        </Button>
                     </Grid>
                 </Grid>
             </CardContent>

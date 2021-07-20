@@ -167,7 +167,7 @@ const ProductExportAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.qty}
@@ -188,7 +188,7 @@ const ProductExportAdd = ({ handleAddProduct }) => {
                         <Grid container spacing={2}>
 
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     disabled={productInfo.exp_tp !== '1'}
@@ -207,7 +207,7 @@ const ProductExportAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     disabled={productInfo.exp_tp !== '1'}
@@ -228,7 +228,7 @@ const ProductExportAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     disabled={productInfo.exp_tp !== '1'}

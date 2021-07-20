@@ -170,7 +170,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                                 </MuiPickersUtilsProvider>
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.qty}
@@ -199,7 +199,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                         </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     disabled={productInfo.imp_tp !== '1'}
@@ -218,7 +218,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     disabled={productInfo.imp_tp !== '1'}
@@ -239,7 +239,7 @@ const ProductImportAdd = ({ handleAddProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     disabled={productInfo.imp_tp !== '1'}

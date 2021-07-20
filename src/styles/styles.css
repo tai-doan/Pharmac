@@ -212,6 +212,10 @@ thead.MuiTableHead-root {
     animation-timing-function: linear; 
 }
 
+.inputNumber .MuiOutlinedInput-inputMarginDense {
+    text-align: right;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);

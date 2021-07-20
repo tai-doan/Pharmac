@@ -28,7 +28,7 @@ const serviceInfo = {
     }
 }
 
-const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, disabled = false }) => {
+const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, disabled = false, autoFocus = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -180,12 +180,12 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                             InputProps: {
                                 ...params.InputProps,
                                 // endAdornment: Object.assign(params.InputProps.endAdornment, (
-                                //     <Tooltip title={t('partner.supplier.titleAdd')} aria-label="add">
+                                //     <Tooltip title={t('partner.supplier.titleQuickAdd')} aria-label="add">
                                 //         <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                                 //     </Tooltip>
                                 // )),
                                 startAdornment: (
-                                    <Tooltip title={t('partner.supplier.titleAdd')} aria-label="add">
+                                    <Tooltip title={t('partner.supplier.titleQuickAdd')} aria-label="add">
                                         <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                                     </Tooltip>
                                 )
@@ -194,20 +194,21 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                     }
                     return <TextField
                         {...newParams}
+                        autoFocus={autoFocus}
                         label={!!label ? label : ''}
                         variant="outlined"
                     />
                 }}
             />
             {/* {!disabled &&
-                <Tooltip title={t('partner.supplier.titleAdd')} aria-label="add">
+                <Tooltip title={t('partner.supplier.titleQuickAdd')} aria-label="add">
                     <AddCircleIcon style={{ width: '20%', color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                 </Tooltip>
             } */}
 
             <Dialog
                 fullWidth={true}
-                maxWidth="md"
+                maxWidth="sm"
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
@@ -215,10 +216,10 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                 }}
             >
                 <Card>
-                    <CardHeader title={t('partner.supplier.titleAdd')} />
+                    <CardHeader title={t('partner.supplier.titleQuickAdd')} />
                     <CardContent>
                         <Grid container spacing={2}>
-                            <Grid item xs={6} sm={4}>
+                            <Grid item xs>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -232,19 +233,7 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={4}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.supplier.address')}
-                                    onChange={handleChange}
-                                    value={supplierInfo.address || ''}
-                                    name='address'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
+                            <Grid item xs>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -253,6 +242,23 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                     onChange={handleChange}
                                     value={supplierInfo.phone || ''}
                                     name='phone'
+                                    variant="outlined"
+                                />
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={2}>
+                            <Grid item xs>
+                                <TextField
+                                    fullWidth={true}
+                                    multiline
+                                    rows={2}
+                                    rowsMax={5}
+                                    margin="dense"
+                                    autoComplete="off"
+                                    label={t('partner.supplier.address')}
+                                    onChange={handleChange}
+                                    value={supplierInfo.address || ''}
+                                    name='address'
                                     variant="outlined"
                                 />
                             </Grid>

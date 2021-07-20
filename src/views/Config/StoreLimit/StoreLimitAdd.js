@@ -183,7 +183,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={StoreLimit.minQuantity}
@@ -206,7 +206,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat
+                                <NumberFormat className='inputNumber' 
                                     style={{ width: '100%' }}
                                     required
                                     value={StoreLimit.maxQuantity}

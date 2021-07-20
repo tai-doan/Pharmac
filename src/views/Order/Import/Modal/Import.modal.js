@@ -105,7 +105,6 @@ const invoiceImportModal = {
 
 const tableListAddColumn = [
     { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100, align: 'center' },
-    { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' },
     { field: 'imp_tp', title: 'order.import.imp_tp_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'prod_nm', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'lot_no', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100, className: 'uppercase' },
@@ -115,11 +114,11 @@ const tableListAddColumn = [
     { field: 'price', title: 'order.import.price', show: true, disabled: false, minWidth: 100, align: 'right' },
     { field: 'vat_per', title: 'order.import.vat_per', show: true, disabled: false, minWidth: 100, align: 'right' },
     { field: 'discount_per', title: 'order.import.discount_per', show: true, disabled: false, minWidth: 100, align: 'right' },
+    { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' },
 ]
 
 const tableListEditColumn = [
     { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100, align: 'center' },
-    { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' },
     { field: 'o_4', title: 'order.import.imp_tp_nm', show: true, disabled: true, minWidth: 100 },
     { field: 'o_6', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
     { field: 'o_7', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100, className: 'uppercase' },
@@ -131,6 +130,7 @@ const tableListEditColumn = [
     { field: 'o_15', title: 'order.import.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_16', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
     { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
+    { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' },
 ]
 
 export {
