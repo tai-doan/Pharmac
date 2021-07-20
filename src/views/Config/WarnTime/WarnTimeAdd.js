@@ -126,7 +126,7 @@ const WarnTimeAdd = ({ onRefresh }) => {
 
     const handleChangeAmt = value => {
         const newWarnTime = { ...warnTime };
-        newWarnTime['warn_amt'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 1
+        newWarnTime['warn_amt'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Number(value.value) : 1
         setWarnTime(newWarnTime)
     }
 

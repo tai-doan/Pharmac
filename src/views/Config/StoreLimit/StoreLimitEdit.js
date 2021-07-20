@@ -144,12 +144,12 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
 
     const handleMinQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['o_6'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newStoreLimit['o_6'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setStoreLimit(newStoreLimit)
     }
     const handleMaxQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['o_7'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 1000
+        newStoreLimit['o_7'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 1000
         setStoreLimit(newStoreLimit)
     }
 

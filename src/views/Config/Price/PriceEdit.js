@@ -152,28 +152,28 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
 
     const handleImportPriceChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_6'] = Math.round(value.floatValue)
+        newPrice['o_6'] = Number(value.value)
         setPrice(newPrice)
     }
     const handleImportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_7'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newPrice['o_7'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setPrice(newPrice)
     }
     const handlePriceChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_8'] = Math.round(value.floatValue)
+        newPrice['o_8'] = Number(value.value)
         setPrice(newPrice)
     }
     const handleWholePriceChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_9'] = Math.round(value.floatValue)
+        newPrice['o_9'] = Number(value.value)
         setPrice(newPrice)
     }
 
     const handleExportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['o_10'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newPrice['o_10'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setPrice(newPrice)
     }
 

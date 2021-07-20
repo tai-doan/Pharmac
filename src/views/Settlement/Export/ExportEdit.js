@@ -188,7 +188,7 @@ const ExportEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
 
     const handleAmountChange = value => {
         const newSettlement = { ...settlement };
-        newSettlement['settl_amt'] = Math.round(value.floatValue)
+        newSettlement['settl_amt'] = Number(value.value)
         setSettlement(newSettlement)
     }
 

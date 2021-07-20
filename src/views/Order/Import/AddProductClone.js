@@ -49,27 +49,27 @@ const AddProduct = ({ onAddProduct }) => {
         setProductInfo(newProductInfo)
     }
 
-    const handleQuantityChange = value => {
+    const handleQuantityChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['qty'] = Math.round(value.floatValue)
+        newProductInfo['qty'] = Number(obj.value)
         setProductInfo(newProductInfo)
     }
 
-    const handlePriceChange = value => {
+    const handlePriceChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['price'] = Math.round(value.floatValue)
+        newProductInfo['price'] = Number(obj.value)
         setProductInfo(newProductInfo)
     }
 
-    const handleDiscountChange = value => {
+    const handleDiscountChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['discount_per'] = Number(obj.value) >= 0 && Number(obj.value) <= 100 ? Math.round(obj.value) : 10
         setProductInfo(newProductInfo)
     }
 
-    const handleVATChange = value => {
+    const handleVATChange = obj => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['vat_per'] = Number(obj.value) >= 0 && Number(obj.value) <= 100 ? Math.round(obj.value) : 10
         setProductInfo(newProductInfo)
     }
 

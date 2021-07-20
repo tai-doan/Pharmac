@@ -42,13 +42,13 @@ const ProductExportDestroyAdd = ({ handleAddProduct }) => {
 
     const handleQuantityChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['qty'] = Math.round(value.floatValue)
+        newProductInfo['qty'] = Number(value.value)
         setProductInfo(newProductInfo)
     }
 
     const handlePriceChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['price'] = Math.round(value.floatValue)
+        newProductInfo['price'] = Number(value.value)
         setProductInfo(newProductInfo)
     }
 

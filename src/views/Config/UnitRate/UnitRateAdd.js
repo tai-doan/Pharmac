@@ -136,7 +136,7 @@ const UnitRateAdd = ({ onRefresh }) => {
 
     const handleChange = value => {
         const newUnitRate = { ...unitRate };
-        newUnitRate['rate'] = Math.round(value.floatValue)
+        newUnitRate['rate'] = Number(value.value)
         setUnitRate(newUnitRate)
     }
 

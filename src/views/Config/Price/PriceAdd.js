@@ -144,28 +144,28 @@ const PriceAdd = ({ onRefresh }) => {
 
     const handleImportPriceChange = value => {
         const newPrice = { ...Price };
-        newPrice['importPrice'] = Math.round(value.floatValue)
+        newPrice['importPrice'] = Number(value.value)
         setPrice(newPrice)
     }
     const handleImportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['importVAT'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newPrice['importVAT'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setPrice(newPrice)
     }
     const handlePriceChange = value => {
         const newPrice = { ...Price };
-        newPrice['price'] = Math.round(value.floatValue)
+        newPrice['price'] = Number(value.value)
         setPrice(newPrice)
     }
     const handleWholePriceChange = value => {
         const newPrice = { ...Price };
-        newPrice['wholePrice'] = Math.round(value.floatValue)
+        newPrice['wholePrice'] = Number(value.value)
         setPrice(newPrice)
     }
 
     const handleExportVATChange = value => {
         const newPrice = { ...Price };
-        newPrice['exportVAT'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newPrice['exportVAT'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         console.log(newPrice)
         setPrice(newPrice)
     }

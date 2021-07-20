@@ -264,7 +264,7 @@ const ProductImport = () => {
 
     const handleAmountChange = value => {
         const newImport = { ...Import };
-        newImport['payment_amount'] = Math.round(value.floatValue)
+        newImport['payment_amount'] = Number(value.value)
         importDataRef.current = newImport
         setImport(newImport)
     }

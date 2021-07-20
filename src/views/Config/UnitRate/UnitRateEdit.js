@@ -130,7 +130,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
 
     const handleChange = value => {
         const newUnitRate = { ...unitRate };
-        newUnitRate['o_6'] = Math.round(value.floatValue)
+        newUnitRate['o_6'] = Number(value.value)
         setUnitRate(newUnitRate)
     }
 

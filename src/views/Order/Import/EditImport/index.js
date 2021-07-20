@@ -65,6 +65,12 @@ const serviceInfo = {
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_DELETE,
         biz: 'import',
         object: 'imp_invoices_dt'
+    },
+    CREATE_SETTLEMENT: {
+        functionName: 'insert',
+        reqFunct: reqFunction.SETTLEMENT_IMPORT_CREATE,
+        biz: 'settlement',
+        object: 'imp_settl'
     }
 }
 
@@ -79,6 +85,8 @@ const EditImport = ({ }) => {
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
+
+    const productAddData = useRef({})
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
@@ -109,6 +117,12 @@ const EditImport = ({ }) => {
                     case reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID:
                         resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
                         break
+                    case reqFunction.SETTLEMENT_IMPORT_CREATE:
+                        resultCreateSettlement(msg, cltSeqResult, reqInfoMap)
+                        return
+                    case reqFunction.PRODUCT_IMPORT_INVOICE_DELETE:
+                        resultDeleteProduct(msg, cltSeqResult, reqInfoMap)
+                        return
                     // case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
                     //     resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
                     //     break
@@ -204,7 +218,59 @@ const EditImport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, handleTimeOut)
+            console.log('productAddData: ', productAddData.current)
+            const inputParams = [
+                '10',
+                id || newInvoiceId.current,
+                '1',
+                moment().format('YYYYMMDD'),
+                Math.round(
+                    (productAddData.current.price * productAddData.current.qty) * (1 - (productAddData.current.discount_per / 100)) * (1 + (productAddData.current.vat_per / 100))
+                ),
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                ''
+            ]
+            sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, handleTimeOut)
+        }
+    }
+
+    const resultCreateSettlement = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        console.log('create settlement result: ', reqInfoMap, message)
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        productAddData.current = {}
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], null, true, handleTimeOut)
+        }
+    }
+
+    const resultDeleteProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, handleTimeOut)
         }
     }
 
@@ -250,6 +316,7 @@ const EditImport = ({ }) => {
             SnackBarService.alert(t('wrongData'), true, 'error', 3000)
             return
         }
+        productAddData.current = productObject
         const inputParam = [
             Import.invoice_id,
             productObject.imp_tp,
@@ -316,7 +383,7 @@ const EditImport = ({ }) => {
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={Import.invoice_id} onRefresh={handleRefresh} />
             <Grid item md={9} xs={12}>
-                <AddProduct handleAddProduct={handleAddProduct} />
+                <AddProduct onAddProduct={handleAddProduct} />
                 <Card>
                     {/* <div className='d-flex justify-content-between align-items-center mr-2'>
                         <Link to="/page/order/import" className="normalLink">

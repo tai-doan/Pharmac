@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress = () => null, disabled = false, autoFocus = false }) => {
+const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value, onKeyPress = () => null, disabled = false, autoFocus = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -51,7 +51,7 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress 
     }, [])
 
     useEffect(() => {
-        if (value !== null || value !== undefined) {
+        if (!!value || value !== null || value !== undefined) {
             setValueSelect(dataSource.find(x => x.o_2 === value))
         }
     }, [value, dataSource])

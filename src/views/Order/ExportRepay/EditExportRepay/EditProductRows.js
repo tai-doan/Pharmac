@@ -117,25 +117,25 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
 
     const handleQuantityChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['qty'] = Math.round(value.floatValue)
+        newProductInfo['qty'] = Number(value.value)
         setProductInfo(newProductInfo)
     }
 
     const handlePriceChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['price'] = Math.round(value.floatValue)
+        newProductInfo['price'] = Number(value.value)
         setProductInfo(newProductInfo)
     }
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['discount_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['discount_per'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
-        newProductInfo['vat_per'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newProductInfo['vat_per'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setProductInfo(newProductInfo)
     }
 

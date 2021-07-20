@@ -133,7 +133,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
 
     const handleChangeAmt = value => {
         const newWarnTime = { ...warnTime };
-        newWarnTime['o_4'] = Math.round(value.floatValue)
+        newWarnTime['o_4'] = Number(value.value)
         setWarnTime(newWarnTime)
     }
 

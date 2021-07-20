@@ -136,12 +136,12 @@ const StoreLimitAdd = ({ onRefresh }) => {
 
     const handleMinQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['minQuantity'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 10
+        newStoreLimit['minQuantity'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
         setStoreLimit(newStoreLimit)
     }
     const handleMaxQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['maxQuantity'] = Math.round(value.floatValue) >= 0 && Math.round(value.floatValue) <= 100 ? Math.round(value.floatValue) : 1000
+        newStoreLimit['maxQuantity'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 1000
         setStoreLimit(newStoreLimit)
     }
 
