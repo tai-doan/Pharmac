@@ -130,13 +130,13 @@ const EditImport = ({ }) => {
     useEffect(() => {
         const newData = { ...paymentInfo }
         newData['invoice_val'] = dataSource.reduce(function (acc, obj) {
-            return acc + Math.round(obj.qty * obj.price)
+            return acc + Math.round(obj.o_10 * obj.o_13)
         }, 0) || 0
         newData['invoice_discount'] = dataSource.reduce(function (acc, obj) {
-            return acc + Math.round(obj.discount_per / 100 * newData.invoice_val)
+            return acc + Math.round(obj.o_15 / 100 * newData.invoice_val)
         }, 0) || 0
         newData['invoice_vat'] = dataSource.reduce(function (acc, obj) {
-            return acc + Math.round(obj.vat_per / 100 * Math.round(newData.invoice_val * (1 - (obj.discount_per / 100))))
+            return acc + Math.round(obj.o_14 / 100 * Math.round(newData.invoice_val * (1 - (obj.o_15 / 100))))
         }, 0) || 0
         newData['invoice_needpay'] = newData.invoice_val - newData.invoice_discount + newData.invoice_vat || 0
         setPaymentInfo(newData)
@@ -163,12 +163,13 @@ const EditImport = ({ }) => {
                 invoice_id: newData.rows[0].o_1,
                 invoice_no: newData.rows[0].o_2,
                 invoice_stat: newData.rows[0].o_3,
-                supplier: newData.rows[0].o_5,
+                supplier: newData.rows[0].o_4,
                 order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
                 person_s: newData.rows[0].o_8,
                 person_r: newData.rows[0].o_9,
                 cancel_reason: newData.rows[0].o_10,
-                note: newData.rows[0].o_11
+                note: newData.rows[0].o_11,
+                invoice_settl: newData.rows[0].o_16
             }
             setSupplierSelect(newData.rows[0].o_5)
             setImport(dataImport)
@@ -415,10 +416,9 @@ const EditImport = ({ }) => {
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('order.import.invoice_no')}
+                                className="uppercaseInput"
                                 disabled={true}
                                 value={Import.invoice_no || ''}
                                 name='invoice_no'
@@ -507,6 +507,19 @@ const EditImport = ({ }) => {
                                 required
                                 value={paymentInfo.invoice_needpay}
                                 label={t('order.import.invoice_needpay')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat
+                                style={{ width: '100%' }}
+                                required
+                                value={Import.invoice_settl}
+                                label={t('order.import.invoice_settl')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"

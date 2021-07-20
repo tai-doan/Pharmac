@@ -68,6 +68,7 @@ const ProductImport = () => {
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
     const importDataRef = useRef(invoiceImportModal)
+    const totalProductCountAdded = useRef(0)
 
     useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -90,10 +91,7 @@ const ProductImport = () => {
                         resultAddProductToInvoice(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.SETTLEMENT_IMPORT_CREATE:
-                        console.log('msg settlement create: ', msg, reqInfoMap);
-                        SnackBarService.alert(msg['PROC_MESSAGE'], true, msg['PROC_STATUS'], 3000)
-                        importDataRef.current = invoiceImportModal
-                        setImport({ ...invoiceImportModal })
+                        resultCreateSettlement(msg, cltSeqResult, reqInfoMap)
                         return
                     default:
                         return
@@ -145,22 +143,45 @@ const ProductImport = () => {
         }
     }
 
-    const createSettlement = invoiceNo => {
-        const inputParams = [
-            '10',
-            invoiceNo || newInvoiceId.current,
-            importDataRef.current.payment_type,
-            moment(importDataRef.current.order_dt).format('YYYYMMDD'),
-            importDataRef.current.payment_amount,
-            importDataRef.current.bank_transf_acc_number,
-            importDataRef.current.bank_transf_acc_name,
-            importDataRef.current.bank_transf_name || '',
-            importDataRef.current.bank_recei_acc_number,
-            importDataRef.current.bank_recei_acc_name,
-            importDataRef.current.bank_recei_name || '',
-            importDataRef.current.note
-        ]
-        sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, null, true, handleTimeOut)
+    const resultCreateSettlement = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        console.log('create settlement result: ', reqInfoMap, message)
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        dataSourceRef.current = [];
+        totalProductCountAdded.current = 0;
+        importDataRef.current = invoiceImportModal
+        setImport({ ...invoiceImportModal })
+        setDataSource([])
+        setSupplierSelect('')
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+        }
+    }
+
+    const resultAddProductToInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
+            totalProductCountAdded.current++
+            if (totalProductCountAdded.current === dataSourceRef.current.length - 1) {
+                createSettlement(newInvoiceId.current)
+            }
+        }
     }
 
     const addProductToInvoice = invoiceNo => {
@@ -179,30 +200,26 @@ const ProductImport = () => {
                 item.discount_per,
                 item.vat_per
             ]
-            sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
-            if (i === dataSourceRef.current.length - 1) {
-                dataSourceRef.current = [];
-                setDataSource([])
-                setSupplierSelect('')
-                createSettlement(invoiceNo || newInvoiceId.current)
-            }
+            sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
         }
     }
 
-    const resultAddProductToInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-        }
+    const createSettlement = invoiceNo => {
+        const inputParams = [
+            '10',
+            invoiceNo || newInvoiceId.current,
+            importDataRef.current.payment_type,
+            moment(importDataRef.current.order_dt).format('YYYYMMDD'),
+            importDataRef.current.payment_amount > paymentInfo.invoice_needpay ? paymentInfo.invoice_needpay : importDataRef.current.payment_amount,
+            importDataRef.current.bank_transf_acc_number,
+            importDataRef.current.bank_transf_acc_name,
+            importDataRef.current.bank_transf_name || '',
+            importDataRef.current.bank_recei_acc_number,
+            importDataRef.current.bank_recei_acc_name,
+            importDataRef.current.bank_recei_name || '',
+            importDataRef.current.note
+        ]
+        sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, null, true, handleTimeOut)
     }
 
     const handleSelectSupplier = obj => {
@@ -263,7 +280,7 @@ const ProductImport = () => {
     const handleSelectReceiBank = obj => {
         const newImport = { ...Import };
         newImport['bank_recei_name'] = !!obj ? obj?.o_1 : null
-        newImport['bank_recei_name_s'] = !!obj ? obj?.o_1 : null
+        newImport['bank_recei_name_s'] = !!obj ? obj?.o_2 : null
         importDataRef.current = newImport
         setImport(newImport)
     }
@@ -426,10 +443,9 @@ const ProductImport = () => {
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('order.import.invoice_no')}
+                                    className="uppercaseInput"
                                     onChange={handleChange}
                                     value={Import.invoice_no || ''}
                                     name='invoice_no'
@@ -629,8 +645,6 @@ const ProductImport = () => {
                                         required={Import.payment_type === '2'}
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
-                                        rows={1}
                                         autoComplete="off"
                                         label={t('report.bank_transf_acc_number')}
                                         onChange={handleChange}
@@ -658,8 +672,6 @@ const ProductImport = () => {
                                         required={Import.payment_type === '2'}
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
-                                        rows={1}
                                         autoComplete="off"
                                         label={t('report.bank_recei_acc_name')}
                                         onChange={handleChange}
@@ -674,8 +686,6 @@ const ProductImport = () => {
                                         required={Import.payment_type === '2'}
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
-                                        rows={1}
                                         autoComplete="off"
                                         label={t('report.bank_recei_acc_number')}
                                         onChange={handleChange}

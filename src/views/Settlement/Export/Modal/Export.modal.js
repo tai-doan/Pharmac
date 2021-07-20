@@ -22,36 +22,36 @@ const tableColumn = [
 
 const config = {
     biz: 'settlement',
-    screenName: 'settlement_import',
-    object: 'imp_settl',
+    screenName: 'settlement_export',
+    object: 'exp_settl',
     list: {
         functionName: 'get_all',
         operation: 'Q',
-        reqFunct: reqFunction.SETTLEMENT_IMPORT_LIST,
+        reqFunct: reqFunction.SETTLEMENT_EXPORT_LIST,
     },
     byId: {
         functionName: 'get_by_id',
         operation: 'Q',
-        reqFunct: reqFunction.SETTLEMENT_IMPORT_BY_ID,
+        reqFunct: reqFunction.SETTLEMENT_EXPORT_BY_ID,
     },
     insert: {
         functionName: 'insert',
         operation: 'I',
-        reqFunct: reqFunction.SETTLEMENT_IMPORT_CREATE,
+        reqFunct: reqFunction.SETTLEMENT_EXPORT_CREATE,
     },
     update: {
         functionName: 'update',
         operation: 'U',
-        reqFunct: reqFunction.SETTLEMENT_IMPORT_UPDATE,
+        reqFunct: reqFunction.SETTLEMENT_EXPORT_UPDATE,
     },
     delete: {
         functionName: 'delete',
         operation: 'D',
-        reqFunct: reqFunction.SETTLEMENT_IMPORT_DELETE
+        reqFunct: reqFunction.SETTLEMENT_EXPORT_DELETE
     },
 }
 
-const productImportModal = {
+const productExportModal = {
     invoice_id: '',
     imp_tp: '1',
     prod_id: null,
@@ -82,7 +82,7 @@ const tableProductInvoiceViewColumn = [
     { field: 'o_17', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]
 
-const invoiceImportModal = {
+const invoiceExportModal = {
     invoice_id: null,
     order_dt: moment().toString(),
     supplier: null,
@@ -143,11 +143,11 @@ const settlementDefaulModal = {
 
 export {
     settlementDefaulModal,
-    invoiceImportModal,
+    invoiceExportModal,
     tableListAddColumn,
     tableListEditColumn,
     tableProductInvoiceViewColumn,
-    productImportModal,
+    productExportModal,
     tableColumn,
     config
 }

@@ -94,7 +94,7 @@ const Product_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress 
             noOptionsText={t('noData')}
             id="combo-box-demo"
             options={dataSource}
-            value={valueSelect || {}}
+            value={valueSelect}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
             openOnFocus={autoFocus}

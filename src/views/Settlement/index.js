@@ -2,6 +2,8 @@ import React, { lazy } from 'react'
 import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 
 const Import = lazy(() => import('./Import'))
+const Export = lazy(() => import('./Export'))
+const Repay = lazy(() => import('./ExportRepay'))
 
 const SettlementLayout = () => {
     return (
@@ -21,8 +23,10 @@ function Child() {
     switch (link) {
         case 'import':
             return <Import />
-        // case 'supplier':
-        //     return <Suppliers />
+        case 'export':
+            return <Export />
+        case 'repay':
+            return <Repay />
         default:
             break
     }

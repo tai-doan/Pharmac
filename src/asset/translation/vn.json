@@ -752,6 +752,15 @@
         }
     },
     "settlement": {
+        "titleEditImport": "Chỉnh sửa hóa đơn thanh toán nhập hàng",
+        "titleCancelImport": "Xác nhận xóa hóa đơn thanh toán nhập hàng",
+        "titleEditExport": "Chỉnh sửa hóa đơn thanh toán xuất hàng",
+        "titleCancelExport": "Xác nhận xóa hóa đơn thanh toán xuất hàng",
+        "titleEditExportRepay": "Chỉnh sửa hóa đơn thanh toán trả hàng",
+        "titleCancelExportRepay": "Xác nhận xóa hóa đơn thanh toán trả hàng",
+        "settl_tp": "Loại hình thanh toán",
+        "settl_amt": "Số tiền thanh toán",
+        "settl_dt": "Ngày thanh toán",
         "import": "Thanh toán đơn nhập hàng",
         "exportRepay": "Thanh toán đơn xuất trả",
         "export": "Thanh toán đơn xuất bán",

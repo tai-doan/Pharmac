@@ -69,8 +69,8 @@ const menuList = [
         key: 'settlement',
         children: [
             { title: 'menu.settlImp', link: 'settlement/import', key: 'settlImp' },
-            { title: 'menu.settlExp', link: 'settlement/settlExp', key: 'settlExp' },
-            { title: 'menu.settlExpRepay', link: 'settlement/settlExpRepay', key: 'settlExpRepay' },
+            { title: 'menu.settlExp', link: 'settlement/export', key: 'settlExp' },
+            { title: 'menu.settlExpRepay', link: 'settlement/repay', key: 'settlExpRepay' },
         ],
     },
     {

@@ -50,9 +50,10 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
     const [checked, setChecked] = useState(true)
     const [process, setProcess] = useState(false)
 
-    const productInfoRef = useRef(productImportModal)
+    const productInfoPrev = useRef(productImportModal)
+    const productInfoCurr = useRef(productImportModal)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal); onRefresh() }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
@@ -73,8 +74,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                         resultUpdateProduct(msg, cltSeqResult, reqInfoMap)
                         break
                     case reqFunction.SETTLEMENT_IMPORT_CREATE:
-                        console.log('msg settlement create: ', msg, reqInfoMap);
-                        SnackBarService.alert(msg['PROC_MESSAGE'], true, msg['PROC_STATUS'], 3000)
+                        resultCreateSettlement(msg, cltSeqResult, reqInfoMap);
                         return
                     default:
                         return
@@ -111,6 +111,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
         } else {
             let newData = message['PROC_DATA']
             const dataConvert = {
+                invoice_id: newData.rows[0].o_2,
                 imp_tp: newData.rows[0].o_3,
                 prod_id: newData.rows[0].o_5,
                 prod_nm: newData.rows[0].o_6,
@@ -124,7 +125,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                 vat_per: newData.rows[0].o_14,
                 discount_per: newData.rows[0].o_15
             }
-            productInfoRef.current = dataConvert
+            productInfoPrev.current = dataConvert
             setProductInfo(dataConvert)
         }
     }
@@ -141,10 +142,28 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
+            console.log('update sản phẩm trong đơn thành công => ', message)
+            createSettlement()
             onRefresh()
             setShouldOpenModal(false)
-            productInfoRef.current = productImportModal
+            productInfoPrev.current = productImportModal
             setProductInfo({ ...productImportModal })
+        }
+    }
+
+    const resultCreateSettlement = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        console.log('create settlement result: ', reqInfoMap, message)
+        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
+        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+            return
+        }
+        reqInfoMap.procStat = 2
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_STATUS'] === 2) {
+            reqInfoMap.resSucc = false
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else {
         }
     }
 
@@ -152,6 +171,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['prod_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['prod_nm'] = !!obj ? obj?.o_2 : ''
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
@@ -159,47 +179,73 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['unit_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['unit_nm'] = !!obj ? obj?.o_2 : ''
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handleChange = e => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handleExpDateChange = date => {
         const newProductInfo = { ...productInfo };
         newProductInfo['exp_dt'] = date;
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handleQuantityChange = value => {
         const newProductInfo = { ...productInfo };
         newProductInfo['qty'] = Math.round(value.floatValue)
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handlePriceChange = value => {
         const newProductInfo = { ...productInfo };
         newProductInfo['price'] = Math.round(value.floatValue)
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handleDiscountChange = value => {
         const newProductInfo = { ...productInfo };
         newProductInfo['discount_per'] = Math.round(value.floatValue)
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handleVATChange = value => {
         const newProductInfo = { ...productInfo };
         newProductInfo['vat_per'] = Math.round(value.floatValue)
+        productInfoCurr.current = newProductInfo
         setProductInfo(newProductInfo)
     }
 
     const handleCheckedChange = e => {
         setChecked(e.target.checked)
+    }
+
+    const createSettlement = () => {
+        console.log('Kiểm tra và tạo hđ công nợ')
+        if (checked) {
+            const oldTotalPaided = Math.round(
+                (productInfoPrev.current.price * productInfoPrev.current.qty) * (1 - (productInfoPrev.current.discount_per / 100)) * (1 + (productInfoPrev.current.vat_per / 100))
+            )
+            const newTotalPaided = Math.round(
+                (productInfoCurr.current.price * productInfoCurr.current.qty) * (1 - (productInfoCurr.current.discount_per / 100)) * (1 + (productInfoCurr.current.vat_per / 100))
+            )
+            if (oldTotalPaided > newTotalPaided) {
+                const inputParams = ['11', invoiceID || productInfoPrev.current.invoice_id, '1', moment().format('YYYYMMDD'), oldTotalPaided - newTotalPaided, '', '', '', '', '', '', '',]
+                sendRequest(serviceInfo.CREATE_SETTLEMENT_BY_PRODUCT, inputParams, null, true, handleTimeOut)
+            } else if (oldTotalPaided < newTotalPaided) {
+                const inputParams = ['10', invoiceID || productInfoPrev.current.invoice_id, '1', moment().format('YYYYMMDD'), newTotalPaided - oldTotalPaided, '', '', '', '', '', '', '',]
+                sendRequest(serviceInfo.CREATE_SETTLEMENT_BY_PRODUCT, inputParams, null, true, handleTimeOut)
+            }
+        }
     }
 
     const handleUpdate = () => {
@@ -215,22 +261,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
             productInfo.vat_per
         ]
         sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
-
-        if (checked) {
-            const oldTotalPaided = Math.round(
-                (productInfoRef.current.price * productInfoRef.current.qty) * (1 - (productInfoRef.current.discount_per / 100)) * (1 + (productInfoRef.current.vat_per / 100))
-            )
-            const newTotalPaided = Math.round(
-                (productInfo.price * productInfo.qty) * (1 - (productInfo.discount_per / 100)) * (1 + (productInfo.vat_per / 100))
-            )
-            if (oldTotalPaided > newTotalPaided) {
-                const inputParams = ['11', invoiceID, '1', moment().format('YYYYMMDD'), oldTotalPaided - newTotalPaided, '', '', '', '', '', '', '',]
-                sendRequest(serviceInfo.CREATE_SETTLEMENT_BY_PRODUCT, inputParams, null, true, handleTimeOut)
-            } else if (oldTotalPaided < newTotalPaided) {
-                const inputParams = ['10', invoiceID, '1', moment().format('YYYYMMDD'), newTotalPaided - oldTotalPaided, '', '', '', '', '', '', '',]
-                sendRequest(serviceInfo.CREATE_SETTLEMENT_BY_PRODUCT, inputParams, null, true, handleTimeOut)
-            } else return
-        }
     }
 
     const checkValidate = () => {
@@ -254,8 +284,9 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                 maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
-                    setProductInfo({...productImportModal})
+                    setProductInfo({ ...productImportModal })
                     setShouldOpenModal(false)
+                    onRefresh()
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
@@ -353,6 +384,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
 
@@ -374,6 +410,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
@@ -393,6 +434,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                                 inputProps={{
                                     min: 0,
                                     max: 100
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
                                 }}
                             />
                         </Grid>
@@ -414,6 +460,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                                     min: 0,
                                     max: 100
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -427,6 +478,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                         onClick={e => {
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false);
+                            onRefresh()
                         }}
                         variant="contained"
                         disableElevation

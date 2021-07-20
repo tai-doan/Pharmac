@@ -148,6 +148,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                                 value={productInfo.lot_no || ''}
                                 name='lot_no'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleEditProduct(productInfo);
+                                        setProductInfo({ ...productImportModal })
+                                        setShouldOpenModal(false)
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -168,6 +175,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            handleEditProduct(productInfo);
+                                            setProductInfo({ ...productImportModal })
+                                            setShouldOpenModal(false)
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
@@ -186,6 +200,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                                 onValueChange={handleQuantityChange}
                                 inputProps={{
                                     min: 0,
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleEditProduct(productInfo);
+                                        setProductInfo({ ...productImportModal })
+                                        setShouldOpenModal(false)
+                                    }
                                 }}
                             />
                         </Grid>
@@ -216,6 +237,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleEditProduct(productInfo);
+                                        setProductInfo({ ...productImportModal })
+                                        setShouldOpenModal(false)
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
@@ -236,6 +264,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                                     min: 0,
                                     max: 100
                                 }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleEditProduct(productInfo);
+                                        setProductInfo({ ...productImportModal })
+                                        setShouldOpenModal(false)
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
@@ -255,6 +290,13 @@ const EditProductRows = ({ productEditID, productData, handleEditProduct }) => {
                                 inputProps={{
                                     min: 0,
                                     max: 100
+                                }}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleEditProduct(productInfo);
+                                        setProductInfo({ ...productImportModal })
+                                        setShouldOpenModal(false)
+                                    }
                                 }}
                             />
                         </Grid>
