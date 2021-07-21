@@ -43,7 +43,7 @@ const serviceInfo = {
     }
 }
 
-const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
+const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
@@ -53,62 +53,55 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
     const productInfoPrev = useRef(productImportModal)
     const productInfoCurr = useRef(productImportModal)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal); onRefresh() }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
-    useEffect(() => {
-        const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID:
-                        resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
-                        resultUpdateProduct(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.SETTLEMENT_IMPORT_CREATE:
-                        resultCreateSettlement(msg, cltSeqResult, reqInfoMap);
-                        return
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            productSub.unsubscribe();
-        }
-    }, [])
-
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
+    // useEffect(() => {
+    //     const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+    //         if (msg) {
+    //             const cltSeqResult = msg['REQUEST_SEQ']
+    //             if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
+    //                 return
+    //             }
+    //             const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
+    //             if (reqInfoMap == null || reqInfoMap === undefined) {
+    //                 return
+    //             }
+    //             switch (reqInfoMap.reqFunct) {
+    //                 case reqFunction.SETTLEMENT_IMPORT_CREATE:
+    //                     resultCreateSettlement(msg, cltSeqResult, reqInfoMap);
+    //                     return
+    //                 default:
+    //                     return
+    //             }
+    //         }
+    //     })
+    //     return () => {
+    //         productSub.unsubscribe();
+    //     }
+    // }, [])
 
     useEffect(() => {
         if (productEditID !== -1) {
-            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [productEditID], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [productEditID], handleResultGetProductInfo, true, handleTimeOut)
             setShouldOpenModal(true)
         }
     }, [productEditID])
 
-    const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
+    const handleResultGetProductInfo = (reqInfoMap, message) => {
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             const dataConvert = {
                 invoice_id: newData.rows[0].o_2,
@@ -127,27 +120,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
             }
             productInfoPrev.current = dataConvert
             setProductInfo(dataConvert)
-        }
-    }
-
-    const resultUpdateProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            console.log('update sản phẩm trong đơn thành công => ', message)
-            createSettlement()
-            onRefresh()
-            setShouldOpenModal(false)
-            productInfoPrev.current = productImportModal
-            setProductInfo({ ...productImportModal })
         }
     }
 
@@ -251,6 +223,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
     const handleUpdate = () => {
         if (!productInfo.price || productInfo.price <= 0 || !productInfo.qty || productInfo.qty <= 0 ||
             !productInfo.vat_per || productInfo.vat_per <= 0 || productInfo.vat_per > 100 || !productInfo.discount_per || productInfo.discount_per <= 0 || productInfo.discount_per > 100) return
+        setProcess(true)
         const inputParam = [
             invoiceID,
             productEditID,
@@ -260,7 +233,25 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
             productInfo.discount_per,
             productInfo.vat_per
         ]
-        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, handleResultUpdateProduct, true, handleTimeOut)
+    }
+
+    const handleResultUpdateProduct = (reqInfoMap, message) => {
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            console.log('cập nhật sản phẩm thành công => ', message)
+            // xử lý thành công
+            // createSettlement()
+            onRefresh()
+            setShouldOpenModal(false)
+            productInfoPrev.current = productImportModal
+            setProductInfo({ ...productImportModal })
+        }
     }
 
     const checkValidate = () => {
@@ -286,7 +277,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                 onClose={e => {
                     setProductInfo({ ...productImportModal })
                     setShouldOpenModal(false)
-                    onRefresh()
+                    setProductEditID(-1)
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
@@ -295,6 +286,23 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
                         <Grid item xs>
+                            <FormControl margin="dense" variant="outlined" className='w-100'>
+                                <InputLabel id="import_type">{t('order.import.import_type')}</InputLabel>
+                                <Select
+                                    labelId="import_type"
+                                    id="import_type-select"
+                                    value={productInfo.imp_tp || '1'}
+                                    onChange={handleChange}
+                                    label={t('order.import.import_type')}
+                                    name='imp_tp'
+                                >
+                                    <MenuItem value="1">{t('order.import.import_type_buy')}</MenuItem>
+                                    <MenuItem value="2">{t('order.import.import_type_selloff')}</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                        </Grid>
+                        <Grid item xs>
                             <Product_Autocomplete
                                 disabled={true}
                                 value={productInfo.prod_nm}
@@ -302,16 +310,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                                 size={'small'}
                                 label={t('menu.product')}
                                 onSelect={handleSelectProduct}
-                            />
-                        </Grid>
-                        <Grid item xs>
-                            <Unit_Autocomplete
-                                disabled={true}
-                                value={productInfo.unit_nm || ''}
-                                style={{ marginTop: 8, marginBottom: 4 }}
-                                size={'small'}
-                                label={t('menu.configUnit')}
-                                onSelect={handleSelectUnit}
                             />
                         </Grid>
                         <Grid item xs>
@@ -352,23 +350,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                             </MuiPickersUtilsProvider>
                         </Grid>
                         <Grid item xs>
-                            <FormControl margin="dense" variant="outlined" className='w-100'>
-                                <InputLabel id="import_type">{t('order.import.import_type')}</InputLabel>
-                                <Select
-                                    labelId="import_type"
-                                    id="import_type-select"
-                                    value={productInfo.imp_tp || '1'}
-                                    onChange={handleChange}
-                                    label={t('order.import.import_type')}
-                                    name='imp_tp'
-                                >
-                                    <MenuItem value="1">{t('order.import.import_type_buy')}</MenuItem>
-                                    <MenuItem value="2">{t('order.import.import_type_selloff')}</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 autoFocus={true}
@@ -391,11 +373,21 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                                 }}
                             />
                         </Grid>
+                        <Grid item xs>
+                            <Unit_Autocomplete
+                                disabled={true}
+                                value={productInfo.unit_nm || ''}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                                onSelect={handleSelectUnit}
+                            />
+                        </Grid>
 
                     </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.price}
@@ -418,7 +410,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.discount_per}
@@ -443,7 +435,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.vat_per}
@@ -478,7 +470,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh }) => {
                         onClick={e => {
                             setProductInfo({ ...productImportModal })
                             setShouldOpenModal(false);
-                            onRefresh()
+                            setProductEditID(-1)
                         }}
                         variant="contained"
                         disableElevation

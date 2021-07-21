@@ -5,9 +5,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 import LoopIcon from '@material-ui/icons/Loop';
@@ -38,36 +36,8 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
     useHotkeys('esc', () => { setShouldOpenModal(false); setName(''); setNote('') }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.MOD_UNIT:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.GET_UNIT:
-                        resultGetUnitByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            unitSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && id && id !== 0) {
-            sendRequest(serviceInfo.GET_UNIT_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_UNIT_BY_ID, [id], handleResultGetByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
@@ -77,36 +47,18 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
         setProcess(false)
     }
 
-    const resultGetUnitByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetByID = (reqInfoMap, message) => {
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             setName(newData.rows[0].o_2)
             setNote(newData.rows[0].o_3)
-        }
-    }
-
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        setProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
-            setName('')
-            setNote('')
-            setShouldOpenModal(false)
-            onRefresh()
         }
     }
 
@@ -114,7 +66,24 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
         if (!id || id === 0 || !name || !name.trim()) return
         setProcess(true)
         const inputParam = [id, name, note];
-        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
+    }
+
+    const handleResultUpdate = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setName('')
+            setNote('')
+            setShouldOpenModal(false)
+            onRefresh()
+        }
     }
 
     const checkValidate = () => {

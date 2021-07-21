@@ -1,6 +1,7 @@
 import * as io from 'socket.io-client'
 import * as CryptoJS from 'crypto-js'
 import glb_sv from './global_service'
+import control_sv from './control_services'
 import { Subject } from 'rxjs'
 class socketService {
     constructor() {
@@ -22,6 +23,24 @@ class socketService {
             // -- Define listener event
             this.socket.on(this.key_ClientReqRcv, (data) => {
                 this.event_ClientReqRcv.next(data)
+                let mssg
+                if (typeof data === 'string') {
+                    mssg = JSON.parse(data)
+                } else {
+                    mssg = data
+                }
+
+                const cltSeqResult = Number(mssg['REQUEST_SEQ'])
+                if (!cltSeqResult) return
+                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
+                if (!reqInfoMap) {
+                    console.log('RES_MSG timeout', mssg)
+                    return
+                }
+                if (reqInfoMap.receiveFunct) reqInfoMap.receiveFunct(reqInfoMap, mssg)
+                // glb_sv.commonEvent.next({ type: eventList.RES_COMMON_MSG, data: mssg })
+                // Clear timeOut
+                control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
             })
             this.socket.on(this.key_NotifyRcv, (data) => {
                 this.event_NotifyRcv.next(data)

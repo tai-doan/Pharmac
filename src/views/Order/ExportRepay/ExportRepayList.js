@@ -6,7 +6,7 @@ import {
     Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
 } from '@material-ui/core'
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import ReplayIcon from '@material-ui/icons/Replay';
+import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
@@ -360,7 +360,7 @@ const ExportRepayList = () => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
-                                                                        <ReplayIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        <CancelOutlinedIcon style={{ color: 'red' }} fontSize="small" />
                                                                     </IconButton>
                                                                     <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {

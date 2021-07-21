@@ -28,26 +28,26 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
 
     useEffect(() => {
         const inputParam = ['units', '%']
-        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, resultUnitDropDownList, true, handleTimeOut)
 
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.UNIT_DROPDOWN_LIST) {
-                    resultUnitDropDownList(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            unitSub.unsubscribe()
-        }
+        // const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
+        //     if (msg) {
+        //         const cltSeqResult = msg['REQUEST_SEQ']
+        //         if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
+        //             return
+        //         }
+        //         const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
+        //         if (reqInfoMap == null || reqInfoMap === undefined) {
+        //             return
+        //         }
+        //         if (reqInfoMap.reqFunct === reqFunction.UNIT_DROPDOWN_LIST) {
+        //             resultUnitDropDownList(msg, cltSeqResult, reqInfoMap)
+        //         }
+        //     }
+        // })
+        // return () => {
+        //     unitSub.unsubscribe()
+        // }
     }, [])
 
     useEffect(() => {
@@ -64,15 +64,12 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
         }
     }, [value, dataSource])
 
-    const resultUnitDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const resultUnitDropDownList = (reqInfoMap, message = {}) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setDataSource(newData.rows)
         }

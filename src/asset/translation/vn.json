@@ -159,7 +159,9 @@
         "required": "Đây là thông tin bắt buộc nhập",
         "network": "Hệ thống hiện tại không kết nối được tới server, hãy kiểm tra đường truyền internet của bạn",
         "noReceiveFeedback": "Không nhận được phản hồi từ máy chủ",
-        "email": "Vui lòng nhập đúng định dạng email"
+        "email": "Vui lòng nhập đúng định dạng email",
+        "supplierRequire": "Nhà cung ứng là bắt buộc chọn",
+        "requireImportInvoice": "Nhà cung ứng, ngày nhập hàng là bắt buộc chọn"
     },
     "product": {
         "titleAdd": "Thêm sản phẩm",
@@ -415,6 +417,7 @@
             "unit_nm": "Đơn vị",
             "vals": "Tiền phải trả",
             "productEdit": "Chỉnh sửa sản phẩm nhập",
+            "productDelete": "Xác nhận xóa sản phẩm",
             "note": "Ghi chú",
             "start_date": "Ngày bắt đầu",
             "end_date": "Ngày kết thúc",
@@ -642,6 +645,7 @@
         "title": "Cấu hình",
         "unit": {
             "titleAdd": "Thêm đơn vị",
+            "titleQuickAdd": "Thêm nhanh đơn vị",
             "titleEdit": "Cập nhật đơn vị",
             "titleView": "Xem chi tiết",
             "titleRemove": "Xác nhận xóa đơn vị?",
@@ -733,6 +737,7 @@
         },
         "product": {
             "titleAdd": "Thêm sản phẩm",
+            "titleQuickAdd": "Thêm nhanh nhóm sản phẩm",
             "titleEdit": "Cập nhật sản phẩm",
             "titleRemove": "Xác nhận xóa sản phẩm?",
             "titleList": "Danh sách sản phẩm",
@@ -762,6 +767,9 @@
         "settl_tp": "Loại hình thanh toán",
         "settl_amt": "Số tiền thanh toán",
         "settl_dt": "Ngày thanh toán",
+        "invoice_settl": "Tổng tiền đã thanh toán",
+        "payment_cash": "Thanh toán bằng tiền mặt",
+        "payment_transfer": "Thanh toán qua chuyển khoản",
         "import": "Thanh toán đơn nhập hàng",
         "exportRepay": "Thanh toán đơn xuất trả",
         "export": "Thanh toán đơn xuất bán",

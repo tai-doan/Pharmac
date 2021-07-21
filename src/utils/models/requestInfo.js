@@ -2,8 +2,8 @@ export class requestInfo {
     constructor() {
         this.reqTime = new Date(); //-- Thời gian khi cient gửi request
         this.resTime = new Date(); //-- Thời gian khi nhận được phản hồi từ server
-        this.reqFunct = ''; //-- Tên function chức năng
-        this.receiveFunct = ''; // handle respone request
+        this.reqFunct = null; //-- Tên function chức năng
+        this.receiveFunct = null; // handle respone request
         this.procStat = 0;  //-- 0 - Chưa nhận được phản hồi từ server; 
                             // 1 - đã nhận nhưng chưa hoàn tất (trong trường hợp server trả dữ liệu làm nhiều lần mà client chưa nhận được gói cuối cùng)
                             // 2 - đã nhận hoàn tất (gói dữ liệu cuối cùng, lúc này server trả về: message["PACKAGE_END"] == true)

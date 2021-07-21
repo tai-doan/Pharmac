@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import FastForwardIcon from '@material-ui/icons/FastForward';
-import ReplayIcon from '@material-ui/icons/Replay';
+import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -360,7 +360,7 @@ const ExportList = () => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
-                                                                        <ReplayIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        <CancelOutlinedIcon style={{ color: 'red' }} fontSize="small" />
                                                                     </IconButton>
                                                                     <IconButton disabled={item['o_3'] === '2' ? true : false}
                                                                         onClick={e => {

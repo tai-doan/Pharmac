@@ -64,7 +64,7 @@ label {
 }
 
 .tableContainer {
-    max-height: calc(100vh - 245px);
+    max-height: calc(100vh - 270px);
 }
 
 .formSubmit .MuiFormControl-root {
@@ -214,6 +214,17 @@ thead.MuiTableHead-root {
 
 .inputNumber .MuiOutlinedInput-inputMarginDense {
     text-align: right;
+}
+
+hr.MuiDivider-root {
+    width: 100%;
+    border-bottom: 1px dashed rgb(0 0 0 / 50%);
+    background: unset;
+    margin: 5px 0;
+}
+
+.container-fluid {
+    padding: unset;
 }
 
 @keyframes spin {

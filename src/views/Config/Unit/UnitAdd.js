@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Chip, Dialog, TextField, Button, Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 import AddIcon from '@material-ui/icons/Add';
@@ -41,43 +39,29 @@ const UnitAdd = ({ onRefresh }) => {
         setNote('')
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
-    useEffect(() => {
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.INS_UNIT:
-                        resultSubmit(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            unitSub.unsubscribe()
-        }
-    }, [])
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
 
-    const resultSubmit = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleCreate = () => {
+        if (!name || !name.trim()) return
+        setProcess(true)
+        const inputParam = [name, note];
+        sendRequest(serviceInfo.CREATE, inputParam, handleResultAddUnit, true, handleTimeOut)
+    }
+
+    const handleResultAddUnit = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             setName('')
             setNote('')
             onRefresh()
@@ -90,19 +74,6 @@ const UnitAdd = ({ onRefresh }) => {
                 setShouldOpenModal(false)
             }
         }
-    }
-
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-        setProcess(false)
-    }
-
-    const handleCreate = () => {
-        if (!name || !name.trim()) return
-        setProcess(true)
-        const inputParam = [name, note];
-        sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
     }
 
     const checkValidate = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import { Grid, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
+import { Grid, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Divider, Dialog, CardActions } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -11,6 +11,7 @@ import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
+import LoopIcon from '@material-ui/icons/Loop'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
@@ -54,12 +55,6 @@ const serviceInfo = {
         biz: 'import',
         object: 'imp_invoices_dt'
     },
-    UPDATE_PRODUCT_TO_INVOICE: {
-        functionName: 'update',
-        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE,
-        biz: 'import',
-        object: 'imp_invoices_dt'
-    },
     DELETE_PRODUCT_TO_INVOICE: {
         functionName: 'delete',
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_DELETE,
@@ -71,7 +66,13 @@ const serviceInfo = {
         reqFunct: reqFunction.SETTLEMENT_IMPORT_CREATE,
         biz: 'settlement',
         object: 'imp_settl'
-    }
+    },
+    GET_SETTLEMENT_BY_INVOICE_ID: {
+        functionName: 'get_by_id',
+        reqFunct: reqFunction.SETTLEMENT_IMPORT_BY_INVOICE_ID,
+        biz: 'settlement',
+        object: 'imp_settl'
+    },
 }
 
 const EditImport = ({ }) => {
@@ -81,12 +82,14 @@ const EditImport = ({ }) => {
     const [Import, setImport] = useState({ ...invoiceImportModal })
     const [supplierSelect, setSupplierSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
-    const [productEditData, setProductEditData] = useState({})
+    const [productDeleteModal, setProductDeleteModal] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
-
-    const productAddData = useRef({})
+    const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
+    const [resetFormAddFlag, setResetFormAddFlag] = useState(false)
+    const [deleteProcess, setDeleteProcess] = useState(false)
+    const [updateProcess, setUpdateProcess] = useState(false)
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
@@ -105,27 +108,9 @@ const EditImport = ({ }) => {
                     return
                 }
                 switch (reqInfoMap.reqFunct) {
-                    case reqFunction.IMPORT_BY_ID:
-                        resultGetInvoiceByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_CREATE:
-                        resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.IMPORT_UPDATE:
-                        resultUpdateInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.GET_ALL_PRODUCT_BY_INVOICE_ID:
-                        resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.SETTLEMENT_IMPORT_CREATE:
-                        resultCreateSettlement(msg, cltSeqResult, reqInfoMap)
-                        return
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_DELETE:
-                        resultDeleteProduct(msg, cltSeqResult, reqInfoMap)
-                        return
-                    // case reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE:
-                    //     resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                    //     break
+                    // case reqFunction.SETTLEMENT_IMPORT_CREATE:
+                    //     resultCreateSettlement(msg, cltSeqResult, reqInfoMap)
+                    //     return
                     default:
                         return
                 }
@@ -133,8 +118,9 @@ const EditImport = ({ }) => {
         })
 
         if (id !== 0) {
-            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], e => console.log(e), true, handleTimeOut)
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, handleTimeOut)
+            newInvoiceId.current = id
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], handleResultGetInvoiceByID, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], handleGetAllProductByInvoiceID, true, handleTimeOut)
         }
         return () => {
             importSub.unsubscribe()
@@ -153,91 +139,15 @@ const EditImport = ({ }) => {
             return acc + Math.round(obj.o_14 / 100 * Math.round(newData.invoice_val * (1 - (obj.o_15 / 100))))
         }, 0) || 0
         newData['invoice_needpay'] = newData.invoice_val - newData.invoice_discount + newData.invoice_vat || 0
+        setImport(prevState => { return { ...prevState, ...{ payment_amount: newData.invoice_needpay } } })
         setPaymentInfo(newData)
     }, [dataSource])
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
-
-    const resultGetInvoiceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-            let dataImport = {
-                invoice_id: newData.rows[0].o_1,
-                invoice_no: newData.rows[0].o_2,
-                invoice_stat: newData.rows[0].o_3,
-                supplier: newData.rows[0].o_4,
-                order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
-                person_s: newData.rows[0].o_8,
-                person_r: newData.rows[0].o_9,
-                cancel_reason: newData.rows[0].o_10,
-                note: newData.rows[0].o_11,
-                invoice_settl: newData.rows[0].o_16
-            }
-            setSupplierSelect(newData.rows[0].o_5)
-            setImport(dataImport)
-        }
-    }
-
-    const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-            setDataSource(newData.rows)
-        }
-    }
-
-    const resultActionProductToInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            console.log('productAddData: ', productAddData.current)
-            const inputParams = [
-                '10',
-                id || newInvoiceId.current,
-                '1',
-                moment().format('YYYYMMDD'),
-                Math.round(
-                    (productAddData.current.price * productAddData.current.qty) * (1 - (productAddData.current.discount_per / 100)) * (1 + (productAddData.current.vat_per / 100))
-                ),
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ''
-            ]
-            sendRequest(serviceInfo.CREATE_SETTLEMENT, inputParams, null, true, handleTimeOut)
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, handleTimeOut)
-        }
+        setUpdateProcess(false)
+        setDeleteProcess(false)
     }
 
     const resultCreateSettlement = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
@@ -248,45 +158,12 @@ const EditImport = ({ }) => {
         }
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        productAddData.current = {}
         if (message['PROC_STATUS'] === 2) {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], null, true, handleTimeOut)
-        }
-    }
-
-    const resultDeleteProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], null, true, handleTimeOut)
-        }
-    }
-
-    const resultUpdateInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            // sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], handleResultGetInvoiceByID, true, handleTimeOut)
         }
     }
 
@@ -303,6 +180,12 @@ const EditImport = ({ }) => {
         setImport(newImport)
     }
 
+    const handleAmountChange = value => {
+        const newImport = { ...Import };
+        newImport['payment_amount'] = Number(value.value)
+        setImport(newImport)
+    }
+
     const handleChange = e => {
         const newImport = { ...Import };
         newImport[e.target.name] = e.target.value
@@ -316,7 +199,6 @@ const EditImport = ({ }) => {
             SnackBarService.alert(t('wrongData'), true, 'error', 3000)
             return
         }
-        productAddData.current = productObject
         const inputParam = [
             Import.invoice_id,
             productObject.imp_tp,
@@ -330,16 +212,50 @@ const EditImport = ({ }) => {
             productObject.discount_per,
             productObject.vat_per
         ]
-        sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)
+    }
+
+    const handleResultAddProductToInvoice = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setResetFormAddFlag(true)
+            setTimeout(() => {
+                setResetFormAddFlag(false)
+            }, 1000);
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [newInvoiceId.current], handleGetAllProductByInvoiceID, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
+        }
     }
 
     const onRemove = item => {
-        if (!item) {
-            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
-            return
+        setProductDeleteModal(!!item ? item : {})
+        setShouldOpenDeleteModal(!!item ? true : false)
+    }
+
+    const handleDelete = () => {
+        if (!productDeleteModal.o_1 || !productDeleteModal.o_2) return
+        const inputParam = [productDeleteModal.o_2, productDeleteModal.o_1];
+        sendRequest(serviceInfo.DELETE_PRODUCT_TO_INVOICE, inputParam, handleResultDeleteProduct, true, handleTimeOut)
+    }
+
+    const handleResultDeleteProduct = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setDeleteProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            setProductDeleteModal({})
+            setShouldOpenDeleteModal(false)
         }
-        const inputParam = [item.o_2, item.o_1];
-        sendRequest(serviceInfo.DELETE_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
     }
 
     const checkValidate = () => {
@@ -350,10 +266,14 @@ const EditImport = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!Import.invoice_id || dataSource.length <= 0 || !Import.supplier || !Import.order_dt) {
+        if (!Import.invoice_id) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
+        } else if (!Import.supplier || !Import.order_dt) {
+            SnackBarService.alert(t('message.requireImportInvoice'), true, 'error', 3000)
+            return
         }
+        setUpdateProcess(true)
         //bắn event update invoice
         const inputParam = [
             Import.invoice_id,
@@ -363,7 +283,83 @@ const EditImport = ({ }) => {
             Import.person_r,
             Import.note
         ];
-        sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, handleResultUpdateInvoice, true, handleTimeOut)
+
+        // bắn event update tiền hđ thanh toán (settlement)
+        sendRequest(serviceInfo.GET_SETTLEMENT_BY_INVOICE_ID, [Import.invoice_id], handleResultGetSettlementByInvoiceID, true, handleTimeOut)
+    }
+
+    const handleResultGetSettlementByInvoiceID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            console.log('handleResultGetSettlementByInvoiceID: ', reqInfoMap, message)
+            let newData = message['PROC_DATA']
+            if (newData.rowTotal === 0) {
+                // chưa có bút toán nào => tạo bút toán cho nó
+
+            }
+        }
+    }
+
+    const handleResultUpdateInvoice = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setUpdateProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
+        }
+    }
+
+    const handleResultGetInvoiceByID = (reqInfoMap, message) => {
+        // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            console.log('handleResultGetInvoiceByID: ', reqInfoMap, message)
+            // xử lý thành công
+            let newData = message['PROC_DATA']
+            let dataImport = {
+                invoice_id: newData.rows[0].o_1,
+                invoice_no: newData.rows[0].o_2,
+                invoice_stat: newData.rows[0].o_3,
+                supplier: newData.rows[0].o_4,
+                order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
+                person_s: newData.rows[0].o_8,
+                person_r: newData.rows[0].o_9,
+                cancel_reason: newData.rows[0].o_10,
+                note: newData.rows[0].o_11,
+                invoice_val: newData.rows[0].o_13,
+                invoice_discount: newData.rows[0].o_14,
+                invoice_vat: newData.rows[0].o_15,
+                invoice_settl: newData.rows[0].o_16,
+            }
+            setImport(dataImport)
+            setSupplierSelect(newData.rows[0].o_5)
+        }
+    }
+
+    const handleGetAllProductByInvoiceID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            let newData = message['PROC_DATA']
+            setDataSource(newData.rows)
+        }
     }
 
     const onDoubleClickRow = rowData => {
@@ -375,15 +371,15 @@ const EditImport = ({ }) => {
     }
 
     const handleRefresh = () => {
-        sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [Import.invoice_id || id], null, true, handleTimeOut)
-        setProductEditID(-1)
+        sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
+        sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [newInvoiceId.current], handleGetAllProductByInvoiceID, true, handleTimeOut)
     }
 
     return (
         <Grid container spacing={1}>
-            <EditProductRows productEditID={productEditID} invoiceID={Import.invoice_id} onRefresh={handleRefresh} />
+            <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
             <Grid item md={9} xs={12}>
-                <AddProduct onAddProduct={handleAddProduct} />
+                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} />
                 <Card>
                     {/* <div className='d-flex justify-content-between align-items-center mr-2'>
                         <Link to="/page/order/import" className="normalLink">
@@ -530,10 +526,9 @@ const EditImport = ({ }) => {
                                 name='note'
                                 variant="outlined"
                             />
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                required
-                                value={paymentInfo.invoice_val}
+                                value={Import.invoice_val || 0}
                                 label={t('order.import.invoice_val')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -543,10 +538,9 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                required
-                                value={paymentInfo.invoice_discount}
+                                value={Import.invoice_discount || 0}
                                 label={t('order.import.invoice_discount')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -556,10 +550,9 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                required
-                                value={paymentInfo.invoice_vat}
+                                value={Import.invoice_vat || 0}
                                 label={t('order.import.invoice_vat')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -569,9 +562,9 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat className='inputNumber' 
+                            <Divider orientation="horizontal" />
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                required
                                 value={paymentInfo.invoice_needpay}
                                 label={t('order.import.invoice_needpay')}
                                 customInput={TextField}
@@ -582,11 +575,37 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                required
                                 value={Import.invoice_settl}
                                 label={t('order.import.invoice_settl')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={Import.payment_amount}
+                                label={t('settlement.payment_amount')}
+                                onValueChange={handleAmountChange}
+                                name='payment_amount'
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                            />
+                            <Divider orientation="horizontal" flexItem />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                value={Import.payment_amount - paymentInfo.invoice_needpay}
+                                label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
@@ -598,6 +617,7 @@ const EditImport = ({ }) => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
+                                fullWidth={true}
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
@@ -605,12 +625,52 @@ const EditImport = ({ }) => {
                                 disabled={checkValidate()}
                                 className={checkValidate() === false ? 'bg-success text-white' : ''}
                             >
-                                {t('btn.update')}
+                                {t('btn.payment')}
                             </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            {/* modal delete */}
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleDelete()
+                            }
+                        });
+                    }
+
+                }}
+                open={shouldOpenDeleteModal}
+                onClose={e => {
+                    setShouldOpenDeleteModal(false)
+                }}
+            >
+                <Card>
+                    <CardHeader title={t('order.import.productDelete')} />
+                    <CardContent>
+                        <Grid container>{productDeleteModal.o_6}</Grid>
+                    </CardContent>
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button size='small'
+                            onClick={e => {
+                                setShouldOpenDeleteModal(false)
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button className={deleteProcess ? 'button-loading' : ''} endIcon={deleteProcess && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
+                            {t('btn.agree')}
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Dialog>
         </Grid>
     )
 }

@@ -2,9 +2,9 @@ import reqFunction from '../../../../utils/constan/functions';
 
 const tableColumn = [
     { field: 'action', title: 'lbl.action', show: true, disabled: true, minWidth: 100 },
-    { field: 'o_3', title: 'menu.productGroup', show: true, disabled: true, minWidth: 200 },
     { field: 'o_4', title: 'products.product.code', show: true, disabled: true, minWidth: 100 },
     { field: 'o_5', title: 'products.product.name', show: true, disabled: true, minWidth: 200 },
+    { field: 'o_3', title: 'menu.productGroup', show: true, disabled: true, minWidth: 200 },
     { field: 'o_6', title: 'products.product.barcode', show: true, disabled: false, minWidth: 100 },
     { field: 'o_7', title: 'products.product.content', show: true, disabled: false, minWidth: 300 },
     { field: 'o_8', title: 'products.product.contraind', show: true, disabled: false, minWidth: 300 },

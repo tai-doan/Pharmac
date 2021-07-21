@@ -68,7 +68,7 @@ const Page = () => {
                     <header className="w-100">
                         <HeaderView />
                     </header>
-                    <div className="container-fluid mt-3">
+                    <div className="container-fluid">
                         <div className={['p-3 bg-white', style.contentPage].join(' ')}>
                             <Suspense fallback={<LoadingView />}>
                                 <Switch>

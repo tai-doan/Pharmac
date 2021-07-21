@@ -26,7 +26,7 @@ const serviceInfo = {
     }
 }
 
-const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false }) => {
+const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false, autoFocus = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -41,29 +41,7 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
 
     useEffect(() => {
         const inputParam = ['groups', '%']
-        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, null, true, handleTimeOut)
-
-        const productGroupSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_GROUP_DROPDOWN_LIST) {
-                    resultProductGroupDropDownList(msg, cltSeqResult, reqInfoMap)
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_GROUP_ADD) {
-                    resultCreateProductGroup(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            productGroupSub.unsubscribe()
-        }
+        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, handleResultProductGroupDropDownList, true, handleTimeOut)
     }, [])
 
     useEffect(() => {
@@ -76,38 +54,16 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
         }
     }, [value, dataSource])
 
-    const resultProductGroupDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultProductGroupDropDownList = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             setDataSource(newData.rows)
-        }
-    }
-
-    const resultCreateProductGroup = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
-            let data = message['PROC_DATA']
-            idCreated.current = data.rows[0].o_1;
-            onCreate(data.rows[0].o_1)
-            setProductGroupInfo({ name: '', note: '' })
-            setShouldOpenModal(false)
-            // Lấy dữ liệu mới nhất
-            const inputParam = ['groups', '%']
-            sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
         }
     }
 
@@ -139,7 +95,27 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
     }
 
     const handleCreateProductGroup = () => {
-        sendRequest(serviceInfo.CREATE_PRODUCT_GROUP, [productGroupInfo.name, productGroupInfo.note], null, true, handleTimeOut)
+        sendRequest(serviceInfo.CREATE_PRODUCT_GROUP, [productGroupInfo.name, productGroupInfo.note], handleResultCreateProductGroup, true, handleTimeOut)
+    }
+
+    const handleResultCreateProductGroup = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            let data = message['PROC_DATA']
+            idCreated.current = data.rows[0].o_1;
+            onCreate(data.rows[0].o_1)
+            setProductGroupInfo({ name: '', note: '' })
+            setShouldOpenModal(false)
+            // Lấy dữ liệu mới nhất
+            const inputParam = ['groups', '%']
+            sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, handleResultProductGroupDropDownList, true, handleTimeOut)
+        }
     }
 
     return (
@@ -153,14 +129,40 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
                 options={dataSource}
                 value={valueSelect}
                 getOptionLabel={(option) => option.o_2 || ''}
-                style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
-                renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+                // style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
+                // renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+                style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                renderInput={(params) => {
+                    let newParams = {
+                        ...params, ...{
+                            InputProps: {
+                                ...params.InputProps,
+                                // endAdornment: Object.assign(params.InputProps.endAdornment, (
+                                //     <Tooltip title={t('partner.supplier.titleQuickAdd')} aria-label="add">
+                                //         <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
+                                //     </Tooltip>
+                                // )),
+                                startAdornment: (
+                                    <Tooltip title={t('products.productGroup.titleQuickAdd')} aria-label="add">
+                                        <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
+                                    </Tooltip>
+                                )
+                            }
+                        }
+                    }
+                    return <TextField
+                        {...newParams}
+                        autoFocus={autoFocus}
+                        label={!!label ? label : ''}
+                        variant="outlined"
+                    />
+                }}
             />
-            {!disabled &&
+            {/* {!disabled &&
                 <Tooltip title={t('products.productGroup.titleAdd')} aria-label="add">
                     <AddCircleIcon style={{ width: '20%', color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                 </Tooltip>
-            }
+            } */}
 
             <Dialog
                 fullWidth={true}

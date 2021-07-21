@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardHeader, CardContent, Grid, Select, FormControl, MenuItem, InputLabel, Button, TextField } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
@@ -11,9 +11,15 @@ import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productImportModal } from './Modal/Import.modal'
 import NumberFormat from 'react-number-format'
 
-const AddProduct = ({ onAddProduct }) => {
+const AddProduct = ({ onAddProduct, resetFlag }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
+
+    useEffect(() => {
+        if(resetFlag){
+            setProductInfo({...productImportModal})
+        }
+    }, [resetFlag])
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -32,7 +38,7 @@ const AddProduct = ({ onAddProduct }) => {
     const handleChange = e => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
-        setProductInfo(newProductInfo)
+        // setProductInfo(newProductInfo)
         if (e.target.name === 'imp_tp' && e.target.value !== '1') {
             newProductInfo['price'] = 0;
             newProductInfo['discount_per'] = 0
@@ -135,7 +141,7 @@ const AddProduct = ({ onAddProduct }) => {
                                 if (event.key === 'Enter') {
                                     if (checkValidate()) return
                                     onAddProduct(productInfo);
-                                    setProductInfo({ ...productImportModal })
+                                    // setProductInfo({ ...productImportModal })
                                 }
                             }}
                         />
@@ -160,7 +166,7 @@ const AddProduct = ({ onAddProduct }) => {
                                     if (event.key === 'Enter') {
                                         if (checkValidate()) return
                                         onAddProduct(productInfo);
-                                        setProductInfo({ ...productImportModal })
+                                        // setProductInfo({ ...productImportModal })
                                     }
                                 }}
                             />
@@ -188,7 +194,7 @@ const AddProduct = ({ onAddProduct }) => {
                                 if (event.key === 'Enter') {
                                     if (checkValidate()) return
                                     onAddProduct(productInfo);
-                                    setProductInfo({ ...productImportModal })
+                                    // setProductInfo({ ...productImportModal })
                                 }
                             }}
                         />
@@ -223,7 +229,7 @@ const AddProduct = ({ onAddProduct }) => {
                                 if (event.key === 'Enter') {
                                     if (checkValidate()) return
                                     onAddProduct(productInfo);
-                                    setProductInfo({ ...productImportModal })
+                                    // setProductInfo({ ...productImportModal })
                                 }
                             }}
                         />
@@ -251,7 +257,7 @@ const AddProduct = ({ onAddProduct }) => {
                                 if (event.key === 'Enter') {
                                     if (checkValidate()) return
                                     onAddProduct(productInfo);
-                                    setProductInfo({ ...productImportModal })
+                                    // setProductInfo({ ...productImportModal })
                                 }
                             }}
                         />
@@ -279,7 +285,7 @@ const AddProduct = ({ onAddProduct }) => {
                                 if (event.key === 'Enter') {
                                     if (checkValidate()) return
                                     onAddProduct(productInfo);
-                                    setProductInfo({ ...productImportModal })
+                                    // setProductInfo({ ...productImportModal })
                                 }
                             }}
                         />
@@ -288,7 +294,7 @@ const AddProduct = ({ onAddProduct }) => {
                         <Button
                             onClick={() => {
                                 onAddProduct(productInfo);
-                                setProductInfo({ ...productImportModal })
+                                // setProductInfo({ ...productImportModal })
                             }}
                             variant="contained"
                             disabled={checkValidate()}

@@ -6,7 +6,7 @@
 
 .contentPage {
     overflow: auto !important;
-    height: calc(100vh - 85px) !important;
+    height: calc(100vh - 52px) !important;
 }
 
 .bgLightCustome {

@@ -39,6 +39,7 @@ const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOu
     reqInfo.reqFunct = serviceInfo.reqFunct
     reqInfo.inputParam = svInputPrm.input
     reqInfo.timeOutKey = controlTimeOutKey
+    reqInfo.receiveFunct = handleResultFunc
     glb_sv.setReqInfoMapValue(clientSeq, reqInfo)
 
 
