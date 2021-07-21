@@ -14,12 +14,11 @@ import moment from 'moment'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import SnackBarService from '../../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 import { useHotkeys } from 'react-hotkeys-hook'
+import LoopIcon from '@material-ui/icons/Loop';
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -27,66 +26,60 @@ const serviceInfo = {
         reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID,
         biz: 'import',
         object: 'imp_inventory_dt'
+    },
+    GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID: {
+        functionName: 'get_all',
+        reqFunct: reqFunction.GET_ALL_PRODUCT_BY_IMPORT_INVENTORY_ID,
+        biz: 'import',
+        object: 'imp_inventory_dt'
+    },
+    ADD_PRODUCT_TO_INVOICE: {
+        functionName: 'insert',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_CREATE,
+        biz: 'import',
+        object: 'imp_inventory_dt'
+    },
+    UPDATE_PRODUCT_TO_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_UPDATE,
+        biz: 'import',
+        object: 'imp_inventory_dt'
+    },
+    DELETE_PRODUCT_TO_INVOICE: {
+        functionName: 'delete',
+        reqFunct: reqFunction.PRODUCT_IMPORT_INVOICE_DELETE,
+        biz: 'import',
+        object: 'imp_inventory_dt'
     }
 }
 
-const EditProductRows = ({ productEditID, handleEditProduct }) => {
+const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productImportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
-
-    useEffect(() => {
-        const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_IMPORT_INVOICE_BY_ID:
-                        resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            productSub.unsubscribe();
-        }
-    }, [])
-
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productImportModal }); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (productEditID !== -1) {
-            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [productEditID], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [productEditID], handleResultGetProductInfo, true, handleTimeOut)
             setShouldOpenModal(true)
         }
     }, [productEditID])
 
-    const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetProductInfo = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             const dataConvert = {
+                invoice_id: newData.rows[0].o_2,
+                edit_id: newData.rows[0].o_1,
                 prod_id: newData.rows[0].o_3,
                 prod_nm: newData.rows[0].o_4,
                 lot_no: newData.rows[0].o_5,
@@ -97,7 +90,45 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 unit_nm: newData.rows[0].o_10,
                 price: newData.rows[0].o_11
             }
+            console.log('newData: ', newData)
             setProductInfo(dataConvert)
+        }
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
+    const handleUpdate = () => {
+        if (!productInfo.invoice_id || !productInfo.edit_id || productInfo.qty <= 0 || productInfo.price < 0) return
+        setProcess(true)
+        const inputParam = [
+            productInfo.invoice_id,
+            productInfo.edit_id,
+            productInfo.qty,
+            productInfo.price
+        ]
+        console.log('invoiceID: ', invoiceID, 'productEditID: ', productEditID)
+        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, handleResultUpdateProduct, true, handleTimeOut)
+    }
+
+    const handleResultUpdateProduct = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            onRefresh()
+            setShouldOpenModal(false)
+            setProductEditID(-1)
+            // productInfoPrev.current = productImportModal
+            setProductInfo({ ...productImportModal })
         }
     }
 
@@ -114,7 +145,7 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
     }
 
     const checkValidate = () => {
-        if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price) {
+        if (productInfo.qty > 0 && !!productInfo.unit_id && productInfo.price > -1) {
             return false
         }
         return true
@@ -127,8 +158,9 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
-                    handleEditProduct(null)
+                    setProductInfo({ ...productImportModal })
                     setShouldOpenModal(false)
+                    setProductEditID(-1)
                 }}
             >
                 <Card>
@@ -145,15 +177,6 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <Unit_Autocomplete
-                                    disabled={true}
-                                    value={productInfo.unit_nm || ''}
-                                    style={{ marginTop: 8, marginBottom: 4 }}
-                                    size={'small'}
-                                    label={t('menu.configUnit')}
-                                />
-                            </Grid>
-                            <Grid item xs>
                                 <TextField
                                     disabled={true}
                                     fullWidth={true}
@@ -167,8 +190,6 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                     variant="outlined"
                                 />
                             </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
                             <Grid item xs>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                     <KeyboardDatePicker
@@ -188,8 +209,10 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                     />
                                 </MuiPickersUtilsProvider>
                             </Grid>
+                        </Grid>
+                        <Grid container spacing={2}>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     autoFocus={true}
@@ -208,7 +231,16 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <Unit_Autocomplete
+                                    disabled={true}
+                                    value={productInfo.unit_nm || ''}
+                                    style={{ marginTop: 8, marginBottom: 4 }}
+                                    size={'small'}
+                                    label={t('menu.configUnit')}
+                                />
+                            </Grid>
+                            <Grid item xs>
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={productInfo.price}
@@ -223,33 +255,37 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            handleUpdate()
+                                        }
+                                    }}
                                 />
                             </Grid>
                         </Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
-                                handleEditProduct(null)
                                 setProductInfo({ ...productImportModal })
                                 setShouldOpenModal(false);
+                                setProductEditID(-1)
                             }}
                             variant="contained"
                             disableElevation
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
-                                handleEditProduct(productInfo);
-                                setProductInfo({ ...productImportModal })
-                                setShouldOpenModal(false)
+                                handleUpdate()
                             }}
                             variant="contained"
                             disabled={checkValidate()}
-                            className={checkValidate() === false ? 'bg-success text-white' : ''}
+                            className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                            endIcon={process && <LoopIcon />}
                         >
-                            {t('btn.save')}
+                            {t('btn.update')}
                         </Button>
                     </CardActions>
                 </Card>

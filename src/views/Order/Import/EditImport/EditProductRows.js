@@ -251,6 +251,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
             setShouldOpenModal(false)
             productInfoPrev.current = productImportModal
             setProductInfo({ ...productImportModal })
+            setProductEditID(-1)
         }
     }
 

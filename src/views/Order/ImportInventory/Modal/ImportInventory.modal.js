@@ -46,7 +46,8 @@ const config = {
 }
 
 const productImportModal = {
-    invoice_id: '',
+    invoice_id: null,
+    edit_id: null,
     prod_id: null,
     prod_nm: '',
     lot_no: '',
@@ -65,13 +66,13 @@ const invoiceImportInventoryModal = {
 
 const tableListAddColumn = [
     { field: 'stt', title: 'stt', show: true, disabled: true, minWidth: 100, align: 'center' },
-    { field: 'prod_nm', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
-    { field: 'lot_no', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100 },
-    { field: 'qty', title: 'order.import.qty', show: true, disabled: true, minWidth: 100, align: 'right', type: 'number' },
-    { field: 'unit_nm', title: 'order.import.unit_nm', show: true, disabled: false, minWidth: 100 },
-    { field: 'price', title: 'order.import.price', show: true, disabled: false, minWidth: 100, align: 'right', type: 'number' },
-    { field: 'exp_dt', title: 'order.import.exp_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
-    { field: 'action', title: 'btn.delete', show: true, disabled: false, minWidth: 100, align: 'center' },
+    { field: 'o_4', title: 'order.import.prod_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_5', title: 'order.import.lot_no', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_8', title: 'order.import.qty', show: true, disabled: true, minWidth: 100, align: 'right', type: 'number' },
+    { field: 'o_10', title: 'order.import.unit_nm', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_11', title: 'order.import.price', show: true, disabled: false, minWidth: 100, align: 'right', type: 'number' },
+    { field: 'o_7', title: 'order.import.exp_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
+    { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' },
 ]
 
 const tableListEditColumn = [
@@ -84,7 +85,7 @@ const tableListEditColumn = [
     { field: 'o_11', title: 'order.import.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_12', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
     { field: 'o_13', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
-    { field: 'action', title: 'btn.delete', show: true, disabled: false, minWidth: 100, align: 'center' }
+    { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' }
 ]
 
 export {

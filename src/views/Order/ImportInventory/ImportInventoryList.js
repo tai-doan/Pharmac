@@ -124,6 +124,7 @@ const ImportInventoryList = () => {
     }
 
     const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
+        console.log('message: ', message)
         control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
         importInventory_SendReqFlag.current = false
         setProcessing(false)

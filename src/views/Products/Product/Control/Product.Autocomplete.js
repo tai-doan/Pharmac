@@ -92,6 +92,7 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect}
+            autoSelect={true}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
             openOnFocus={autoFocus}
