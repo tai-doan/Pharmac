@@ -186,7 +186,7 @@ const EditImport = ({ }) => {
             Import.invoice_id,
             productObject.imp_tp,
             productObject.prod_id,
-            productObject.lot_no.toUpperCase(),
+            productObject.lot_no,
             productObject.made_dt,
             moment(productObject.exp_dt).format('YYYYMMDD'),
             productObject.qty,

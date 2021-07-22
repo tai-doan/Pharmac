@@ -309,7 +309,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                 margin="dense"
                                 autoComplete="off"
                                 required
-                                className="uppercaseInput"
                                 label={t('order.import.lot_no')}
                                 onChange={handleChange}
                                 value={productInfo.lot_no || ''}

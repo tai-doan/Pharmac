@@ -151,7 +151,6 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             fullWidth={true}
                             margin="dense"
                             required
-                            className="uppercaseInput"
                             autoComplete="off"
                             label={t('order.import.lot_no')}
                             onChange={handleChange}

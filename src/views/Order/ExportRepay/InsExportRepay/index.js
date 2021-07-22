@@ -115,7 +115,7 @@ const InsExportRepay = ({ }) => {
             const inputParam = [
                 newInvoiceId.current,
                 productObject.prod_id,
-                productObject.lot_no.toUpperCase(),
+                productObject.lot_no,
                 productObject.qty,
                 productObject.unit_id,
                 productObject.price,
@@ -198,7 +198,7 @@ const InsExportRepay = ({ }) => {
                         const inputParam = [
                             newData.rows[0].o_1 || newInvoiceId.current,
                             item.prod_id,
-                            item.lot_no.toUpperCase(),
+                            item.lot_no,
                             item.qty,
                             item.unit_id,
                             item.price,

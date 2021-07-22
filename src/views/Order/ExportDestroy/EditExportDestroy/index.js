@@ -146,7 +146,7 @@ const EditExportDestroy = ({ }) => {
             const inputParam = [
                 newInvoiceId.current,
                 productObject.prod_id,
-                productObject.lot_no.toUpperCase(),
+                productObject.lot_no,
                 productObject.qty,
                 productObject.unit_id,
                 productObject.price,

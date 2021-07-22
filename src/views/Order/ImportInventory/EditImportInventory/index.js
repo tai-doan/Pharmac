@@ -126,7 +126,7 @@ const EditImportInventory = ({ }) => {
         const inputParam = [
             ImportInventory.invoice_id || newInvoiceID.current,
             productObject.prod_id,
-            productObject.lot_no.toUpperCase(),
+            productObject.lot_no,
             productObject.unit_id,
             productObject.qty,
             productObject.made_dt ? moment(productObject.made_dt).format('YYYYMMDD') : '',

@@ -93,7 +93,7 @@ const ProductImportInventory = ({ }) => {
             const inputParam = [
                 newInvoiceId.current,
                 productObject.prod_id,
-                productObject.lot_no.toUpperCase(),
+                productObject.lot_no,
                 productObject.qty,
                 productObject.unit_id,
                 moment(productObject.made_dt).format('YYYYMMDD'),
@@ -121,7 +121,7 @@ const ProductImportInventory = ({ }) => {
                     const inputParam = [
                         newData.rows[0].o_1,
                         item.prod_id,
-                        item.lot_no.toUpperCase(),
+                        item.lot_no,
                         item.qty,
                         item.unit_id,
                         moment(item.made_dt).format('YYYYMMDD'),

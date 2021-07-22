@@ -186,7 +186,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                     margin="dense"
                                     autoComplete="off"
                                     required
-                                    className="uppercaseInput"
                                     label={t('order.import.lot_no')}
                                     value={productInfo.lot_no || ''}
                                     name='lot_no'
