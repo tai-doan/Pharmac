@@ -5,10 +5,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
 import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -19,7 +17,7 @@ const serviceInfo = {
     }
 }
 
-const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null, disabled = false }) => {
+const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null, disabled = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -29,38 +27,23 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
     useEffect(() => {
         const inputParam = ['units', '%']
         sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, resultUnitDropDownList, true, handleTimeOut)
-
-        // const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-        //     if (msg) {
-        //         const cltSeqResult = msg['REQUEST_SEQ']
-        //         if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-        //             return
-        //         }
-        //         const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-        //         if (reqInfoMap == null || reqInfoMap === undefined) {
-        //             return
-        //         }
-        //         if (reqInfoMap.reqFunct === reqFunction.UNIT_DROPDOWN_LIST) {
-        //             resultUnitDropDownList(msg, cltSeqResult, reqInfoMap)
-        //         }
-        //     }
-        // })
-        // return () => {
-        //     unitSub.unsubscribe()
-        // }
     }, [])
 
     useEffect(() => {
         if (!!unitID && unitID !== 0) {
-            setValueSelect(dataSource.find(x => x.o_1 === unitID))
-        }else{
+            let item = dataSource.find(x => x.o_1 === unitID)
+            setValueSelect(item)
+            setInputValue(item.o_2)
+        } else {
             setValueSelect({})
         }
-    }, [unitID])
+    }, [unitID, dataSource])
 
     useEffect(() => {
         if (value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
+            let item = dataSource.find(x => x.o_2 === value)
+            setValueSelect(item)
+            setInputValue(value)
         }
     }, [value, dataSource])
 
@@ -94,13 +77,17 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
             disabled={disabled}
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
+            autoSelect={true}
+            autoHighlight={true}
+            autoComplete={true}
             size={!!size ? size : 'small'}
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
-            renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField {...params} value={inputValue} inputRef={inputRef} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

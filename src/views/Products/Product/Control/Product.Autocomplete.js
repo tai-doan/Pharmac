@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value, onKeyPress = () => null, disabled = false, autoFocus = false }) => {
+const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value, productID = null, onKeyPress = () => null, disabled = false, autoFocus = false, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -29,25 +29,6 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
     useEffect(() => {
         const inputParam = ['products', '%']
         sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, resultProductDropDownList, true, handleTimeOut)
-
-        // const ProductSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-        //     if (msg) {
-        //         const cltSeqResult = msg['REQUEST_SEQ']
-        //         if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-        //             return
-        //         }
-        //         const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-        //         if (reqInfoMap == null || reqInfoMap === undefined) {
-        //             return
-        //         }
-        //         if (reqInfoMap.reqFunct === reqFunction.PRODUCT_DROPDOWN_LIST) {
-        //             resultProductDropDownList(msg, cltSeqResult, reqInfoMap)
-        //         }
-        //     }
-        // })
-        // return () => {
-        //     ProductSub.unsubscribe()
-        // }
     }, [])
 
     useEffect(() => {
@@ -55,6 +36,14 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             setValueSelect(dataSource.find(x => x.o_2 === value))
         }
     }, [value, dataSource])
+
+    useEffect(() => {
+        if (!!productID && productID !== 0) {
+            setValueSelect(dataSource.find(x => x.o_1 === productID))
+        } else {
+            setValueSelect({})
+        }
+    }, [productID])
 
     const resultProductDropDownList = (reqInfoMap, message = {}) => {
         if (message['PROC_CODE'] !== 'SYS000') {
@@ -77,6 +66,7 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
     }
 
     const onChange = (event, object, reson) => {
+        console.log('onChange: ', object)
         setValueSelect(object)
         onSelect(object)
     }
@@ -93,10 +83,12 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             options={dataSource}
             value={valueSelect}
             autoSelect={true}
+            autoHighlight={true}
+            autoComplete={true}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
             openOnFocus={autoFocus}
-            renderInput={(params) => <TextField autoFocus={autoFocus} {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField inputRef={inputRef} autoFocus={autoFocus} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

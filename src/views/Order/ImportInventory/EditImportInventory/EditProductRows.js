@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid, Dialog, TextField, Button, Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
@@ -58,6 +58,8 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
+
+    const stepTwoRef = useRef(null)
 
     useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productImportModal }); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -225,6 +227,12 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                     variant="outlined"
                                     thousandSeparator={true}
                                     onValueChange={handleQuantityChange}
+                                    onFocus={(event) => event.target.select()}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            stepTwoRef.current.focus()
+                                        }
+                                    }}
                                     inputProps={{
                                         min: 0,
                                     }}
@@ -255,6 +263,8 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    inputRef={stepTwoRef}
+                                    onFocus={(event) => event.target.select()}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             handleUpdate()

@@ -134,6 +134,9 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabl
             value={valueSelect || {}}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
+            autoSelect={true}
+            autoHighlight={true}
+            autoComplete={true}
             renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )

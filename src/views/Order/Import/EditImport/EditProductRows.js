@@ -53,32 +53,12 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const productInfoPrev = useRef(productImportModal)
     const productInfoCurr = useRef(productImportModal)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    const stepOneRef = useRef(null)
+    const stepTwoRef = useRef(null)
+    const stepThreeRef = useRef(null)
+    const stepFourRef = useRef(null)
 
-    // useEffect(() => {
-    //     const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-    //         if (msg) {
-    //             const cltSeqResult = msg['REQUEST_SEQ']
-    //             if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-    //                 return
-    //             }
-    //             const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-    //             if (reqInfoMap == null || reqInfoMap === undefined) {
-    //                 return
-    //             }
-    //             switch (reqInfoMap.reqFunct) {
-    //                 case reqFunction.SETTLEMENT_IMPORT_CREATE:
-    //                     resultCreateSettlement(msg, cltSeqResult, reqInfoMap);
-    //                     return
-    //                 default:
-    //                     return
-    //             }
-    //         }
-    //     })
-    //     return () => {
-    //         productSub.unsubscribe();
-    //     }
-    // }, [])
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo(productImportModal); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (productEditID !== -1) {
@@ -158,8 +138,16 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const handleChange = e => {
         const newProductInfo = { ...productInfo };
         newProductInfo[e.target.name] = e.target.value
-        productInfoCurr.current = newProductInfo
-        setProductInfo(newProductInfo)
+        if (e.target.name === 'imp_tp' && e.target.value === '2') {
+            newProductInfo['discount_per'] = 0;
+            newProductInfo['vat_per'] = 0;
+            newProductInfo['price'] = 0;
+            productInfoCurr.current = newProductInfo
+            setProductInfo(newProductInfo)
+        } else {
+            productInfoCurr.current = newProductInfo
+            setProductInfo(newProductInfo)
+        }
     }
 
     const handleExpDateChange = date => {
@@ -367,9 +355,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={stepOneRef}
+                                onFocus={(event) => event.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        stepTwoRef.current.focus()
                                     }
                                 }}
                             />
@@ -403,9 +393,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={stepTwoRef}
+                                onFocus={(event) => event.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        stepThreeRef.current.focus()
                                     }
                                 }}
                             />
@@ -428,9 +420,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                     min: 0,
                                     max: 100
                                 }}
+                                inputRef={stepThreeRef}
+                                onFocus={(event) => event.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        stepFourRef.current.focus()
                                     }
                                 }}
                             />
@@ -453,6 +447,8 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                     min: 0,
                                     max: 100
                                 }}
+                                inputRef={stepFourRef}
+                                onFocus={(event) => event.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         handleUpdate()

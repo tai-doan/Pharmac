@@ -97,33 +97,16 @@ const EditImport = ({ }) => {
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const importSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    // case reqFunction.SETTLEMENT_IMPORT_CREATE:
-                    //     resultCreateSettlement(msg, cltSeqResult, reqInfoMap)
-                    //     return
-                    default:
-                        return
-                }
-            }
-        })
-
         if (id !== 0) {
             newInvoiceId.current = id
             sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], handleResultGetInvoiceByID, true, handleTimeOut)
             sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [id], handleGetAllProductByInvoiceID, true, handleTimeOut)
         }
         return () => {
-            importSub.unsubscribe()
+            history.replace({
+                ...history?.location,
+                state: undefined,
+            });
         }
     }, [])
 
@@ -253,8 +236,10 @@ const EditImport = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
+            // xử lý thành công
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
+            handleRefresh()
         }
     }
 
@@ -575,7 +560,7 @@ const EditImport = ({ }) => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat className='inputNumber'
+                            {/* <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 value={Import.invoice_settl}
                                 label={t('order.import.invoice_settl')}
@@ -613,7 +598,7 @@ const EditImport = ({ }) => {
                                 variant="outlined"
                                 thousandSeparator={true}
                                 disabled={true}
-                            />
+                            /> */}
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
@@ -623,7 +608,8 @@ const EditImport = ({ }) => {
                                 }}
                                 variant="contained"
                                 disabled={checkValidate()}
-                                className={checkValidate() === false ? 'bg-success text-white' : ''}
+                                className={checkValidate() === false ? updateProcess ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                                endIcon={updateProcess && <LoopIcon />}
                             >
                                 {t('btn.payment')}
                             </Button>

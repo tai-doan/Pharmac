@@ -687,7 +687,7 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <NumberFormat className='inputNumber'
+                            {/* <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Import.payment_amount}
@@ -716,7 +716,7 @@ const ProductImport = () => {
                             />
                             <LinkMT href="#" onClick={changePaymentType} variant="body2" color='error'>
                                 {Import.payment_type === '1' ? t('settlement.payment_transfer') : t('settlement.payment_cash')}
-                            </LinkMT>
+                            </LinkMT> */}
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button fullWidth={true}

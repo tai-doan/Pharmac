@@ -172,6 +172,9 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
+                autoSelect={true}
+                autoHighlight={true}
+                autoComplete={true}
                 getOptionLabel={(option) => option.o_2 || ''}
                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
                 renderInput={(params) => {

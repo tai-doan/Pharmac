@@ -177,7 +177,6 @@ const ProductImportInventory = ({ }) => {
     }
 
     const handleGetAllProductByInvoiceID = (reqInfoMap, message) => {
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -195,20 +194,6 @@ const ProductImportInventory = ({ }) => {
         sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
     }
 
-    const handleEditProduct = productObject => {
-        if (productObject === null) {
-            setProductEditID(-1);
-            return
-        }
-        let converted = { ...productObject }
-        converted.exp_dt = moment(converted.exp_dt).format('YYYYMMDD')
-        let newDataSource = [...dataSource]
-        newDataSource[productEditID] = converted
-        dataSourceRef.current = newDataSource
-        setDataSource([...newDataSource])
-        setProductEditID(-1);
-    }
-
     const onRemove = item => {
         setProductDeleteModal(!!item ? item : {})
         setShouldOpenDeleteModal(!!item ? true : false)
@@ -216,6 +201,7 @@ const ProductImportInventory = ({ }) => {
 
     const handleDelete = () => {
         if (!productDeleteModal.o_1 || !productDeleteModal.o_2) return
+        setDeleteProcess(true)
         const inputParam = [productDeleteModal.o_2, productDeleteModal.o_1];
         sendRequest(serviceInfo.DELETE_PRODUCT_TO_INVOICE, inputParam, handleResultDeleteProduct, true, handleTimeOut)
     }

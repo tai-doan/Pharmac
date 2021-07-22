@@ -118,7 +118,8 @@
         "showHiddenColumn": "Ẩn/ hiện cột",
         "back": "Trở về",
         "nextQuery": "Tra cứu tiếp?",
-        "payment": "Ghi nhận thanh toán"
+        "payment": "Cập nhật thông tin hóa đơn",
+        "payment1":  "Ghi nhận thanh toán"
     },
     "page": {
         "home": "Trang chủ",

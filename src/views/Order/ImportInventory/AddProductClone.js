@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardHeader, CardContent, Grid, Button, TextField } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
@@ -10,16 +10,74 @@ import Product_Autocomplete from '../../Products/Product/Control/Product.Autocom
 import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productImportModal } from './Modal/ImportInventory.modal'
 import NumberFormat from 'react-number-format'
+import moment from 'moment'
+
+import glb_sv from '../../../utils/service/global_service'
+import control_sv from '../../../utils/service/control_services'
+import SnackBarService from '../../../utils/service/snackbar_service'
+import reqFunction from '../../../utils/constan/functions';
+import sendRequest from '../../../utils/service/sendReq'
+
+const serviceInfo = {
+    GET_PRODUCT_IMPORT_INFO: {
+        functionName: 'get_imp_info',
+        reqFunct: reqFunction.GET_PRODUCT_IMPORT_INFO,
+        biz: 'common',
+        object: 'products'
+    },
+}
 
 const AddProduct = ({ onAddProduct, resetFlag }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
+    const [productImportInfoData, setproductImportInfoData] = useState([])
+
+    const stepOneRef = useRef(null)
+    const stepTwoRef = useRef(null)
+    const stepThreeRef = useRef(null)
+    const stepFourRef = useRef(null)
+    const stepFiveRef = useRef(null)
+    const stepSixRef = useRef(null)
 
     useEffect(() => {
-        if(resetFlag){
-            setProductInfo({...productImportModal})
+        stepOneRef.current.focus()
+    }, [])
+
+    useEffect(() => {
+        if (resetFlag) {
+            setProductInfo({ ...productImportModal })
+            setproductImportInfoData({})
+            stepOneRef.current.focus()
         }
     }, [resetFlag])
+
+    useEffect(() => {
+        if (productInfo.prod_id !== null) {
+            sendRequest(serviceInfo.GET_PRODUCT_IMPORT_INFO, [productInfo.prod_id], handleResultGetProductImportInfo, true, handleTimeOut)
+        }
+    }, [productInfo.prod_id])
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+    }
+
+    const handleResultGetProductImportInfo = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA']
+            if (data.rowTotal > 1) {
+                const newProductInfo = { ...productInfo };
+                newProductInfo['unit_id'] = data.rows[1].o_1
+                setProductInfo(newProductInfo)
+                setproductImportInfoData(data.rows)
+            }
+        }
+    }
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -80,6 +138,12 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             size={'small'}
                             label={t('menu.product')}
                             onSelect={handleSelectProduct}
+                            inputRef={stepOneRef}
+                            onKeyPress={event => {
+                                if (event.key === 'Enter') {
+                                    stepTwoRef.current.focus()
+                                }
+                            }}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -94,10 +158,16 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             value={productInfo.lot_no || ''}
                             name='lot_no'
                             variant="outlined"
+                            inputRef={stepTwoRef}
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
-                                    if (checkValidate()) return
-                                    onAddProduct(productInfo);
+                                    let LotNo = productImportInfoData.find(x => x.o_2 === productInfo.lot_no)
+                                    if (!!LotNo) {
+                                        const newProductInfo = { ...productInfo };
+                                        newProductInfo['exp_dt'] = moment(LotNo.o_3, 'YYYYMMDD').toString()
+                                        setProductInfo(newProductInfo)
+                                    }
+                                    stepThreeRef.current.focus()
                                 }
                             }}
                         />
@@ -118,10 +188,10 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                                 KeyboardButtonProps={{
                                     'aria-label': 'change date',
                                 }}
+                                inputRef={stepThreeRef}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        if (checkValidate()) return
-                                        onAddProduct(productInfo);
+                                        stepFourRef.current.focus()
                                     }
                                 }}
                             />
@@ -130,7 +200,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                 </Grid>
                 <Grid container spacing={1}>
                     <Grid item xs>
-                        <NumberFormat className='inputNumber' 
+                        <NumberFormat className='inputNumber'
                             style={{ width: '100%' }}
                             required
                             value={productInfo.qty}
@@ -146,25 +216,31 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             inputProps={{
                                 min: 0,
                             }}
+                            inputRef={stepFourRef}
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
-                                    if (checkValidate()) return
-                                    onAddProduct(productInfo);
+                                    stepFiveRef.current.focus()
                                 }
                             }}
                         />
                     </Grid>
                     <Grid item xs>
                         <Unit_Autocomplete
-                            value={productInfo.unit_nm || ''}
+                            unitID={productInfo.unit_id || 0}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
                             label={t('menu.configUnit')}
                             onSelect={handleSelectUnit}
+                            inputRef={stepFiveRef}
+                            onKeyPress={event => {
+                                if (event.key === 'Enter') {
+                                    stepSixRef.current.focus()
+                                }
+                            }}
                         />
                     </Grid>
                     <Grid item xs>
-                        <NumberFormat className='inputNumber' 
+                        <NumberFormat className='inputNumber'
                             style={{ width: '100%' }}
                             required
                             value={productInfo.price}
@@ -180,6 +256,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             inputProps={{
                                 min: 0,
                             }}
+                            inputRef={stepSixRef}
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
                                     if (checkValidate()) return
