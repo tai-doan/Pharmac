@@ -232,25 +232,29 @@ tr.MuiTableRow-root:nth-child(even) {
 }
 
 td.MuiTableCell-root:not(:last-child) {
-    border-left: 1px solid #dfdfdf;
-    border-right: 1px solid #dfdfdf !important;
+    border-left: 1px solid #dfdfdf !important;
 }
 
 td.MuiTableCell-root:last-child {
+    border-left: 1px solid #dfdfdf;
     border-right: 1px solid #dfdfdf;
 }
 
 th.MuiTableCell-root:not(:last-child) {
     border-left: 1px solid #dfdfdf !important;
-    border-right: 1px solid #dfdfdf !important;
 }
 
 th.MuiTableCell-root:last-child {
+    border-left: 1px solid #dfdfdf !important;
     border-right: 1px solid #dfdfdf !important;
 }
 
 td.MuiTableCell-root.MuiTableCell-body button {
     padding: 0.6rem;
+}
+
+.MuiTableRow-root.MuiTableRow-hover:hover {
+    background-color: rgb(0 0 0 / 15%);
 }
 
 @keyframes spin {
