@@ -86,8 +86,8 @@ const tableListEditColumn = [
     { field: 'o_8', title: 'order.exportRepay.price', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_9', title: 'order.exportRepay.discount_per', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_10', title: 'order.exportRepay.vat_per', show: true, disabled: true, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_11', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
-    { field: 'o_12', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
+    // { field: 'o_11', title: 'updateUser', show: false, disabled: false, minWidth: 100, type: 'date' },
+    // { field: 'o_12', title: 'updateDate', show: false, disabled: false, minWidth: 100, type: 'date' },
     { field: 'action', title: '', show: true, disabled: false, minWidth: 100, align: 'center' }
 ]
 

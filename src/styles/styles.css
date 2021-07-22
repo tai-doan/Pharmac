@@ -227,6 +227,32 @@ hr.MuiDivider-root {
     padding: unset;
 }
 
+tr.MuiTableRow-root:nth-child(even) {
+    background-color: #dcdcdc6b;
+}
+
+td.MuiTableCell-root:not(:last-child) {
+    border-left: 1px solid #dfdfdf;
+    border-right: 1px solid #dfdfdf !important;
+}
+
+td.MuiTableCell-root:last-child {
+    border-right: 1px solid #dfdfdf;
+}
+
+th.MuiTableCell-root:not(:last-child) {
+    border-left: 1px solid #dfdfdf !important;
+    border-right: 1px solid #dfdfdf !important;
+}
+
+th.MuiTableCell-root:last-child {
+    border-right: 1px solid #dfdfdf !important;
+}
+
+td.MuiTableCell-root.MuiTableCell-body button {
+    padding: 0.6rem;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);
