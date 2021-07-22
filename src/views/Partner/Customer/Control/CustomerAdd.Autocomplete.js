@@ -28,7 +28,7 @@ const serviceInfo = {
     }
 }
 
-const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false }) => {
+const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false, onKeyPress = () => null, inputRef = null, autoFocus = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -172,13 +172,14 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                 disabled={disabled}
                 onChange={onChange}
                 onInputChange={handleChangeInput}
+                onKeyPress={onKeyPress}
                 size={!!size ? size : 'small'}
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
                 autoSelect={true}
-            autoHighlight={true}
-            autoComplete={true}
+                autoHighlight={true}
+                autoComplete={true}
                 getOptionLabel={(option) => option.o_2 || ''}
                 // style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
                 // renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
@@ -194,7 +195,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                 //     </Tooltip>
                                 // )),
                                 startAdornment: (
-                                    <Tooltip title={t('partner.customer.titleAdd')} aria-label="add">
+                                    <Tooltip title={t('partner.customer.titleQuickAdd')} aria-label="add">
                                         <AddCircleIcon style={{ color: 'green' }} onClick={() => setShouldOpenModal(true)} />
                                     </Tooltip>
                                 )
@@ -203,6 +204,8 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                     }
                     return <TextField
                         {...newParams}
+                        inputRef={inputRef}
+                        autoFocus={autoFocus}
                         label={!!label ? label : ''}
                         variant="outlined"
                     />

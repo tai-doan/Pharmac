@@ -119,7 +119,7 @@
         "back": "Trở về",
         "nextQuery": "Tra cứu tiếp?",
         "payment": "Cập nhật thông tin hóa đơn",
-        "payment1":  "Ghi nhận thanh toán"
+        "payment1": "Ghi nhận thanh toán"
     },
     "page": {
         "home": "Trang chủ",
@@ -162,7 +162,10 @@
         "noReceiveFeedback": "Không nhận được phản hồi từ máy chủ",
         "email": "Vui lòng nhập đúng định dạng email",
         "supplierRequire": "Nhà cung ứng là bắt buộc chọn",
-        "requireImportInvoice": "Nhà cung ứng, ngày nhập hàng là bắt buộc chọn"
+        "requireImportInvoice": "Nhà cung ứng, ngày nhập hàng là bắt buộc chọn",
+        "requireExportInvoice": "Khách hàng, ngày xuất hàng là bắt buộc chọn",
+        "requireExportRepayInvoice": "Nhà cung ứng, ngày xuất hàng là bắt buộc chọn",
+        "requireExportDestroyInvoice": "Ngày xuất là bắt buộc chọn"
     },
     "product": {
         "titleAdd": "Thêm sản phẩm",
@@ -223,6 +226,7 @@
         "customer": {
             "search_name": "Tìm theo tên khách hàng",
             "titleAdd": "Thêm Khách hàng",
+            "titleQuickAdd": "Thêm nhanh khách hàng",
             "titleEdit": "Cập nhật Khách hàng",
             "titleRemove": "Xác nhận xóa Khách hàng?",
             "titleView": "Xem chi tiết khách hàng {{name}}",

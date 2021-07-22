@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
+import moment from 'moment'
 import { useTranslation } from 'react-i18next'
-import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Divider, Dialog, CardActions } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -9,34 +11,61 @@ import {
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
+import LoopIcon from '@material-ui/icons/Loop'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import SnackBarService from '../../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 
 import { tableListAddColumn, invoiceExportModal } from '../Modal/Export.modal'
-import moment from 'moment'
-import AddProduct from '../AddProduct'
 
-import { Link } from 'react-router-dom'
-import EditProductRows from './EditProductRows'
+import AddProduct from '../AddProductClone'
+import EditProductRows from '../EditExport/EditProductRows'
 import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
-import { useHotkeys } from 'react-hotkeys-hook'
 
 const serviceInfo = {
+    GET_INVOICE_BY_ID: {
+        functionName: 'get_by_id',
+        reqFunct: reqFunction.EXPORT_BY_ID,
+        biz: 'export',
+        object: 'exp_invoices'
+    },
     CREATE_INVOICE: {
         functionName: 'insert',
         reqFunct: reqFunction.EXPORT_CREATE,
         biz: 'export',
         object: 'exp_invoices'
     },
+    UPDATE_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.EXPORT_UPDATE,
+        biz: 'export',
+        object: 'exp_invoices'
+    },
+    GET_ALL_PRODUCT_BY_EXPORT_ID: {
+        functionName: 'get_all',
+        reqFunct: reqFunction.GET_ALL_PRODUCT_BY_EXPORT_ID,
+        biz: 'export',
+        object: 'exp_invoices_dt'
+    },
     ADD_PRODUCT_TO_INVOICE: {
         functionName: 'insert',
         reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_CREATE,
+        biz: 'export',
+        object: 'exp_invoices_dt'
+    },
+    UPDATE_PRODUCT_TO_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_UPDATE,
+        biz: 'export',
+        object: 'exp_invoices_dt'
+    },
+    DELETE_PRODUCT_TO_INVOICE: {
+        functionName: 'delete',
+        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_DELETE,
         biz: 'export',
         object: 'exp_invoices_dt'
     }
@@ -50,100 +79,39 @@ const InsExport = ({ }) => {
     const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListAddColumn])
+    const [paymentInfo, setPaymentInfo] = useState({})
+    const [productDeleteModal, setProductDeleteModal] = useState({})
+    const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
+    const [resetFormAddFlag, setResetFormAddFlag] = useState(false)
+    const [deleteProcess, setDeleteProcess] = useState(false)
+    const [updateProcess, setUpdateProcess] = useState(false)
+    const [invoiceFlag, setInvoiceFlag] = useState(false)
 
+    const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
 
     useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.EXPORT_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_EXPORT_INVOICE_CREATE:
-                        resultAddProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            exportSub.unsubscribe()
-        }
-    }, [])
+        const newData = { ...paymentInfo }
+        newData['invoice_val'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.o_7 * obj.o_10)
+        }, 0) || 0
+        newData['invoice_discount'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.o_11 / 100 * newData.invoice_val)
+        }, 0) || 0
+        newData['invoice_vat'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.o_12 / 100 * Math.round(newData.invoice_val * (1 - (obj.o_11 / 100))))
+        }, 0) || 0
+        newData['invoice_needpay'] = newData.invoice_val - newData.invoice_discount + newData.invoice_vat || 0
+        setExport(prevState => { return { ...prevState, ...{ payment_amount: newData.invoice_needpay } } })
+        setPaymentInfo(newData)
+    }, [dataSource])
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
-
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-            if (!!newData.rows[0].o_1) {
-                newInvoiceId.current = newData.rows[0].o_1
-                for (let i = 0; i < dataSourceRef.current.length; i++) {
-                    const item = dataSourceRef.current[i];
-                    const inputParam = [
-                        newData.rows[0].o_1,
-                        item.exp_tp,
-                        item.prod_id,
-                        item.lot_no,
-                        item.qty,
-                        item.unit_id,
-                        item.price,
-                        item.discount_per,
-                        item.vat_per
-                    ]
-                    sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
-                    if (i === dataSourceRef.current.length - 1) {
-                        dataSourceRef.current = [];
-                        setDataSource([])
-                        setExport({ ...invoiceExportModal })
-                        setCustomerSelect('')
-                    }
-                }
-            }
-        }
-    }
-
-    const resultAddProductToInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-            console.log('message thêm sản phẩm vô HĐ: ', message, newData)
-        }
     }
 
     const handleSelectCustomer = obj => {
@@ -166,42 +134,77 @@ const InsExport = ({ }) => {
     }
 
     const handleAddProduct = productObject => {
+        if (!Export.customer || !Export.order_dt) {
+            SnackBarService.alert(t('message.requireImportInvoice'), true, 4, 3000)
+            return
+        } else if (!invoiceFlag) {
+            dataWaitAdd.current.push(productObject)
+            handleCreateInvoice()
+            return
+        } else {
+            const inputParam = [
+                newInvoiceId.current,
+                productObject.exp_tp,
+                productObject.prod_id,
+                productObject.lot_no,
+                productObject.qty,
+                productObject.unit_id,
+                productObject.price,
+                productObject.discount_per,
+                productObject.vat_per
+            ]
+            sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)
+        }
         let newDataSource = [...dataSource]
         newDataSource.push(productObject);
         dataSourceRef.current = newDataSource
         setDataSource(newDataSource)
     }
 
-    const handleEditProduct = productObject => {
-        if (productObject === null) {
-            setProductEditData({})
-            setProductEditID(-1);
+    const onRemove = item => {
+        if (!item) {
+            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
             return
         }
-        let newDataSource = [...dataSource]
-        newDataSource[productEditID] = productObject
-        dataSourceRef.current = newDataSource
-        setDataSource([...newDataSource])
-        setProductEditData({})
-        setProductEditID(-1);
+        setProductDeleteModal(!!item ? item : {})
+        setShouldOpenDeleteModal(!!item ? true : false)
     }
 
-    const onRemove = index => {
-        let newDataSource = [...dataSource]
-        newDataSource.splice(index, 1)
-        dataSourceRef.current = newDataSource
-        setDataSource([...newDataSource])
+    const handleDelete = () => {
+        if (!productDeleteModal.o_1 || (!Export.invoice_id && !newInvoiceId.current)) return
+        setDeleteProcess(true)
+        const inputParam = [Export.invoice_id || newInvoiceId.current, productDeleteModal.o_1];
+        sendRequest(serviceInfo.DELETE_PRODUCT_TO_INVOICE, inputParam, handleResultDeleteProduct, true, e => { handleTimeOut(e); setDeleteProcess(false) })
+    }
+
+    const handleResultDeleteProduct = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setDeleteProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setProductDeleteModal({})
+            setShouldOpenDeleteModal(false)
+            handleRefresh()
+        }
     }
 
     const checkValidate = () => {
-        if (dataSource.length > 0 && !!Export.customer && !!Export.order_dt) {
+        if (!!Export.customer && !!Export.order_dt && invoiceFlag) {
             return false
         }
         return true
     }
 
     const handleCreateInvoice = () => {
-        if (dataSource.length <= 0 || !Export.customer || !Export.order_dt) return
+        if (!Export.customer || !Export.order_dt) {
+            SnackBarService.alert(t('message.requireExportInvoice'), true, 4, 3000)
+            return
+        }
         //bắn event tạo invoice
         const inputParam = [
             !!Export.invoice_no.trim() ? Export.invoice_no.trim() : 'AUTO',
@@ -210,26 +213,160 @@ const InsExport = ({ }) => {
             Export.staff_exp,
             Export.note
         ];
-        sendRequest(serviceInfo.CREATE_INVOICE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.CREATE_INVOICE, inputParam, handleResultCreateInvoice, true, handleTimeOut)
+    }
+
+    const handleResultCreateInvoice = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            let newData = message['PROC_DATA']
+            if (!!newData.rows[0].o_1) {
+                newInvoiceId.current = newData.rows[0].o_1
+                setInvoiceFlag(true)
+                sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
+                if (dataWaitAdd.current.length > 0) {
+                    for (let i = 0; i < dataWaitAdd.current.length; i++) {
+                        const item = dataWaitAdd.current[i];
+                        const inputParam = [
+                            newData.rows[0].o_1 || newInvoiceId.current,
+                            item.exp_tp,
+                            item.prod_id,
+                            item.lot_no,
+                            item.qty,
+                            item.unit_id,
+                            item.price,
+                            item.discount_per,
+                            item.vat_per
+                        ]
+                        sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)
+                    }
+                }
+            }
+        }
+    }
+
+    const handleResultAddProductToInvoice = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            dataWaitAdd.current = []
+            setResetFormAddFlag(true)
+            setTimeout(() => {
+                setResetFormAddFlag(false)
+            }, 1000);
+            handleRefresh()
+        }
+    }
+
+    const handleResultGetInvoiceByID = (reqInfoMap, message) => {
+        // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            let newData = message['PROC_DATA']
+            let dataExport = {
+                invoice_id: newData.rows[0].o_1,
+                invoice_no: newData.rows[0].o_2,
+                invoice_stat: newData.rows[0].o_3,
+                customer_id: newData.rows[0].o_4,
+                customer: newData.rows[0].o_5,
+                order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
+                input_dt: moment(newData.rows[0].o_7, 'YYYYMMDD').toString(),
+                staff_exp: newData.rows[0].o_8,
+                cancel_reason: newData.rows[0].o_9,
+                note: newData.rows[0].o_10,
+                invoice_val: newData.rows[0].o_12,
+                invoice_discount: newData.rows[0].o_13,
+                invoice_vat: newData.rows[0].o_14,
+            }
+            setCustomerSelect(newData.rows[0].o_5)
+            setExport(dataExport)
+        }
+    }
+
+    const handleGetAllProductByInvoiceID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            let newData = message['PROC_DATA']
+            setDataSource(newData.rows)
+        }
+    }
+
+    const handleUpdateInvoice = () => {
+        if (!Export.invoice_id) {
+            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
+            return
+        } else if (!Export.customer || !Export.order_dt) {
+            SnackBarService.alert(t('message.requireExportInvoice'), true, 'error', 3000)
+            return
+        }
+        setUpdateProcess(true)
+        //bắn event update invoice
+        const inputParam = [
+            Export.invoice_id,
+            Export.customer_id,
+            moment(Export.order_dt).format('YYYYMMDD'),
+            Export.staff_exp,
+            Export.note
+        ];
+        sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, handleResultUpdateInvoice, true, e => { handleTimeOut(e); setUpdateProcess(false) })
+    }
+
+    const handleResultUpdateInvoice = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setUpdateProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
+        }
+    }
+
+    const handleRefresh = () => {
+        sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_ID, [newInvoiceId.current], handleGetAllProductByInvoiceID, true, handleTimeOut)
+        sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
+    }
+
+    const onDoubleClickRow = rowData => {
+        if (!rowData) {
+            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
+            return
+        }
+        setProductEditID(rowData.o_1)
     }
 
     return (
         <Grid container spacing={1}>
-            <EditProductRows productEditID={productEditID} productData={productEditData} handleEditProduct={handleEditProduct} />
+            <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
             <Grid item md={9} xs={12}>
-                {/* <div className='d-flex justify-content-between  align-items-center mr-2'>
-                    <Link to="/page/order/export" className="normalLink">
-                        <Button variant="contained" size="small">
-                            {t('btn.back')}
-                        </Button>
-                    </Link>
-                </div> */}
+                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} />
                 <Card>
                     <CardHeader
                         title={t('order.export.productExportList')}
-                        action={
-                            <AddProduct handleAddProduct={handleAddProduct} />
-                        }
                     />
                     <CardContent>
                         <TableContainer className="tableContainer">
@@ -256,10 +393,7 @@ const InsExport = ({ }) => {
                                 <TableBody>
                                     {dataSource.map((item, index) => {
                                         return (
-                                            <TableRow onDoubleClick={e => {
-                                                setProductEditData(item);
-                                                setProductEditID(index)
-                                            }} hover role="checkbox" tabIndex={-1} key={index}>
+                                            <TableRow onDoubleClick={e => { onDoubleClickRow(item) }} hover role="checkbox" tabIndex={-1} key={index}>
                                                 {column.map((col, indexRow) => {
                                                     let value = item[col.field]
                                                     if (col.show) {
@@ -269,10 +403,17 @@ const InsExport = ({ }) => {
                                                                     <TableCell nowrap="true" nowrap="true" key={indexRow} align={col.align}>
                                                                         <IconButton
                                                                             onClick={e => {
-                                                                                onRemove(index)
+                                                                                onRemove(item)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            onClick={e => {
+                                                                                onDoubleClickRow(item)
+                                                                            }}
+                                                                        >
+                                                                            <EditIcon fontSize="small" />
                                                                         </IconButton>
                                                                     </TableCell>
                                                                 )
@@ -314,9 +455,8 @@ const InsExport = ({ }) => {
                             <Tooltip placement="top" title={t('auto_invoice')} arrow>
                                 <TextField
                                     fullWidth={true}
+                                    disabled={invoiceFlag}
                                     margin="dense"
-                                    multiline
-                                    rows={1}
                                     autoComplete="off"
                                     label={t('order.export.invoice_no')}
                                     onChange={handleChange}
@@ -328,6 +468,7 @@ const InsExport = ({ }) => {
                             <div className='d-flex align-items-center w-100'>
                                 <CustomerAdd_Autocomplete
                                     value={customerSelect || ''}
+                                    autoFocus={true}
                                     size={'small'}
                                     label={t('menu.customer')}
                                     onSelect={handleSelectCustomer}
@@ -351,78 +492,6 @@ const InsExport = ({ }) => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
-                            <NumberFormat className='inputNumber' 
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.qty * obj.price)
-                                }, 0) || 0}
-                                label={t('order.export.invoice_val')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat className='inputNumber' 
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.discount_per / 100 * (obj.qty * obj.price))
-                                }, 0) || 0}
-                                label={t('order.export.invoice_discount')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat className='inputNumber' 
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.vat_per / 100 * Math.round(obj.qty * obj.price * (1 - (obj.discount_per / 100))))
-                                }, 0) || 0}
-                                label={t('order.export.invoice_vat')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <NumberFormat className='inputNumber' 
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(Math.round(obj.qty * obj.price) - Math.round(obj.discount_per / 100 * (obj.qty * obj.price)))
-                                }, 0) || 0}
-                                label={t('order.export.invoice_needpay')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                multiline
-                                rows={1}
-                                autoComplete="off"
-                                label={t('order.export.staff_exp')}
-                                onChange={handleChange}
-                                value={Export.staff_exp || ''}
-                                name='staff_exp'
-                                variant="outlined"
-                            />
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -436,22 +505,129 @@ const InsExport = ({ }) => {
                                 name='note'
                                 variant="outlined"
                             />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={Export.invoice_val || 0}
+                                label={t('order.export.invoice_val')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={Export.invoice_discount || 0}
+                                label={t('order.export.invoice_discount')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={Export.invoice_vat || 0}
+                                label={t('order.export.invoice_vat')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <Divider orientation="horizontal" />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={paymentInfo.invoice_needpay}
+                                label={t('order.export.invoice_needpay')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            {/* <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                multiline
+                                rows={1}
+                                autoComplete="off"
+                                label={t('order.export.staff_exp')}
+                                onChange={handleChange}
+                                value={Export.staff_exp || ''}
+                                name='staff_exp'
+                                variant="outlined"
+                            /> */}
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
+                                fullWidth={true}
                                 onClick={() => {
-                                    handleCreateInvoice();
+                                    handleUpdateInvoice()
                                 }}
                                 variant="contained"
                                 disabled={checkValidate()}
-                                className={checkValidate() === false ? 'bg-success text-white' : ''}
+                                className={checkValidate() === false ? updateProcess ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                                endIcon={updateProcess && <LoopIcon />}
                             >
-                                {t('btn.save')}
+                                {t('btn.payment')}
                             </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            {/* modal delete */}
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleDelete()
+                            }
+                        });
+                    }
+
+                }}
+                open={shouldOpenDeleteModal}
+                onClose={e => {
+                    setShouldOpenDeleteModal(false)
+                }}
+            >
+                <Card>
+                    <CardHeader title={t('order.export.productDelete')} />
+                    <CardContent>
+                        <Grid container>{productDeleteModal.o_5}</Grid>
+                    </CardContent>
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button size='small'
+                            onClick={e => {
+                                setShouldOpenDeleteModal(false)
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button className={deleteProcess ? 'button-loading' : ''} endIcon={deleteProcess && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
+                            {t('btn.agree')}
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Dialog>
         </Grid>
     )
 }

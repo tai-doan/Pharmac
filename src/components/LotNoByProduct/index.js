@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size, value, disabled = false }) => {
+const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size = 'small', value, disabled = false, inputRef = null, onKeyPress = () => null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -27,52 +27,33 @@ const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size, value, 
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const lotNoSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.LOT_NO_BY_PRODUCT) {
-                    resultLotNoByProductDropdownList(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            lotNoSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (!!productID && productID !== -1) {
             const inputParam = [productID, 'Y']
-            sendRequest(serviceInfo.GET_LOT_NO_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
+            sendRequest(serviceInfo.GET_LOT_NO_LIST, inputParam, handleResultGetLotNoList, true, handleTimeOut)
         } else {
             setValueSelect({})
         }
     }, [productID])
 
     useEffect(() => {
-        if (value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_3 === value))
+        if (value !== null && value !== undefined) {
+            let item = dataSource.find(x => x.o_3 === value)
+            if (!!item) {
+                setInputValue(value)
+                setValueSelect(item)
+                onSelect(item)
+            }
         }
     }, [value, dataSource])
 
-    const resultLotNoByProductDropdownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetLotNoList = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            console.log('data số lô: ', newData)
             setDataSource(newData.rows)
         }
     }
@@ -96,6 +77,7 @@ const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size, value, 
             disabled={disabled}
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
             size={!!size ? size : 'small'}
             id="combo-box-demo"
             options={dataSource}
@@ -103,7 +85,7 @@ const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size, value, 
             getOptionLabel={(option) => option.o_3 || ''}
             inputValue={value}
             style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
-            renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField {...params} value={inputValue} inputRef={inputRef} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

@@ -66,7 +66,6 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
     }
 
     const onChange = (event, object, reson) => {
-        console.log('onChange: ', object)
         setValueSelect(object)
         onSelect(object)
     }

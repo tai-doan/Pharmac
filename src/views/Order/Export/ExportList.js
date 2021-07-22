@@ -5,6 +5,7 @@ import FastForwardIcon from '@material-ui/icons/FastForward';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
+import LoopIcon from '@material-ui/icons/Loop';
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
@@ -35,18 +36,6 @@ const serviceInfo = {
         biz: config.biz,
         object: config.object
     },
-    CREATE: {
-        functionName: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        functionName: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
     DELETE: {
         functionName: config['delete'].functionName,
         reqFunct: config['delete'].reqFunct,
@@ -60,20 +49,16 @@ const ExportList = () => {
     const history = useHistory()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
-    const [searchValue, setSearchValue] = useState('')
     const [searchModal, setSearchModal] = useState({
         start_dt: moment().day(-14).format('YYYYMMDD'),
         end_dt: moment().format('YYYYMMDD'),
         id_status: '1',
-        vender_nm: ''
+        cust_nm_v: ''
     })
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
-    const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [deleteModalContent, setDeleteModalContent] = useState({
         reason: '1',
         note: ''
@@ -82,68 +67,28 @@ const ExportList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const export_SendReqFlag = useRef(false)
-    const export_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
-    const searchRef = useRef('')
-    const saveContinue = useRef(false)
     const idRef = useRef(0)
 
     useHotkeys('f2', () => history.push('/page/order/ins-export'), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch, searchModal.id_status, '');
-        const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.EXPORT_LIST:
-                        resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_DELETE:
-                        resultRemove(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            exportSub.unsubscribe()
-        }
+        getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch, searchModal.id_status, '')
     }, [])
 
     const getList = (startdate, endDate, index, status, name) => {
         const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status, name.trim() + '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        console.log('handleTimeOut: ', e)
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
-
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        export_SendReqFlag.current = false
-        setProcessing(false)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetAll = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[2] === glb_sv.defaultValueSearch) {
@@ -161,29 +106,33 @@ const ExportList = () => {
         }
     }
 
-    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        export_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcessing(false)
+    }
 
-        setShouldOpenRemoveModal(false)
+    const handleResultDelete = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
-            setId(0);
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            dataSourceRef.current = []
             setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
             setDeleteModalContent({
                 reason: '1',
                 note: ''
             })
+            setShouldOpenRemoveModal(false)
+            getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch, searchModal.id_status, '')
         }
     }
 
@@ -219,11 +168,10 @@ const ExportList = () => {
 
     const handleDelete = e => {
         // e.preventDefault();
+        setProcessing(true)
         idRef.current = id;
         const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
-        sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
-        setId(0)
-        setName('')
+        sendRequest(serviceInfo.DELETE, inputParam, handleResultDelete, true, handleTimeOut)
     }
 
     const getNextData = () => {
@@ -467,7 +415,7 @@ const ExportList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

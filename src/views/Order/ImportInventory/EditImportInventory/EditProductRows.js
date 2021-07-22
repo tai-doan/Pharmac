@@ -59,6 +59,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
 
+    const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
 
     useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productImportModal }); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -92,8 +93,8 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                 unit_nm: newData.rows[0].o_10,
                 price: newData.rows[0].o_11
             }
-            console.log('newData: ', newData)
             setProductInfo(dataConvert)
+            stepOneRef.current.focus()
         }
     }
 
@@ -217,7 +218,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                 <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
-                                    autoFocus={true}
                                     value={productInfo.qty}
                                     label={t('order.import.qty')}
                                     customInput={TextField}
@@ -228,6 +228,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                                     thousandSeparator={true}
                                     onValueChange={handleQuantityChange}
                                     onFocus={(event) => event.target.select()}
+                                    inputRef={stepOneRef}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             stepTwoRef.current.focus()

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import { Grid, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent } from '@material-ui/core'
+import { Grid, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Dialog, CardActions } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -10,20 +10,19 @@ import {
 import NumberFormat from 'react-number-format'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
+import LoopIcon from '@material-ui/icons/Loop'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import SnackBarService from '../../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 
 import { tableListEditColumn, invoiceExportDestroyModal } from '../Modal/ExportDestroy.modal'
 import moment from 'moment'
-import AddProduct from '../AddProduct'
+import AddProduct from '../AddProductClone'
 
-import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -52,12 +51,6 @@ const serviceInfo = {
         biz: 'export',
         object: 'exp_destroy_dt'
     },
-    UPDATE_PRODUCT_TO_INVOICE: {
-        functionName: 'update',
-        reqFunct: reqFunction.PRODUCT_EXPORT_DESTROY_INVOICE_UPDATE,
-        biz: 'export',
-        object: 'exp_destroy_dt'
-    },
     DELETE_PRODUCT_TO_INVOICE: {
         functionName: 'delete',
         reqFunct: reqFunction.PRODUCT_EXPORT_DESTROY_INVOICE_DELETE,
@@ -72,74 +65,46 @@ const EditExportDestroy = ({ }) => {
     const { id } = history?.location?.state || 0
     const [ExportDestroy, setExportDestroy] = useState({ ...invoiceExportDestroyModal })
     const [dataSource, setDataSource] = useState([])
-    const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+    const [productDeleteModal, setProductDeleteModal] = useState({})
+    const [paymentInfo, setPaymentInfo] = useState({})
+    const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
+    const [resetFormAddFlag, setResetFormAddFlag] = useState(false)
+    const [deleteProcess, setDeleteProcess] = useState(false)
+    const [updateProcess, setUpdateProcess] = useState(false)
+
+    const newInvoiceId = useRef(-1)
 
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const exportDestroySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.EXPORT_DESTROY_BY_ID:
-                        resultGetInvoiceByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_DESTROY_UPDATE:
-                        resultUpdateInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_EXPORT_DESTROY_INVOICE_CREATE:
-                        resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.GET_ALL_PRODUCT_BY_EXPORT_DESTROY_ID:
-                        resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_EXPORT_DESTROY_INVOICE_UPDATE:
-                        resultActionProductToInvoice(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_EXPORT_DESTROY_INVOICE_DELETE:
-                        resultDeleteProduct(msg, cltSeqResult, reqInfoMap)
-                        return
-                    default:
-                        return
-                }
-            }
-        })
-
         if (id !== 0) {
-            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], null, true, handleTimeOut)
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_DESTROY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
-        }
-        return () => {
-            exportDestroySub.unsubscribe()
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [id], handleResultGetInvoiceByID, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_DESTROY_ID, [id], handleGetAllProductByInvoiceID, true, handleTimeOut)
         }
     }, [])
 
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
+    useEffect(() => {
+        const newData = { ...paymentInfo }
+        newData['invoice_needpay'] = dataSource.reduce(function (acc, obj) {
+            return acc + Math.round(obj.o_6 * obj.o_9)
+        }, 0) || 0
+        setExportDestroy(prevState => { return { ...prevState, ...{ payment_amount: newData.invoice_needpay } } })
+        setPaymentInfo(newData)
+    }, [dataSource])
 
-    const resultGetInvoiceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetInvoiceByID = (reqInfoMap, message) => {
+        // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
+            newInvoiceId.current = newData.rows[0].o_1;
             let dataExportDestroy = {
                 invoice_id: newData.rows[0].o_1,
                 invoice_no: newData.rows[0].o_2,
@@ -148,74 +113,134 @@ const EditExportDestroy = ({ }) => {
                 input_dt: moment(newData.rows[0].o_5, 'YYYYMMDD').toString(),
                 staff_exp: newData.rows[0].o_6,
                 cancel_reason: newData.rows[0].o_7,
-                note: newData.rows[0].o_8
+                note: newData.rows[0].o_8,
+                invoice_val: newData.rows[0].o_10
             }
             setExportDestroy(dataExportDestroy)
         }
     }
 
-    const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleGetAllProductByInvoiceID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             setDataSource(newData.rows)
         }
     }
 
-    const resultActionProductToInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+    }
+
+    const handleAddProduct = productObject => {
+        if (productObject && Object.keys(productObject).length === 0 && productObject.constructor === Object) {
+            SnackBarService.alert(t('message.requireExportDestroyInvoice'), true, 4, 3000)
             return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_DESTROY_ID, [ExportDestroy.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
+            const inputParam = [
+                newInvoiceId.current,
+                productObject.prod_id,
+                productObject.lot_no.toUpperCase(),
+                productObject.qty,
+                productObject.unit_id,
+                productObject.price,
+                productObject.reason_tp
+            ]
+            sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)
         }
     }
 
-    const resultUpdateInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultAddProductToInvoice = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setResetFormAddFlag(true)
+            setTimeout(() => {
+                setResetFormAddFlag(false)
+            }, 1000);
+            handleRefresh()
         }
     }
 
-    const resultDeleteProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
+    const handleUpdateInvoice = () => {
+        if (!ExportDestroy.invoice_id) {
+            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
+            return
+        } else if (!ExportDestroy.exp_dt) {
+            SnackBarService.alert(t('message.requireExportDestroyInvoice'), true, 'error', 3000)
             return
         }
-        reqInfoMap.procStat = 2
+        setUpdateProcess(true)
+        //bắn event update invoice
+        const inputParam = [
+            ExportDestroy.invoice_id,
+            moment(ExportDestroy.exp_dt).format('YYYYMMDD'),
+            ExportDestroy.staff_exp,
+            ExportDestroy.note
+        ];
+        sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, handleResultUpdateInvoice, true, e => { handleTimeOut(e); setUpdateProcess(false) })
+    }
+
+    const handleResultUpdateInvoice = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+        setUpdateProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_DESTROY_ID, [id], null, true, handleTimeOut)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
         }
+    }
+
+    const onRemove = item => {
+        if (!item) {
+            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
+            return
+        }
+        setProductDeleteModal(!!item ? item : {})
+        setShouldOpenDeleteModal(!!item ? true : false)
+    }
+
+    const handleDelete = () => {
+        if (!productDeleteModal.o_1 || (!ExportDestroy.invoice_id && !newInvoiceId.current)) return
+        setDeleteProcess(true)
+        const inputParam = [ExportDestroy.invoice_id || newInvoiceId.current, productDeleteModal.o_1];
+        sendRequest(serviceInfo.DELETE_PRODUCT_TO_INVOICE, inputParam, handleResultDeleteProduct, true, e => { handleTimeOut(e); setDeleteProcess(false) })
+    }
+
+    const handleResultDeleteProduct = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setDeleteProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setProductDeleteModal({})
+            setShouldOpenDeleteModal(false)
+            handleRefresh()
+        }
+    }
+
+    const handleRefresh = () => {
+        sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_DESTROY_ID, [newInvoiceId.current], handleGetAllProductByInvoiceID, true, handleTimeOut)
+        sendRequest(serviceInfo.GET_INVOICE_BY_ID, [newInvoiceId.current], handleResultGetInvoiceByID, true, handleTimeOut)
     }
 
     const handleDateChange = date => {
@@ -230,72 +255,11 @@ const EditExportDestroy = ({ }) => {
         setExportDestroy(newExportDestroy)
     }
 
-    const handleAddProduct = productObject => {
-        if (!productObject) {
-            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
-            return
-        }
-        const inputParam = [
-            ExportDestroy.invoice_id,
-            productObject.prod_id,
-            productObject.lot_no,
-            productObject.qty,
-            productObject.unit_id,
-            productObject.price,
-            productObject.discount_per,
-            productObject.vat_per
-        ]
-        sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
-    }
-
-    const handleEditProduct = productObject => {
-        if (productObject === null) {
-            setProductEditData({})
-            setProductEditID(-1);
-            return
-        }
-        const inputParam = [
-            ExportDestroy.invoice_id,
-            productEditID,
-            productObject.qty,
-            productObject.price,
-            productObject.discount_per,
-            productObject.vat_per
-        ]
-        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
-        setProductEditData({})
-        setProductEditID(-1);
-    }
-
-    const onRemove = item => {
-        if (!item) {
-            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
-            return
-        }
-        const inputParam = [item.o_2, item.o_1];
-        sendRequest(serviceInfo.DELETE_PRODUCT_TO_INVOICE, inputParam, null, true, handleTimeOut)
-    }
-
     const checkValidate = () => {
-        if (dataSource.length > 0 && !!ExportDestroy.exp_dt) {
+        if (!!ExportDestroy.exp_dt) {
             return false
         }
         return true
-    }
-
-    const handleUpdateInvoice = () => {
-        if (!ExportDestroy.invoice_id || !ExportDestroy.exp_dt || dataSource.length <= 0) {
-            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
-            return
-        }
-        //bắn event update invoice
-        const inputParam = [
-            ExportDestroy.invoice_id,
-            moment(ExportDestroy.exp_dt).format('YYYYMMDD'),
-            ExportDestroy.staff_exp,
-            ExportDestroy.note
-        ];
-        sendRequest(serviceInfo.UPDATE_INVOICE, inputParam, null, true, handleTimeOut)
     }
 
     const onDoubleClickRow = rowData => {
@@ -308,22 +272,12 @@ const EditExportDestroy = ({ }) => {
 
     return (
         <Grid container spacing={1}>
-            <EditProductRows productEditID={productEditID} productData={productEditData} handleEditProduct={handleEditProduct} />
+            <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
             <Grid item md={9} xs={12}>
+                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} />
                 <Card>
-                    {/* <div className='d-flex justify-content-between align-items-center mr-2'>
-                        <Link to="/page/order/exportDestroy" className="normalLink">
-                            <Button variant="contained" size="small">
-                                {t('btn.back')}
-                            </Button>
-                        </Link>
-                        
-                    </div> */}
                     <CardHeader
                         title={t('order.exportDestroy.productExportDestroyList')}
-                        action={
-                            <AddProduct handleAddProduct={handleAddProduct} />
-                        }
                     />
                     <CardContent>
                         <TableContainer className="tableContainer">
@@ -364,6 +318,13 @@ const EditExportDestroy = ({ }) => {
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            onClick={e => {
+                                                                                onDoubleClickRow(item)
+                                                                            }}
+                                                                        >
+                                                                            <EditIcon fontSize="small" />
                                                                         </IconButton>
                                                                     </TableCell>
                                                                 )
@@ -409,8 +370,6 @@ const EditExportDestroy = ({ }) => {
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
-                                rows={1}
                                 autoComplete="off"
                                 label={t('order.exportDestroy.invoice_no')}
                                 disabled={true}
@@ -435,31 +394,6 @@ const EditExportDestroy = ({ }) => {
                                     }}
                                 />
                             </MuiPickersUtilsProvider>
-                            <NumberFormat className='inputNumber' 
-                                style={{ width: '100%' }}
-                                required
-                                value={dataSource.reduce(function (acc, obj) {
-                                    return acc + Math.round(obj.o_6 * obj.o_9)
-                                }, 0) || 0}
-                                label={t('order.exportDestroy.invoice_val')}
-                                customInput={TextField}
-                                autoComplete="off"
-                                margin="dense"
-                                type="text"
-                                variant="outlined"
-                                thousandSeparator={true}
-                                disabled={true}
-                            />
-                            <TextField
-                                fullWidth={true}
-                                margin="dense"
-                                autoComplete="off"
-                                label={t('order.exportDestroy.staff_exp')}
-                                onChange={handleChange}
-                                value={ExportDestroy.staff_exp || ''}
-                                name='staff_exp'
-                                variant="outlined"
-                            />
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
@@ -473,22 +407,87 @@ const EditExportDestroy = ({ }) => {
                                 name='note'
                                 variant="outlined"
                             />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={ExportDestroy.invoice_val || 0}
+                                label={t('order.exportDestroy.invoice_val')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            {/* <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                autoComplete="off"
+                                label={t('order.exportDestroy.staff_exp')}
+                                onChange={handleChange}
+                                value={ExportDestroy.staff_exp || ''}
+                                name='staff_exp'
+                                variant="outlined"
+                            /> */}
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
+                                fullWidth={true}
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
                                 variant="contained"
                                 disabled={checkValidate()}
-                                className={checkValidate() === false ? 'bg-success text-white' : ''}
+                                className={checkValidate() === false ? updateProcess ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                                endIcon={updateProcess && <LoopIcon />}
                             >
-                                {t('btn.update')}
+                                {t('btn.payment')}
                             </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            {/* modal delete */}
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleDelete()
+                            }
+                        });
+                    }
+
+                }}
+                open={shouldOpenDeleteModal}
+                onClose={e => {
+                    setShouldOpenDeleteModal(false)
+                }}
+            >
+                <Card>
+                    <CardHeader title={t('order.export.productDelete')} />
+                    <CardContent>
+                        <Grid container>{productDeleteModal.o_3}</Grid>
+                    </CardContent>
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button size='small'
+                            onClick={e => {
+                                setShouldOpenDeleteModal(false)
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button className={deleteProcess ? 'button-loading' : ''} endIcon={deleteProcess && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
+                            {t('btn.agree')}
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Dialog>
         </Grid>
     )
 }

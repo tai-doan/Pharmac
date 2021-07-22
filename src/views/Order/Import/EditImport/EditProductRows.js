@@ -100,6 +100,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
             }
             productInfoPrev.current = dataConvert
             setProductInfo(dataConvert)
+            stepOneRef.current.focus()
         }
     }
 
@@ -245,12 +246,12 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
 
     const checkValidate = () => {
         if (!!productInfo.imp_tp && productInfo.imp_tp === '1') {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price && !!productInfo.discount_per && !!productInfo.vat_per) {
+            if (!!productInfo.prod_id && !!productInfo.lot_no && productInfo.qty > 0 && !!productInfo.unit_id && productInfo.price >= 0 && productInfo.discount_per >= 0 && productInfo.discount_per <= 100 && productInfo.vat_per >= 0 && productInfo.vat_per <= 100) {
                 return false
             } else
                 return true
         } else {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id) {
+            if (!!productInfo.prod_id && !!productInfo.lot_no && productInfo.qty > 0 && !!productInfo.unit_id) {
                 return false
             }
             return true
@@ -342,7 +343,6 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
-                                autoFocus={true}
                                 value={productInfo.qty}
                                 label={t('order.import.qty')}
                                 customInput={TextField}
@@ -466,8 +466,8 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                     <Button size='small'
                         onClick={e => {
                             setProductInfo({ ...productImportModal })
-                            setShouldOpenModal(false);
-                            setProductEditID(-1)
+                    setShouldOpenModal(false)
+                    setProductEditID(-1)
                         }}
                         variant="contained"
                         disableElevation

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputLabel, MenuItem, FormControl, Select } from '@material-ui/core'
 import Product_Autocomplete from '../../../Products/Product/Control/Product.Autocomplete'
@@ -6,14 +6,15 @@ import Unit_Autocomplete from '../../../Config/Unit/Control/Unit.Autocomplete'
 import { productExportModal } from '../Modal/Export.modal'
 import NumberFormat from 'react-number-format'
 
+import LoopIcon from '@material-ui/icons/Loop'
+
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import SnackBarService from '../../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 import { useHotkeys } from 'react-hotkeys-hook'
+import LotNoByProduct_Autocomplete from '../../../../components/LotNoByProduct'
 
 const serviceInfo = {
     GET_PRODUCT_BY_ID: {
@@ -21,64 +22,43 @@ const serviceInfo = {
         reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_BY_ID,
         biz: 'export',
         object: 'exp_invoices_dt'
-    }
+    },
+    UPDATE_PRODUCT_TO_INVOICE: {
+        functionName: 'update',
+        reqFunct: reqFunction.PRODUCT_EXPORT_INVOICE_UPDATE,
+        biz: 'export',
+        object: 'exp_invoices_dt'
+    },
 }
 
-const EditProductRows = ({ productEditID, handleEditProduct }) => {
+const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
+    const [process, setProcess] = useState(false)
 
-    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productExportModal }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
+    const stepOneRef = useRef(null)
+    const stepTwoRef = useRef(null)
+    const stepThreeRef = useRef(null)
+    const stepFourRef = useRef(null)
 
-    useEffect(() => {
-        const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_EXPORT_INVOICE_BY_ID:
-                        resultGetProductByInvoiceID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            productSub.unsubscribe();
-        }
-    }, [])
-
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
+    useHotkeys('esc', () => { setShouldOpenModal(false); setProductInfo({ ...productExportModal }); setProductEditID(-1) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (productEditID !== -1) {
-            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [productEditID], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [productEditID], handleResultGetProductInfo, true, handleTimeOut)
             setShouldOpenModal(true)
         }
     }, [productEditID])
 
-    const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetProductInfo = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             const dataConvert = {
                 exp_tp: newData.rows[0].o_2,
@@ -93,6 +73,47 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 discount_per: newData.rows[0].o_11
             }
             setProductInfo(dataConvert)
+            stepOneRef.current.focus()
+        }
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
+    const handleUpdate = () => {
+        if (productInfo.price < 0 || productInfo.qty <= 0 || productInfo.vat_per < 0 || productInfo.vat_per > 100 || productInfo.discount_per < 0 || productInfo.discount_per > 100) return
+        setProcess(true)
+        const inputParam = [
+            invoiceID,
+            productEditID,
+            productInfo.exp_tp,
+            productInfo.qty,
+            productInfo.price,
+            productInfo.discount_per,
+            productInfo.vat_per
+        ]
+        sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, handleResultUpdateProduct, true, handleTimeOut)
+    }
+
+    const handleResultUpdateProduct = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            console.log('cập nhật sản phẩm thành công => ', message)
+            // xử lý thành công
+            // createSettlement()
+            onRefresh()
+            setShouldOpenModal(false)
+            setProductInfo({ ...productExportModal })
+            setProductEditID(-1)
         }
     }
 
@@ -147,14 +168,21 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
         setProductInfo(newProductInfo)
     }
 
+    const handleSelectLotNo = object => {
+        const newProductInfo = { ...productInfo };
+        newProductInfo['quantity_in_stock'] = !!object ? object.o_5 : null
+        setProductInfo(newProductInfo)
+    }
+
     const checkValidate = () => {
         if (!!productInfo.exp_tp && productInfo.exp_tp === '1') {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price && !!productInfo.discount_per && !!productInfo.vat_per) {
+            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id && !!productInfo.price > 0 &&
+                productInfo.discount_per >= 0 && productInfo.discount_per <= 100 && productInfo.vat_per >= 0 && productInfo.vat_per <= 100) {
                 return false
             } else
                 return true
         } else {
-            if (!!productInfo.prod_id && !!productInfo.lot_no && !!productInfo.qty && !!productInfo.unit_id) {
+            if (!!productInfo.prod_id && !!productInfo.lot_no && productInfo.qty > 0 && !!productInfo.unit_id) {
                 return false
             }
             return true
@@ -168,8 +196,9 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 maxWidth="md"
                 open={shouldOpenModal}
                 onClose={e => {
-                    handleEditProduct(null)
+                    setProductInfo({ ...productExportModal })
                     setShouldOpenModal(false)
+                    setProductEditID(-1)
                 }}
             >
                 <DialogTitle className="titleDialog pb-0">
@@ -177,41 +206,6 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 </DialogTitle>
                 <DialogContent className="pt-0">
                     <Grid container spacing={2}>
-                        <Grid item xs>
-                            <Product_Autocomplete
-                                disabled={true}
-                                value={productInfo.prod_nm}
-                                style={{ marginTop: 8, marginBottom: 4 }}
-                                size={'small'}
-                                label={t('menu.product')}
-                                onSelect={handleSelectProduct}
-                            />
-                        </Grid>
-                        <Grid item xs>
-                            <TextField
-                                disabled={true}
-                                fullWidth={true}
-                                margin="dense"
-                                autoComplete="off"
-                                required
-                                className="uppercaseInput"
-                                label={t('order.export.lot_no')}
-                                onChange={handleChange}
-                                value={productInfo.lot_no || ''}
-                                name='lot_no'
-                                variant="outlined"
-                            />
-                        </Grid>
-                        <Grid item xs>
-                            <Unit_Autocomplete
-                                disabled={true}
-                                value={productInfo.unit_nm || ''}
-                                style={{ marginTop: 8, marginBottom: 4 }}
-                                size={'small'}
-                                label={t('menu.configUnit')}
-                                onSelect={handleSelectUnit}
-                            />
-                        </Grid>
                         <Grid item xs>
                             <FormControl margin="dense" variant="outlined" className='w-100'>
                                 <InputLabel id="export_type">{t('order.export.export_type')}</InputLabel>
@@ -228,13 +222,50 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                 </Select>
                             </FormControl>
                         </Grid>
+                        <Grid item xs>
+                            <Product_Autocomplete
+                                disabled={true}
+                                value={productInfo.prod_nm}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.product')}
+                                onSelect={handleSelectProduct}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <LotNoByProduct_Autocomplete
+                                disabled={true}
+                                productID={productInfo.prod_id}
+                                value={productInfo.lot_no || ''}
+                                label={t('order.export.lot_no')}
+                                onSelect={handleSelectLotNo}
+                                inputRef={stepThreeRef}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        stepFourRef.current.focus()
+                                    }
+                                }}
+                            />
+                        </Grid>
                     </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <TextField
+                                disabled={true}
+                                fullWidth={true}
+                                margin="dense"
+                                autoComplete="off"
+                                required
+                                label={t('product.store_current')}
+                                value={productInfo.quantity_in_stock || ''}
+                                name='quantity_in_stock'
+                                variant="outlined"
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
-                                autoFocus={true}
                                 value={productInfo.qty}
                                 label={t('order.export.qty')}
                                 customInput={TextField}
@@ -247,10 +278,29 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onFocus={e => e.target.select()}
+                                inputRef={stepOneRef}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        stepTwoRef.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <Unit_Autocomplete
+                                disabled={true}
+                                value={productInfo.unit_nm || ''}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('menu.configUnit')}
+                                onSelect={handleSelectUnit}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={2}>
+                        <Grid item xs>
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.price}
@@ -265,10 +315,17 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onFocus={e => e.target.select()}
+                                inputRef={stepTwoRef}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        stepThreeRef.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.discount_per}
@@ -285,10 +342,17 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                     min: 0,
                                     max: 100
                                 }}
+                                onFocus={e => e.target.select()}
+                                inputRef={stepThreeRef}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        stepFourRef.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={productInfo.vat_per}
@@ -305,6 +369,13 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                                     min: 0,
                                     max: 100
                                 }}
+                                onFocus={e => e.target.select()}
+                                inputRef={stepFourRef}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -312,9 +383,9 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                 <DialogActions>
                     <Button size='small'
                         onClick={e => {
-                            handleEditProduct(null)
                             setProductInfo({ ...productExportModal })
-                            setShouldOpenModal(false);
+                            setShouldOpenModal(false)
+                            setProductEditID(-1)
                         }}
                         variant="contained"
                         disableElevation
@@ -323,15 +394,14 @@ const EditProductRows = ({ productEditID, handleEditProduct }) => {
                     </Button>
                     <Button size='small'
                         onClick={() => {
-                            handleEditProduct(productInfo);
-                            setProductInfo({ ...productExportModal })
-                            setShouldOpenModal(false)
+                            handleUpdate()
                         }}
                         variant="contained"
                         disabled={checkValidate()}
-                        className={checkValidate() === false ? 'bg-success text-white' : ''}
+                        className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                        endIcon={process && <LoopIcon />}
                     >
-                        {t('btn.save')}
+                        {t('btn.update')}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -1,48 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react'
+import moment from 'moment'
+import { Link } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import {
     Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
-    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+    Table, TableBody, TableCell, TableRow, TableContainer, TableHead
 } from '@material-ui/core'
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import AddIcon from '@material-ui/icons/Add'
+import LoopIcon from '@material-ui/icons/Loop'
+
+import ExportExcel from '../../../components/ExportExcel'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/ExportDestroy.modal'
 import ExportDestroySearch from './ExportDestroySearch';
-import moment from 'moment'
-import { Link } from 'react-router-dom'
-import { useHotkeys } from 'react-hotkeys-hook';
-import AddIcon from '@material-ui/icons/Add';
-import ExportExcel from '../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_ALL: {
         functionName: config['list'].functionName,
         reqFunct: config['list'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    CREATE: {
-        functionName: config['insert'].functionName,
-        reqFunct: config['insert'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    UPDATE: {
-        functionName: config['update'].functionName,
-        reqFunct: config['update'].reqFunct,
         biz: config.biz,
         object: config.object
     },
@@ -86,59 +73,22 @@ const ExportDestroyList = () => {
 
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch, searchModal.id_status);
-        const exportDestroySub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.EXPORT_DESTROY_LIST:
-                        resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.EXPORT_DESTROY_DELETE:
-                        resultRemove(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            exportDestroySub.unsubscribe()
-        }
     }, [])
 
     const getList = (startdate, endDate, index, status) => {
         const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status]
-        sendRequest(serviceInfo.GET_ALL, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        console.log('handleTimeOut: ', e)
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
-
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        exportDestroy_SendReqFlag.current = false
-        setProcessing(false)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetAll = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
-            console.log('newData: ', newData)
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[2] === glb_sv.defaultValueSearch) {
                     setTotalRecords(newData.rowTotal)
@@ -155,30 +105,34 @@ const ExportDestroyList = () => {
         }
     }
 
-    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        exportDestroy_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultDelete = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-
-        setShouldOpenRemoveModal(false)
+        setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
-            dataSourceRef.current = dataSourceRef.current.filter(item => item.o_1 !== cltSeqResult.inputParam[0])
-            setDataSource(dataSourceRef.current);
-            setTotalRecords(dataSourceRef.current.length)
-            setId(0);
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            dataSourceRef.current = []
             setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
             setDeleteModalContent({
                 reason: '1',
                 note: ''
             })
+            setShouldOpenRemoveModal(false)
+            getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch, searchModal.id_status);
         }
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        console.log('handleTimeOut: ', e)
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const onClickColumn = e => {
@@ -213,11 +167,10 @@ const ExportDestroyList = () => {
 
     const handleDelete = e => {
         // e.preventDefault();
+        setProcessing(true)
         idRef.current = id;
         const inputParam = [id, deleteModalContent.reason, deleteModalContent.note]
         sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
-        setId(0)
-        setName('')
     }
 
     const getNextData = () => {
@@ -382,6 +335,7 @@ const ExportDestroyList = () => {
             {/* modal delete */}
             <Dialog
                 maxWidth='sm'
+                fullWidth={true}
                 TransitionProps={{
                     addEndListener: (node, done) => {
                         // use the css transitionend event to mark the finish of a transition
@@ -446,7 +400,7 @@ const ExportDestroyList = () => {
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

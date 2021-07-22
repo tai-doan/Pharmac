@@ -248,7 +248,7 @@ const ProductImport = () => {
                 newInvoiceId.current,
                 productObject.imp_tp,
                 productObject.prod_id,
-                productObject.lot_no,
+                productObject.lot_no.toUpperCase(),
                 productObject.made_dt,
                 moment(productObject.exp_dt).format('YYYYMMDD'),
                 productObject.qty,
@@ -388,7 +388,7 @@ const ProductImport = () => {
                             newData.rows[0].o_1 || newInvoiceId.current,
                             item.imp_tp,
                             item.prod_id,
-                            item.lot_no,
+                            item.lot_no.toUpperCase(),
                             item.made_dt,
                             moment(item.exp_dt).format('YYYYMMDD'),
                             item.qty,
@@ -720,6 +720,7 @@ const ProductImport = () => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button fullWidth={true}
+                            size='small'
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
