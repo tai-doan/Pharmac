@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import NumberFormat from 'react-number-format'
@@ -9,9 +9,7 @@ import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
@@ -48,43 +46,28 @@ const PriceAdd = ({ onRefresh }) => {
         setProductSelect('')
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
-    useEffect(() => {
-        const priceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRICE_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            priceSub.unsubscribe()
-        }
-    }, [])
+    const handleCreate = () => {
+        if (checkValidate()) return
+        setProcess(true)
+        const inputParam = [Price.product, Price.unit, Price.importPrice, Price.importVAT, Price.price, Price.wholePrice, Price.exportVAT, Price.note || ''];
+        sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
+    }
 
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setProcess(false)
+    }
+
+    const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setPrice({})
             setProductSelect('')
             setUnitSelect('')
@@ -100,23 +83,9 @@ const PriceAdd = ({ onRefresh }) => {
         }
     }
 
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-        setProcess(false)
-    }
-
-    const handleCreate = () => {
-        if (!Price.product || !Price.unit || !Price.importPrice || Price.importPrice <= 0 || !Price.importVAT || Price.importVAT <= 0 ||
-            !Price.price || Price.price <= 0 || !Price.wholePrice || Price.wholePrice <= 0 || !Price.exportVAT || Price.exportVAT <= 0) return
-        setProcess(true)
-        const inputParam = [Price.product, Price.unit, Price.importPrice, Price.importVAT, Price.price, Price.wholePrice, Price.exportVAT, Price.note || ''];
-        sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
-    }
-
     const checkValidate = () => {
-        if (!!Price.product && !!Price.unit && !!Price.importPrice && Price.importPrice > 0 && !!Price.importVAT && Price.importVAT > 0 &&
-            !!Price.price && Price.price > 0 && !!Price.wholePrice && Price.wholePrice > 0 && !!Price.exportVAT && Price.exportVAT > 0) {
+        if (!!Price.product && !!Price.unit && !!Price.importPrice && Price.importPrice > 0 && Price.importVAT <= 100 && Price.importVAT >= 0 &&
+            !!Price.price && Price.price > 0 && !!Price.wholePrice && Price.wholePrice > 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0) {
             return false
         }
         return true
@@ -142,30 +111,30 @@ const PriceAdd = ({ onRefresh }) => {
         setPrice(newPrice)
     }
 
-    const handleImportPriceChange = value => {
+    const handleImportPriceChange = obj => {
         const newPrice = { ...Price };
-        newPrice['importPrice'] = Number(value.value)
+        newPrice['importPrice'] = Number(obj.value)
         setPrice(newPrice)
     }
-    const handleImportVATChange = value => {
+    const handleImportVATChange = obj => {
         const newPrice = { ...Price };
-        newPrice['importVAT'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
+        newPrice['importVAT'] = Number(obj.value) >= 0 && Number(obj.value) < 100 ? Math.round(obj.value) : 10
         setPrice(newPrice)
     }
-    const handlePriceChange = value => {
+    const handlePriceChange = obj => {
         const newPrice = { ...Price };
-        newPrice['price'] = Number(value.value)
+        newPrice['price'] = Number(obj.value)
         setPrice(newPrice)
     }
-    const handleWholePriceChange = value => {
+    const handleWholePriceChange = obj => {
         const newPrice = { ...Price };
-        newPrice['wholePrice'] = Number(value.value)
+        newPrice['wholePrice'] = Number(obj.value)
         setPrice(newPrice)
     }
 
-    const handleExportVATChange = value => {
+    const handleExportVATChange = obj => {
         const newPrice = { ...Price };
-        newPrice['exportVAT'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
+        newPrice['exportVAT'] = Number(obj.value) >= 0 && Number(obj.value) < 100 ? Math.round(obj.value) : 10
         console.log(newPrice)
         setPrice(newPrice)
     }
@@ -208,7 +177,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs={6} sm={4}>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.importPrice || ''}
@@ -233,7 +202,7 @@ const PriceAdd = ({ onRefresh }) => {
                         </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.importVAT || ''}
@@ -258,7 +227,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.price || ''}
@@ -281,7 +250,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.wholePrice || ''}
@@ -304,7 +273,7 @@ const PriceAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={Price.exportVAT || ''}

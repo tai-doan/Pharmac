@@ -14,10 +14,7 @@ import ExportExcel from '../../../components/ExportExcel'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/Price.modal'
@@ -53,63 +50,26 @@ const PriceList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const price_SendReqFlag = useRef(false)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
     const idRef = useRef(0)
 
     useEffect(() => {
         getList(glb_sv.defaultValueSearch, '');
-        const priceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRICE_LIST:
-                        resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRICE_DELETE:
-                        resultRemove(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            priceSub.unsubscribe()
-        }
     }, [])
 
     const getList = (lastIndex, value) => {
         const inputParam = [lastIndex, value.trim() + '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-        setProcessing(false)
-    }
-
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        price_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetList = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch) {
@@ -127,28 +87,10 @@ const PriceList = () => {
         }
     }
 
-    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        price_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-
-        setShouldOpenRemoveModal(false)
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
-            dataSourceRef.current = []
-            setName('')
-            setId(0);
-            setDataSource([]);
-            setTotalRecords(0)
-            getList(glb_sv.defaultValueSearch, searchValue)
-        }
     }
 
     const onClickColumn = e => {
@@ -169,7 +111,7 @@ const PriceList = () => {
     }
 
     const searchSubmit = value => {
-        if (value === searchRef.current) return
+        // if (value === searchRef.current) return
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
@@ -193,7 +135,25 @@ const PriceList = () => {
         // e.preventDefault();
         idRef.current = id;
         setProcessing(true)
-        sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
+        sendRequest(serviceInfo.DELETE, [id], handleResultRemove, true, handleTimeOut)
+    }
+
+    const handleResultRemove = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcessing(false)
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            dataSourceRef.current = []
+            setName('')
+            setId(0);
+            setDataSource([]);
+            setTotalRecords(0)
+            getList(glb_sv.defaultValueSearch, searchValue)
+        }
     }
 
     const getNextData = () => {

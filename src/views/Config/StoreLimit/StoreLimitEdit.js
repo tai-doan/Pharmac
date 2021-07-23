@@ -11,10 +11,7 @@ import SnackBarService from '../../../utils/service/snackbar_service'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
-import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/StoreLimit.modal'
-import { requestInfo } from '../../../utils/models/requestInfo'
 
 import LoopIcon from '@material-ui/icons/Loop';
 
@@ -48,78 +45,45 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const StoreLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.STORE_LIMIT_BY_ID:
-                        resultGetStoreLimitByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.STORE_LIMIT_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            StoreLimitSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && !!id && id !== 0) {
             setStoreLimit({})
             setUnitSelect('')
-            sendRequest(serviceInfo.GET_STORE_LIMIT_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_STORE_LIMIT_BY_ID, [id], handleResultGetStoreLimitByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
-    const resultGetStoreLimitByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetStoreLimitByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setStoreLimit(newData.rows[0])
             setUnitSelect(newData.rows[0].o_5)
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setShouldOpenModal(false)
             onRefresh()
         }
     }
 
     const handleUpdate = () => {
-        if (!StoreLimit.o_1 || !StoreLimit.o_4 || !StoreLimit.o_6 || StoreLimit.o_6 <= 0 || !StoreLimit.o_7 || StoreLimit.o_7 <= 0) return
+        if (checkValidate()) return
         setProcess(true)
         const inputParam = [StoreLimit.o_1, StoreLimit.o_4, StoreLimit.o_6, StoreLimit.o_7];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -129,7 +93,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     }
 
     const checkValidate = () => {
-        if (!!StoreLimit.o_1 && !!StoreLimit.o_4 && !!StoreLimit.o_6 && !!StoreLimit.o_7) {
+        if (!!StoreLimit.o_1 && !!StoreLimit.o_4 && StoreLimit.o_6 > -1 && StoreLimit.o_7 > -1) {
             return false
         }
         return true
@@ -185,7 +149,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 autoFocus={true}
@@ -209,7 +173,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={StoreLimit.o_7}

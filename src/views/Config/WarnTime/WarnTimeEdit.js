@@ -11,9 +11,6 @@ import SnackBarService from '../../../utils/service/snackbar_service'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
-import reqFunction from '../../../utils/constan/functions';
-import { requestInfo } from '../../../utils/models/requestInfo'
 import { config } from './Modal/WarnTime.modal'
 
 import LoopIcon from '@material-ui/icons/Loop';
@@ -46,76 +43,43 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const warnTimeSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.WARN_TIME_BY_ID:
-                        resultGetWarnTimeByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.WARN_TIME_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            warnTimeSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && id && id !== 0) {
             setWarnTime({})
-            sendRequest(serviceInfo.GET_WARN_TIME_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_WARN_TIME_BY_ID, [id], handleResultGetWarnTimeByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
-    const resultGetWarnTimeByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetWarnTimeByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setWarnTime(newData.rows[0])
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setShouldOpenModal(false)
             onRefresh()
         }
     }
 
     const handleUpdate = () => {
-        if (!warnTime.o_1 || !warnTime.o_4 || warnTime.o_4 <= 0 || !warnTime.o_5) return
+        if (checkValidate()) return
         setProcess(true)
         const inputParam = [warnTime.o_1, warnTime.o_4, warnTime.o_5];
-        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -167,7 +131,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 autoFocus={true}

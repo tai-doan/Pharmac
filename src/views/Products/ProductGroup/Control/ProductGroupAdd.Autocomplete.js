@@ -128,7 +128,7 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
-                autoSelect={true}
+                // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
                 getOptionLabel={(option) => option.o_2 || ''}

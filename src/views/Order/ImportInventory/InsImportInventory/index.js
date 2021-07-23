@@ -230,7 +230,7 @@ const ProductImportInventory = ({ }) => {
                         title={t('order.importInventory.productImportList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(

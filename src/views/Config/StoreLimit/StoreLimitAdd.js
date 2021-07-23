@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import NumberFormat from 'react-number-format'
@@ -9,9 +9,7 @@ import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
@@ -48,43 +46,15 @@ const StoreLimitAdd = ({ onRefresh }) => {
         setUnitSelect('')
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
-    useEffect(() => {
-        const storeLimitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.STORE_LIMIT_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            storeLimitSub.unsubscribe()
-        }
-    }, [])
-
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setStoreLimit({})
             setProductSelect('')
             setUnitSelect('')
@@ -107,14 +77,14 @@ const StoreLimitAdd = ({ onRefresh }) => {
     }
 
     const handleCreate = () => {
-        if (!StoreLimit.product || !StoreLimit.unit || !StoreLimit.minQuantity || StoreLimit.minQuantity <= 0 || !StoreLimit.maxQuantity || StoreLimit.maxQuantity <= 0) return
+        if (checkValidate()) return
         setProcess(true)
         const inputParam = [StoreLimit.product, StoreLimit.unit, Number(StoreLimit.minQuantity), Number(StoreLimit.maxQuantity)]
-        sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
     }
 
     const checkValidate = () => {
-        if (!!StoreLimit.product && !!StoreLimit.unit && !!StoreLimit.minQuantity && !!StoreLimit.maxQuantity) {
+        if (!!StoreLimit.product && !!StoreLimit.unit && StoreLimit.minQuantity > -1 && StoreLimit.maxQuantity > -1) {
             return false
         }
         return true
@@ -183,7 +153,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={StoreLimit.minQuantity}
@@ -206,7 +176,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={StoreLimit.maxQuantity}

@@ -93,6 +93,9 @@ const EditImport = ({ }) => {
 
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -378,7 +381,7 @@ const EditImport = ({ }) => {
                         title={t('order.import.productImportList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -479,6 +482,12 @@ const EditImport = ({ }) => {
                                     label={t('menu.supplier')}
                                     onSelect={handleSelectSupplier}
                                     onCreate={id => setImport({ ...Import, ...{ supplier: id } })}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -496,6 +505,12 @@ const EditImport = ({ }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -510,6 +525,11 @@ const EditImport = ({ }) => {
                                 value={Import.note || ''}
                                 name='note'
                                 variant="outlined"
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}

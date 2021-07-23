@@ -53,6 +53,7 @@ const config = {
 
 const productExportRepayModal = {
     invoice_id: '',
+    exp_dt: null,
     prod_id: null,
     prod_nm: '',
     lot_no: '',

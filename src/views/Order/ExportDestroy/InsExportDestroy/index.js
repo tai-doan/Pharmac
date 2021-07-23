@@ -68,7 +68,6 @@ const InsExportDestroy = ({ }) => {
     const { t } = useTranslation()
     const [ExportDestroy, setExportDestroy] = useState({ ...invoiceExportDestroyModal })
     const [dataSource, setDataSource] = useState([])
-    const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListAddColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
@@ -82,6 +81,8 @@ const InsExportDestroy = ({ }) => {
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
 
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -257,7 +258,7 @@ const InsExportDestroy = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!ExportDestroy.invoice_id) {
+        if (!ExportDestroy.invoice_id && !invoiceFlag) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!ExportDestroy.exp_dt) {
@@ -336,7 +337,7 @@ const InsExportDestroy = ({ }) => {
                         title={t('order.exportDestroy.productExportDestroyList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -423,6 +424,16 @@ const InsExportDestroy = ({ }) => {
                     <CardHeader title={t('order.exportDestroy.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
+                            <TextField
+                                fullWidth={true}
+                                margin="dense"
+                                autoComplete="off"
+                                label={t('order.exportDestroy.invoice_no')}
+                                disabled={true}
+                                value={ExportDestroy.invoice_no || ''}
+                                name='invoice_no'
+                                variant="outlined"
+                            />
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                 <KeyboardDatePicker
                                     disableToolbar
@@ -438,6 +449,12 @@ const InsExportDestroy = ({ }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -452,6 +469,12 @@ const InsExportDestroy = ({ }) => {
                                 value={ExportDestroy.note || ''}
                                 name='note'
                                 variant="outlined"
+                                inputRef={step2Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
@@ -482,7 +505,7 @@ const InsExportDestroy = ({ }) => {
                             <Button size='small'
                                 fullWidth={true}
                                 onClick={() => {
-                                    handleCreateInvoice();
+                                    handleUpdateInvoice();
                                 }}
                                 variant="contained"
                                 disabled={checkValidate()}

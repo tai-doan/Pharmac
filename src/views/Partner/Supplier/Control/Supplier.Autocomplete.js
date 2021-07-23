@@ -97,7 +97,7 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
             value={valueSelect}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
-            autoSelect={true}
+            // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
             renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}

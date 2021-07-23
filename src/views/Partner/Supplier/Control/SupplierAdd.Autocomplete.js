@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Card, CardHeader, CardContent, CardActions, TextField, Button, Dialog, Tooltip, Grid, FormControl, InputLabel, Select, MenuItem, InputAdornment } from '@material-ui/core'
+import { Card, CardHeader, CardContent, CardActions, TextField, Button, Dialog, Tooltip, Grid } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
@@ -10,7 +10,6 @@ import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
 import socket_sv from '../../../../utils/service/socket_service'
-import Dictionary from '../../../../components/Dictionary';
 import { defaultModalAdd } from '../Modal/Supplier.modal';
 
 const serviceInfo = {
@@ -28,7 +27,7 @@ const serviceInfo = {
     }
 }
 
-const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, disabled = false, autoFocus = false }) => {
+const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, disabled = false, autoFocus = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -168,11 +167,12 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                 disabled={disabled}
                 onChange={onChange}
                 onInputChange={handleChangeInput}
+                onKeyPress={onKeyPress}
                 size={!!size ? size : 'small'}
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
-                autoSelect={true}
+                // autoSelect={true}
                 autoHighlight={true}
                 autoComplete={true}
                 getOptionLabel={(option) => option.o_2 || ''}
@@ -197,6 +197,7 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                     }
                     return <TextField
                         {...newParams}
+                        inputRef={inputRef}
                         autoFocus={autoFocus}
                         label={!!label ? label : ''}
                         variant="outlined"
@@ -221,8 +222,8 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                 <Card>
                     <CardHeader title={t('partner.supplier.titleQuickAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
-                            <Grid item xs>
+                        <Grid container spacing={1}>
+                            <Grid item xs={6}>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -236,7 +237,7 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item xs>
+                            <Grid item xs={6}>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -248,15 +249,12 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                     variant="outlined"
                                 />
                             </Grid>
-                        </Grid>
-                        <Grid container spacing={2}>
-                            <Grid item xs>
+                            <Grid item xs={12}>
                                 <TextField
                                     fullWidth={true}
                                     multiline
                                     rows={2}
                                     rowsMax={5}
-                                    margin="dense"
                                     autoComplete="off"
                                     label={t('partner.supplier.address')}
                                     onChange={handleChange}
@@ -266,9 +264,12 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                                 />
                             </Grid>
                         </Grid>
+                        <note style={{ color: 'var(--danger)' }}>
+                            {t('partner.supplier.titleQuickAddGuidle')}
+                        </note>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenModal(false);
                                 setSupplierInfo({ ...defaultModalAdd })
@@ -278,7 +279,7 @@ const SupplierAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleCreateSupplier();
                                 setSupplierInfo({ ...defaultModalAdd })

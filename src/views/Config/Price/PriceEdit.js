@@ -11,10 +11,7 @@ import SnackBarService from '../../../utils/service/snackbar_service'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
-import reqFunction from '../../../utils/constan/functions';
 import { config } from './Modal/Price.modal'
-import { requestInfo } from '../../../utils/models/requestInfo'
 
 import LoopIcon from '@material-ui/icons/Loop';
 
@@ -48,79 +45,45 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const PriceSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRICE_BY_ID:
-                        resultGetPriceByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRICE_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            PriceSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && !!id && id !== 0) {
             setPrice({})
             setUnitSelect('')
-            sendRequest(serviceInfo.GET_PRICE_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRICE_BY_ID, [id], handleResultGetPriceByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
-    const resultGetPriceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetPriceByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setPrice(newData.rows[0])
             setUnitSelect(newData.rows[0].o_5)
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setShouldOpenModal(false)
             onRefresh()
         }
     }
 
     const handleUpdate = () => {
-        if (!Price.o_1 || !Price.o_4 || !Price.o_6 || Price.o_6 <= 0 || !Price.o_7 || Price.o_7 <= 0 ||
-            !Price.o_8 || Price.o_8 <= 0 || !Price.o_9 || Price.o_9 <= 0 || !Price.o_10 || Price.o_10 <= 0) return
+        if (checkValidate()) return
         setProcess(true)
         const inputParam = [Price.o_1, Price.o_4, Price.o_6, Price.o_7, Price.o_8, Price.o_9, Price.o_10, Price.o_11 || ''];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -130,8 +93,8 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     }
 
     const checkValidate = () => {
-        if (!!Price.o_1 && !!Price.o_2 && !!Price.o_4 && !!Price.o_6 && Price.o_6 > 0 && !!Price.o_7 && Price.o_7 > 0 &&
-            !!Price.o_8 && Price.o_8 > 0 && !!Price.o_9 && Price.o_9 > 0 && !!Price.o_10 && Price.o_10 > 0) {
+        if (!!Price.o_1 && !!Price.o_2 && !!Price.o_4 && !!Price.o_6 && Price.o_6 > 0 && Price.o_7 <= 100 && Price.o_7 >= 0 &&
+            Price.o_8 > 0 && !!Price.o_9 && Price.o_9 > 0 && Price.o_10 <= 100 && Price.o_10 > 0) {
             return false
         }
         return true
@@ -150,30 +113,30 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
         setPrice(newPrice)
     }
 
-    const handleImportPriceChange = value => {
+    const handleImportPriceChange = obj => {
         const newPrice = { ...Price };
-        newPrice['o_6'] = Number(value.value)
+        newPrice['o_6'] = Number(obj.value)
         setPrice(newPrice)
     }
-    const handleImportVATChange = value => {
+    const handleImportVATChange = obj => {
         const newPrice = { ...Price };
-        newPrice['o_7'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
+        newPrice['o_7'] = Number(obj.value) >= 0 && Number(obj.value) < 100 ? Math.round(obj.value) : 10
         setPrice(newPrice)
     }
-    const handlePriceChange = value => {
+    const handlePriceChange = obj => {
         const newPrice = { ...Price };
-        newPrice['o_8'] = Number(value.value)
+        newPrice['o_8'] = Number(obj.value)
         setPrice(newPrice)
     }
-    const handleWholePriceChange = value => {
+    const handleWholePriceChange = obj => {
         const newPrice = { ...Price };
-        newPrice['o_9'] = Number(value.value)
+        newPrice['o_9'] = Number(obj.value)
         setPrice(newPrice)
     }
 
-    const handleExportVATChange = value => {
+    const handleExportVATChange = obj => {
         const newPrice = { ...Price };
-        newPrice['o_10'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
+        newPrice['o_10'] = Number(obj.value) >= 0 && Number(obj.value) < 100 ? Math.round(obj.value) : 10
         setPrice(newPrice)
     }
 
@@ -209,7 +172,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_6}
@@ -234,7 +197,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                     </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_7}
@@ -259,7 +222,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_8}
@@ -283,7 +246,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_9}
@@ -306,7 +269,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             />
                         </Grid>
                         <Grid item xs>
-                            <NumberFormat className='inputNumber' 
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_10}

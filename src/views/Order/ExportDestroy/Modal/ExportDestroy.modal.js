@@ -49,6 +49,7 @@ const config = {
 const productExportDestroyModal = {
     invoice_id: '',
     prod_id: null,
+    exp_dt: null,
     prod_nm: '',
     lot_no: '',
     qty: 0,

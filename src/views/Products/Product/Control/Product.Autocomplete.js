@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value, productID = null, onKeyPress = () => null, disabled = false, autoFocus = false, inputRef = null }) => {
+const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value, productID = null, onKeyPress = () => null, disabled = false, autoFocus = false, openOnFocus = false, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -81,13 +81,13 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect}
-            autoSelect={true}
+            // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
-            openOnFocus={autoFocus}
-            renderInput={(params) => <TextField inputRef={inputRef} autoFocus={autoFocus} {...params} label={!!label ? label : ''} variant="outlined" />}
+            openOnFocus={openOnFocus}
+            renderInput={(params) => <TextField inputRef={inputRef} autoFocus={autoFocus || (!!inputRef ? true : false)} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

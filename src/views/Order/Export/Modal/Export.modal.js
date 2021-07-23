@@ -55,6 +55,7 @@ const productExportModal = {
     invoice_id: '',
     exp_tp: '1',
     exp_tp_nm: '',
+    exp_dt: null,
     prod_id: null,
     prod_nm: '',
     lot_no: '',

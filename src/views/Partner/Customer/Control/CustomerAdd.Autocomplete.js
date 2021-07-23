@@ -177,7 +177,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
-                autoSelect={true}
+                // autoSelect={true}
                 autoHighlight={true}
                 autoComplete={true}
                 getOptionLabel={(option) => option.o_2 || ''}
@@ -219,7 +219,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
 
             <Dialog
                 fullWidth={true}
-                maxWidth="md"
+                maxWidth="sm"
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
@@ -227,10 +227,10 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                 }}
             >
                 <Card>
-                    <CardHeader title={t('partner.customer.titleAdd')} />
+                    <CardHeader title={t('partner.customer.titleQuickAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
-                            <Grid item xs={6} sm={4}>
+                        <Grid container spacing={1}>
+                            <Grid item xs={6}>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -244,19 +244,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={4}>
-                                <TextField
-                                    fullWidth={true}
-                                    margin="dense"
-                                    autoComplete="off"
-                                    label={t('partner.customer.address')}
-                                    onChange={handleChange}
-                                    value={customerInfo.address || ''}
-                                    name='address'
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={4}>
+                            <Grid item xs={6}>
                                 <TextField
                                     fullWidth={true}
                                     margin="dense"
@@ -268,10 +256,25 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                                     variant="outlined"
                                 />
                             </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth={true}
+                                    // margin="dense"
+                                    autoComplete="off"
+                                    label={t('partner.customer.address')}
+                                    onChange={handleChange}
+                                    value={customerInfo.address || ''}
+                                    name='address'
+                                    variant="outlined"
+                                />
+                            </Grid>
                         </Grid>
+                        <note style={{ color: 'var(--danger)' }}>
+                            {t('partner.customer.titleQuickAddGuidle')}
+                        </note>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                        <Button
+                        <Button size='small'
                             onClick={e => {
                                 setShouldOpenModal(false);
                                 setCustomerInfo({ ...defaultModalAdd })
@@ -281,7 +284,7 @@ const CustomerAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, valu
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button
+                        <Button size='small'
                             onClick={() => {
                                 handleCreateCustomer();
                             }}

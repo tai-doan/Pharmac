@@ -106,6 +106,9 @@ const ProductImport = () => {
     const dataSourceRef = useRef([])
     const importDataRef = useRef(invoiceImportModal)
     const totalProductCountAdded = useRef(0)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     // useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -315,7 +318,7 @@ const ProductImport = () => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!Import.invoice_id) {
+        if (!Import.invoice_id && !invoiceFlag) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!Import.supplier || !Import.order_dt) {
@@ -499,7 +502,7 @@ const ProductImport = () => {
                         title={t('order.import.productImportList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -590,7 +593,7 @@ const ProductImport = () => {
                                     disabled={invoiceFlag}
                                     margin="dense"
                                     autoComplete="off"
-                                    label={t('order.import.invoice_no')}
+                                    label={t('auto_invoice')}
                                     className="uppercaseInput"
                                     onChange={handleChange}
                                     value={Import.invoice_no || ''}
@@ -606,6 +609,12 @@ const ProductImport = () => {
                                     label={t('menu.supplier')}
                                     onSelect={handleSelectSupplier}
                                     onCreate={handleCreateSupplier}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -623,6 +632,12 @@ const ProductImport = () => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -637,6 +652,12 @@ const ProductImport = () => {
                                 value={Import.note || ''}
                                 name='note'
                                 variant="outlined"
+                                inputRef={step3Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}

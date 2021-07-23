@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import moment from 'moment'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Dialog, CardActions, Divider } from '@material-ui/core'
@@ -15,20 +17,15 @@ import LoopIcon from '@material-ui/icons/Loop'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import SnackBarService from '../../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 
-import { tableListEditColumn, invoiceExportModal } from '../Modal/Export.modal'
-import moment from 'moment'
 import AddProduct from '../AddProductClone'
-
-import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
-import { useHotkeys } from 'react-hotkeys-hook'
+import { tableListEditColumn, invoiceExportModal } from '../Modal/Export.modal'
+
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -76,7 +73,6 @@ const EditExport = ({ }) => {
     const [Export, setExport] = useState({ ...invoiceExportModal })
     const [customerSelect, setCustomerSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
-    const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
     const [productDeleteModal, setProductDeleteModal] = useState({})
@@ -87,6 +83,9 @@ const EditExport = ({ }) => {
     const [updateProcess, setUpdateProcess] = useState(false)
 
     const newInvoiceId = useRef(-1)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -160,99 +159,6 @@ const EditExport = ({ }) => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-    }
-
-    const resultGetInvoiceByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-            let dataExport = {
-                invoice_id: newData.rows[0].o_1,
-                invoice_no: newData.rows[0].o_2,
-                invoice_stat: newData.rows[0].o_3,
-                customer_id: newData.rows[0].o_4,
-                customer: newData.rows[0].o_5,
-                order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
-                input_dt: moment(newData.rows[0].o_7, 'YYYYMMDD').toString(),
-                staff_exp: newData.rows[0].o_8,
-                cancel_reason: newData.rows[0].o_9,
-                note: newData.rows[0].o_10
-            }
-            setCustomerSelect(newData.rows[0].o_5)
-            setExport(dataExport)
-        }
-    }
-
-    const resultGetProductByInvoiceID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            let newData = message['PROC_DATA']
-            setDataSource(newData.rows)
-        }
-    }
-
-    const resultActionProductToInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_ID, [Export.invoice_id || id], null, true, timeout => console.log('timeout: ', timeout))
-        }
-    }
-
-    const resultUpdateInvoice = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-
-        }
-    }
-
-    const resultDeleteProduct = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else {
-            sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_EXPORT_ID, [id], null, true, handleTimeOut)
-        }
     }
 
     const handleSelectSupplier = obj => {
@@ -402,7 +308,7 @@ const EditExport = ({ }) => {
                         title={t('order.export.productExportList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -500,7 +406,13 @@ const EditExport = ({ }) => {
                             <div className='d-flex align-items-center w-100'>
                                 <CustomerAdd_Autocomplete
                                     value={customerSelect || ''}
-                                    autoFocus={true}
+                                    // autoFocus={true}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                     size={'small'}
                                     label={t('menu.customer')}
                                     onSelect={handleSelectSupplier}
@@ -522,6 +434,12 @@ const EditExport = ({ }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -536,6 +454,12 @@ const EditExport = ({ }) => {
                                 value={Export.note || ''}
                                 name='note'
                                 variant="outlined"
+                                inputRef={step3Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}

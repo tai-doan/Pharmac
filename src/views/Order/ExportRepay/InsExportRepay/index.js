@@ -84,6 +84,9 @@ const InsExportRepay = ({ }) => {
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -274,7 +277,7 @@ const InsExportRepay = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!ExportRepay.invoice_id) {
+        if (!ExportRepay.invoice_id && !invoiceFlag) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!ExportRepay.supplier || !ExportRepay.order_dt) {
@@ -375,7 +378,7 @@ const InsExportRepay = ({ }) => {
                         title={t('order.exportRepay.productExportRepayList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -464,7 +467,7 @@ const InsExportRepay = ({ }) => {
                                     fullWidth={true}
                                     margin="dense"
                                     autoComplete="off"
-                                    label={t('order.exportRepay.invoice_no')}
+                                    label={t('auto_invoice')}
                                     onChange={handleChange}
                                     value={ExportRepay.invoice_no || ''}
                                     name='invoice_no'
@@ -473,11 +476,18 @@ const InsExportRepay = ({ }) => {
                             </Tooltip>
                             <div className='d-flex align-items-center w-100'>
                                 <SupplierAdd_Autocomplete
+                                    autoFocus={true}
                                     value={supplierSelect || ''}
                                     size={'small'}
                                     label={t('menu.supplier')}
                                     onSelect={handleSelectSupplier}
                                     onCreate={id => setExportRepay({ ...ExportRepay, ...{ supplier: id } })}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -495,6 +505,12 @@ const InsExportRepay = ({ }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -509,6 +525,12 @@ const InsExportRepay = ({ }) => {
                                 value={ExportRepay.note || ''}
                                 name='note'
                                 variant="outlined"
+                                inputRef={step3Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}

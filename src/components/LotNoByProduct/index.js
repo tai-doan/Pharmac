@@ -5,10 +5,9 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../utils/service/snackbar_service';
 import sendRequest from '../../utils/service/sendReq';
 import reqFunction from '../../utils/constan/functions';
-import { requestInfo } from '../../utils/models/requestInfo';
 import glb_sv from '../../utils/service/global_service'
 import control_sv from '../../utils/service/control_services'
-import socket_sv from '../../utils/service/socket_service'
+import moment from 'moment';
 
 const serviceInfo = {
     GET_LOT_NO_LIST: {
@@ -19,7 +18,7 @@ const serviceInfo = {
     }
 }
 
-const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size = 'small', value, disabled = false, inputRef = null, onKeyPress = () => null }) => {
+const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size = 'small', value, disabled = false, inputRef = null, onKeyPress = () => null, isInventory = true }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -28,7 +27,7 @@ const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size = 'small
 
     useEffect(() => {
         if (!!productID && productID !== -1) {
-            const inputParam = [productID, 'Y']
+            const inputParam = [productID, isInventory ? 'Y' : 'N']
             sendRequest(serviceInfo.GET_LOT_NO_LIST, inputParam, handleResultGetLotNoList, true, handleTimeOut)
         } else {
             setValueSelect({})
@@ -55,6 +54,15 @@ const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size = 'small
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setDataSource(newData.rows)
+            if (newData.rows[0]) {
+                setInputValue(newData.rows[0].o_3)
+                onSelect(newData.rows[0])
+                setValueSelect(newData.rows[0])
+            } else {
+                setInputValue('')
+                onSelect({})
+                setValueSelect({})
+            }
         }
     }
 
@@ -85,6 +93,18 @@ const LotNoByProduct_Autocomplete = ({ productID, onSelect, label, size = 'small
             getOptionLabel={(option) => option.o_3 || ''}
             inputValue={value}
             style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+            renderOption={(option) => (
+                <div title={`${option.o_3} (${moment(option.o_4, "YYYYMMDD").format("DD/MM/YYYY")}) ${option.o_5}`}
+                    className='d-flex'
+                    style={{ flexDirection: "column", fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis' }}
+                >
+                    <div className='d-flex' style={{ alignItems: 'center', alignContent: 'space-between' }}>
+                        <div className='d-flex'>{option.o_3}</div>
+                        <div className='d-flex'>({moment(option.o_4, "YYYYMMDD").format("DD/MM/YYYY")})</div>
+                    </div>
+                    <div style={{ fontSize: 11 }}>{option.o_5}</div>
+                </div>
+            )}
             renderInput={(params) => <TextField {...params} value={inputValue} inputRef={inputRef} label={!!label ? label : ''} variant="outlined" />}
         />
     )

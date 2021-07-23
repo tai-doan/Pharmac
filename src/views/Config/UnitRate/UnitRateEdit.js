@@ -9,11 +9,8 @@ import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import { config } from './Modal/UnitRate.modal'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import LoopIcon from '@material-ui/icons/Loop';
@@ -43,76 +40,43 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     useHotkeys('esc', () => { setShouldOpenModal(false); setUnitRate({}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const unitRateSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.UNIT_RATE_BY_ID:
-                        resultGetUnitRateByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.UNIT_RATE_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            unitRateSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && id && id !== 0) {
             setUnitRate({})
-            sendRequest(serviceInfo.GET_UNIT_RATE_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_UNIT_RATE_BY_ID, [id], handleResultGetUnitRateByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
-    const resultGetUnitRateByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetUnitRateByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setUnitRate(newData.rows[0])
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setShouldOpenModal(false)
             onRefresh()
         }
     }
 
     const handleUpdate = () => {
-        if (!unitRate.o_1 || !unitRate.o_6 || unitRate.o_6 <= 0) return
+        if (checkValidate()) return
         setProcess(true)
         const inputParam = [unitRate.o_1, unitRate.o_6];
-        sendRequest(serviceInfo.UPDATE, inputParam, e => console.log(e), true, handleTimeOut)
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server

@@ -76,7 +76,6 @@ const InsExport = ({ }) => {
     const [Export, setExport] = useState({ ...invoiceExportModal })
     const [customerSelect, setCustomerSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
-    const [productEditData, setProductEditData] = useState({})
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListAddColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
@@ -89,7 +88,9 @@ const InsExport = ({ }) => {
 
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
-    const dataSourceRef = useRef([])
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f6', () => handleCreateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -155,10 +156,6 @@ const InsExport = ({ }) => {
             ]
             sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)
         }
-        let newDataSource = [...dataSource]
-        newDataSource.push(productObject);
-        dataSourceRef.current = newDataSource
-        setDataSource(newDataSource)
     }
 
     const onRemove = item => {
@@ -313,7 +310,7 @@ const InsExport = ({ }) => {
     }
 
     const handleUpdateInvoice = () => {
-        if (!Export.invoice_id) {
+        if (!Export.invoice_id && !invoiceFlag) {
             SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!Export.customer || !Export.order_dt) {
@@ -369,7 +366,7 @@ const InsExport = ({ }) => {
                         title={t('order.export.productExportList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -458,7 +455,7 @@ const InsExport = ({ }) => {
                                     disabled={invoiceFlag}
                                     margin="dense"
                                     autoComplete="off"
-                                    label={t('order.export.invoice_no')}
+                                    label={t('auto_invoice')}
                                     onChange={handleChange}
                                     value={Export.invoice_no || ''}
                                     name='invoice_no'
@@ -473,6 +470,12 @@ const InsExport = ({ }) => {
                                     label={t('menu.customer')}
                                     onSelect={handleSelectCustomer}
                                     onCreate={id => setExport({ ...Export, ...{ customer: id } })}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -490,6 +493,12 @@ const InsExport = ({ }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -504,6 +513,12 @@ const InsExport = ({ }) => {
                                 value={Export.note || ''}
                                 name='note'
                                 variant="outlined"
+                                inputRef={step3Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}

@@ -227,34 +227,42 @@ hr.MuiDivider-root {
     padding: unset;
 }
 
-tr.MuiTableRow-root:nth-child(even) {
+.tableOrder tr.MuiTableRow-root:nth-child(even) {
     background-color: #dcdcdc6b;
 }
 
-td.MuiTableCell-root:not(:last-child) {
+.tableOrder td.MuiTableCell-root:not(:last-child) {
     border-left: 1px solid #dfdfdf !important;
 }
 
-td.MuiTableCell-root:last-child {
+.tableOrder td.MuiTableCell-root:last-child {
     border-left: 1px solid #dfdfdf;
     border-right: 1px solid #dfdfdf;
 }
 
-th.MuiTableCell-root:not(:last-child) {
+.tableOrder th.MuiTableCell-root:not(:last-child) {
     border-left: 1px solid #dfdfdf !important;
 }
 
-th.MuiTableCell-root:last-child {
+.tableOrder th.MuiTableCell-root:last-child {
     border-left: 1px solid #dfdfdf !important;
     border-right: 1px solid #dfdfdf !important;
 }
 
-td.MuiTableCell-root.MuiTableCell-body button {
+.tableOrder td.MuiTableCell-root.MuiTableCell-body button {
     padding: 0.6rem;
 }
 
-.MuiTableRow-root.MuiTableRow-hover:hover {
+.tableOrder .MuiTableRow-root.MuiTableRow-hover:hover {
     background-color: rgb(0 0 0 / 15%) !important;
+}
+
+div.MuiCardHeader-action span.MuiTypography-root.MuiFormControlLabel-label.MuiTypography-body1 {
+    font-size: 14px;
+}
+
+note {
+    font-size: 13px;
 }
 
 @keyframes spin {

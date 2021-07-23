@@ -31,6 +31,8 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [productImportInfoData, setproductImportInfoData] = useState([])
+    const [requireExpDate, setRequireExpDate] = useState(false)
+    const [productOpenFocus, setProductOpenFocus] = useState(true)
 
     const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
@@ -70,11 +72,15 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             let data = message['PROC_DATA']
+            const newProductInfo = { ...productInfo };
+            setRequireExpDate(glb_sv.defaultProductGroupId.includes(data.rows[0]['o_4']))
             if (data.rowTotal > 1) {
-                const newProductInfo = { ...productInfo };
                 newProductInfo['unit_id'] = data.rows[1].o_1
                 setProductInfo(newProductInfo)
                 setproductImportInfoData(data.rows)
+            } else {
+                newProductInfo['unit_id'] = 0
+                setProductInfo(newProductInfo)
             }
         }
     }
@@ -83,6 +89,12 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['prod_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['prod_nm'] = !!obj ? obj?.o_2 : ''
+        if (!!obj) {
+            stepTwoRef.current.focus()
+
+            // bắn event lấy thông tin cấu hình bảng giá => nhập fill vào các ô dưới
+        }
+        setProductOpenFocus(false)
         setProductInfo(newProductInfo)
     }
 
@@ -119,7 +131,14 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
 
     const checkValidate = () => {
         if (!!productInfo.prod_id && !!productInfo.lot_no && productInfo.qty > 0 && !!productInfo.unit_id) {
-            return false
+            if (requireExpDate) {
+                if (!!productInfo.exp_dt) {
+                    return false
+                } else {
+                    return true
+                }
+            } else
+                return false
         }
         return true
     }
@@ -133,6 +152,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                 <Grid container spacing={1}>
                     <Grid item xs={4}>
                         <Product_Autocomplete
+                            openOnFocus={productOpenFocus}
                             value={productInfo.prod_nm}
                             style={{ marginTop: 8, marginBottom: 4 }}
                             size={'small'}
@@ -174,6 +194,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                     <Grid item xs={4}>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
                             <KeyboardDatePicker
+                                required={requireExpDate}
                                 disableToolbar
                                 margin="dense"
                                 variant="outlined"

@@ -78,7 +78,7 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
             onChange={onChange}
             onInputChange={handleChangeInput}
             onKeyPress={onKeyPress}
-            autoSelect={true}
+            // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
             size={!!size ? size : 'small'}

@@ -78,6 +78,9 @@ const EditExportRepay = ({ }) => {
     const [updateProcess, setUpdateProcess] = useState(false)
 
     const newInvoiceId = useRef(-1)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f6', () => handleUpdateInvoice(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -299,7 +302,7 @@ const EditExportRepay = ({ }) => {
                         title={t('order.exportRepay.productExportRepayList')}
                     />
                     <CardContent>
-                        <TableContainer className="tableContainer">
+                        <TableContainer className="tableContainer tableOrder">
                             <Table stickyHeader>
                                 <caption
                                     className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -399,6 +402,12 @@ const EditExportRepay = ({ }) => {
                                     label={t('menu.supplier')}
                                     onSelect={handleSelectSupplier}
                                     onCreate={id => setExportRepay({ ...ExportRepay, ...{ supplier_id: id } })}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -416,6 +425,12 @@ const EditExportRepay = ({ }) => {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change date',
                                     }}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </MuiPickersUtilsProvider>
                             <TextField
@@ -430,6 +445,12 @@ const EditExportRepay = ({ }) => {
                                 value={ExportRepay.note || ''}
                                 name='note'
                                 variant="outlined"
+                                inputRef={step3Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdateInvoice()
+                                    }
+                                }}
                             />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}

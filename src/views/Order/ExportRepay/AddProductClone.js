@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import NumberFormat from 'react-number-format'
+import moment from 'moment'
+import DateFnsUtils from '@date-io/date-fns'
+import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
 import { useTranslation } from 'react-i18next'
-import { Card, CardHeader, CardContent, Grid, Button, TextField } from '@material-ui/core'
+import { Card, CardHeader, CardContent, Grid, Button, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
@@ -11,6 +14,7 @@ import LotNoByProduct_Autocomplete from '../../../components/LotNoByProduct';
 const AddProduct = ({ onAddProduct, resetFlag }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportRepayModal })
+    const [isInventory, setIsInventory] = useState(true)
 
     const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
@@ -33,6 +37,11 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         newProductInfo['prod_nm'] = !!obj ? obj?.o_2 : ''
         newProductInfo['lot_no'] = null
         newProductInfo['quantity_in_stock'] = ''
+        if (!!obj) {
+            stepThreeRef.current.focus()
+
+            // bắn event lấy thông tin cấu hình bảng giá => nhập fill vào các ô dưới
+        }
         setProductInfo(newProductInfo)
     }
 
@@ -72,6 +81,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         newProductInfo['quantity_in_stock'] = !!object ? object.o_5 : null
         newProductInfo['lot_no'] = !!object ? object.o_3 : null
         newProductInfo['unit_id'] = !!object ? object.o_7 : null
+        newProductInfo['exp_dt'] = !!object ? object.o_4 : null
         setProductInfo(newProductInfo)
     }
 
@@ -87,6 +97,12 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         <Card className='mb-2'>
             <CardHeader
                 title={t('order.import.productAdd')}
+                action={
+                    <FormControlLabel style={{ margin: 0 }}
+                        control={<Checkbox style={{ padding: 0 }} checked={isInventory} onChange={e => setIsInventory(e.target.checked)} name="only_get_inventory_lot_no" />}
+                        label={t('only_get_inventory_lot_no')}
+                    />
+                }
             />
             <CardContent>
                 <Grid container spacing={1}>
@@ -107,6 +123,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                     </Grid>
                     <Grid item xs>
                         <LotNoByProduct_Autocomplete
+                            isInventory={isInventory}
                             disabled={!productInfo.prod_id}
                             productID={productInfo.prod_id}
                             label={t('order.export.lot_no')}
@@ -120,6 +137,25 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                         />
                     </Grid>
                     <Grid item xs>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <KeyboardDatePicker
+                                disabled={true}
+                                disableToolbar
+                                margin="dense"
+                                variant="outlined"
+                                style={{ width: '100%' }}
+                                inputVariant="outlined"
+                                format="dd/MM/yyyy"
+                                id="exp_dt-picker-inline"
+                                label={t('order.export.exp_dt')}
+                                value={productInfo.exp_dt ? moment(productInfo.exp_dt, 'YYYYMMDD').toString() : null}
+                                KeyboardButtonProps={{
+                                    'aria-label': 'change date',
+                                }}
+                            />
+                        </MuiPickersUtilsProvider>
+                    </Grid>
+                    <Grid item xs>
                         <TextField
                             disabled={true}
                             fullWidth={true}
@@ -131,6 +167,8 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             variant="outlined"
                         />
                     </Grid>
+                </Grid>
+                <Grid container spacing={1}>
                     <Grid item xs>
                         <NumberFormat className='inputNumber'
                             style={{ width: '100%' }}
@@ -156,8 +194,6 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                             }}
                         />
                     </Grid>
-                </Grid>
-                <Grid container spacing={1}>
                     <Grid item xs>
                         <Unit_Autocomplete
                             unitID={productInfo.unit_id || null}
