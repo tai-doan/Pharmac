@@ -106,7 +106,7 @@ const ImportSearch = ({ handleSearch }) => {
                         fullWidth={true}
                         margin="dense"
                         autoComplete="off"
-                        label={t('order.import.vender_nm')}
+                        label={t('order.import.vender_nm_v')}
                         onChange={handleChange}
                         onKeyPress={key => {
                             if (key.which === 13) return handleSearch(searchModal)
