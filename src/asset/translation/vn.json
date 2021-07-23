@@ -25,6 +25,8 @@
     "auto_invoice": "Mã hóa đơn (Nhập hoặc hệ thống tự sinh)",
     "only_get_inventory_lot_no": "Chỉ lấy số lô có SL tồn > 0",
     "transaction_statement_list": "Danh sách sao kê giao dịch",
+    "retail_invoice": "Hóa đơn bán lẻ",
+    "tooltip_retail_invoice": "Giá bán và %VAT sẽ được lấy theo giá bán lẻ",
     "invoice_no": "Mã hóa đơn",
     "invoice_status": "Trạng thái hóa đơn",
     "all": "Tất cả",

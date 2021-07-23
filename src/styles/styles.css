@@ -261,6 +261,10 @@ div.MuiCardHeader-action span.MuiTypography-root.MuiFormControlLabel-label.MuiTy
     font-size: 14px;
 }
 
+.tableOrder.tableContainer, .tableContainer.tableReport {
+    max-height: calc(100vh - 330px);
+}
+
 note {
     font-size: 13px;
 }

@@ -207,7 +207,7 @@ const ImportPaymentList = () => {
                     }
                 />
                 <CardContent>
-                    <TableContainer className="tableContainer">
+                    <TableContainer className="tableContainer tableReport">
                         <Table stickyHeader>
                             <caption
                                 className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -238,51 +238,51 @@ const ImportPaymentList = () => {
                                                     switch (col.field) {
                                                         case 'o_3':
                                                             return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                    {/* <Tooltip
-                                                                        placement='top'
-                                                                        title={`${t('report.invoice_val')} : ${col['o_5']}`}
-                                                                    > */}
-                                                                    {glb_sv.formatValue(value, col['type'])}
-                                                                    {/* </Tooltip> */}
-                                                                </TableCell>
+                                                                <Tooltip title={`${t('report.invoice_val')} : ${glb_sv.formatValue(item.o_5, 'number')}`}>
+                                                                    <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                        {glb_sv.formatValue(value, col['type'])}
+                                                                    </TableCell>
+                                                                </Tooltip>
                                                             )
                                                         case 'o_8':
-                                                            return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                    {/* {col['o_7'] === '2' ? <Tooltip
-                                                                        placement='top'
-                                                                        aria-label="add"
+                                                            if (item.o_7 === '2') {
+                                                                return (
+                                                                    <Tooltip placement='top'
                                                                         title={
                                                                             <Grid container spacing={2}>
                                                                                 <Grid item xs={12}>
-                                                                                    {t('bank_transf_acc_number')} : {col['o_10']}
+                                                                                    {t('report.bank_transf_acc_name')} : {item.o_10}
                                                                                 </Grid>
                                                                                 <Grid item xs={12}>
-                                                                                    {t('bank_transf_acc_name')} : {col['o_11']}
+                                                                                    {t('report.bank_transf_acc_number')} : {item.o_11}
                                                                                 </Grid>
                                                                                 <Grid item xs={12}>
-                                                                                    {t('bank_transf_name')} : {col['o_13']}
+                                                                                    {t('report.bank_transf_name')} : {item.o_13}
                                                                                 </Grid>
                                                                                 <Grid item xs={12}>
-                                                                                    {t('bank_recei_acc_number')} : {col['o_14']}
+                                                                                    {t('report.bank_recei_acc_name')} : {item.o_14}
                                                                                 </Grid>
                                                                                 <Grid item xs={12}>
-                                                                                    {t('bank_recei_acc_name')} : {col['o_15']}
+                                                                                    {t('report.bank_recei_acc_number')} : {item.o_15}
                                                                                 </Grid>
                                                                                 <Grid item xs={12}>
-                                                                                    {t('bank_recei_name')} : {col['o_17']}
+                                                                                    {t('report.bank_recei_name')} : {item.o_17}
                                                                                 </Grid>
                                                                             </Grid>
                                                                         }
                                                                     >
+                                                                        < TableCell nowrap="true" key={indexRow} align={col.align} >
+                                                                            {glb_sv.formatValue(value, col['type'])}
+                                                                        </TableCell>
+                                                                    </Tooltip>
+                                                                )
+                                                            } else {
+                                                                return (
+                                                                    < TableCell nowrap="true" key={indexRow} align={col.align} >
                                                                         {glb_sv.formatValue(value, col['type'])}
-                                                                    </Tooltip> :
-                                                                        glb_sv.formatValue(value, col['type'])
-                                                                    } */}
-                                                                    {glb_sv.formatValue(value, col['type'])}
-                                                                </TableCell>
-                                                            )
+                                                                    </TableCell>
+                                                                )
+                                                            }
                                                         default:
                                                             return (
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>

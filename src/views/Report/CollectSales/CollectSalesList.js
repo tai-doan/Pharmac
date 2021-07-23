@@ -207,7 +207,7 @@ const CollectSalesList = () => {
                     }
                 />
                 <CardContent>
-                    <TableContainer className="tableContainer">
+                    <TableContainer className="tableContainer tableReport">
                         <Table stickyHeader>
                             <caption
                                 className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(

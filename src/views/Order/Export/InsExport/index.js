@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Divider, Dialog, CardActions } from '@material-ui/core'
+import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Divider, Dialog, CardActions, FormControlLabel, Checkbox } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -13,6 +13,7 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import LoopIcon from '@material-ui/icons/Loop'
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
@@ -85,6 +86,7 @@ const InsExport = ({ }) => {
     const [deleteProcess, setDeleteProcess] = useState(false)
     const [updateProcess, setUpdateProcess] = useState(false)
     const [invoiceFlag, setInvoiceFlag] = useState(false)
+    const [invoiceType, setInvoiceType] = useState(true)
 
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
@@ -136,7 +138,7 @@ const InsExport = ({ }) => {
 
     const handleAddProduct = productObject => {
         if (!Export.customer || !Export.order_dt) {
-            SnackBarService.alert(t('message.requireImportInvoice'), true, 4, 3000)
+            SnackBarService.alert(t('message.requireExportInvoice'), true, 4, 3000)
             return
         } else if (!invoiceFlag) {
             dataWaitAdd.current.push(productObject)
@@ -360,7 +362,7 @@ const InsExport = ({ }) => {
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
             <Grid item md={9} xs={12}>
-                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} />
+                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} invoiceType={invoiceType} />
                 <Card>
                     <CardHeader
                         title={t('order.export.productExportList')}
@@ -449,6 +451,17 @@ const InsExport = ({ }) => {
                     <CardHeader title={t('order.export.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
+                            <FormControlLabel style={{ margin: 0 }}
+                                control={<Checkbox style={{ padding: 0 }} checked={invoiceType} onChange={e => setInvoiceType(e.target.checked)} name="retail_invoice" />}
+                                label={<>
+                                    {t('retail_invoice')}
+                                    <Tooltip title={t('tooltip_retail_invoice')}>
+                                        <IconButton size='small' aria-label="help">
+                                            <HelpOutlineIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </>}
+                            />
                             <Tooltip placement="top" title={t('auto_invoice')} arrow>
                                 <TextField
                                     fullWidth={true}

@@ -3,7 +3,7 @@ import moment from 'moment'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
-import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Dialog, CardActions, Divider } from '@material-ui/core'
+import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Dialog, CardActions, Divider, FormControlLabel, Checkbox, Tooltip } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -14,6 +14,7 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import LoopIcon from '@material-ui/icons/Loop'
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
@@ -81,6 +82,7 @@ const EditExport = ({ }) => {
     const [resetFormAddFlag, setResetFormAddFlag] = useState(false)
     const [deleteProcess, setDeleteProcess] = useState(false)
     const [updateProcess, setUpdateProcess] = useState(false)
+    const [invoiceType, setInvoiceType] = useState(true)
 
     const newInvoiceId = useRef(-1)
     const step1Ref = useRef(null)
@@ -302,7 +304,7 @@ const EditExport = ({ }) => {
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
             <Grid item md={9} xs={12}>
-                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} />
+                <AddProduct resetFlag={resetFormAddFlag} onAddProduct={handleAddProduct} invoiceType={invoiceType} />
                 <Card>
                     <CardHeader
                         title={t('order.export.productExportList')}
@@ -391,6 +393,17 @@ const EditExport = ({ }) => {
                     <CardHeader title={t('order.export.invoice_info')} />
                     <CardContent>
                         <Grid container spacing={1}>
+                            <FormControlLabel style={{ margin: 0 }}
+                                control={<Checkbox style={{ padding: 0 }} checked={invoiceType} onChange={e => setInvoiceType(e.target.checked)} name="retail_invoice" />}
+                                label={<>
+                                    {t('retail_invoice')}
+                                    <Tooltip title={t('tooltip_retail_invoice')}>
+                                        <IconButton size='small' aria-label="help">
+                                            <HelpOutlineIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </>}
+                            />
                             <TextField
                                 fullWidth={true}
                                 margin="dense"

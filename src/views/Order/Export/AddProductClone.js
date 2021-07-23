@@ -11,11 +11,27 @@ import Unit_Autocomplete from '../../Config/Unit/Control/Unit.Autocomplete'
 import { productExportModal } from './Modal/Export.modal'
 import LotNoByProduct_Autocomplete from '../../../components/LotNoByProduct';
 
-const AddProduct = ({ onAddProduct, resetFlag }) => {
+import glb_sv from '../../../utils/service/global_service'
+import control_sv from '../../../utils/service/control_services'
+import SnackBarService from '../../../utils/service/snackbar_service'
+import reqFunction from '../../../utils/constan/functions'
+import sendRequest from '../../../utils/service/sendReq'
+
+const serviceInfo = {
+    GET_PRICE_BY_PRODUCT_ID: {
+        functionName: 'get_by_prodid',
+        reqFunct: reqFunction.EXPORT_BY_ID,
+        biz: 'common',
+        object: 'setup_price'
+    },
+}
+
+const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportModal })
     const [productOpenFocus, setProductOpenFocus] = useState(false)
     const [isInventory, setIsInventory] = useState(true)
+    const [selectLotNoFlag, setSelectLotNoFlag] = useState(false)
 
     const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
@@ -29,9 +45,22 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     useEffect(() => {
         if (resetFlag) {
             setProductInfo({ ...productExportModal })
+            setSelectLotNoFlag(false);
             stepTwoRef.current.focus()
         }
     }, [resetFlag])
+
+    useEffect(() => {
+        if (selectLotNoFlag && productInfo.prod_id) {
+            sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
+        }
+    }, [selectLotNoFlag])
+
+    useEffect(() => {
+        if (productInfo.prod_id) {
+            sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
+        }
+    }, [invoiceType])
 
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
@@ -46,6 +75,46 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         }
         setProductOpenFocus(false)
         setProductInfo(newProductInfo)
+    }
+
+    const handleResultGetPrice = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA']
+            if (data.rows.length > 0) {
+                let itemMinUnit = data.rows.find(x => x.o_4 === productInfo?.unit_id)
+                const newProductInfo = { ...productInfo };
+                if (itemMinUnit) {
+                    console.log('đã cấu hình bảng giá cho đv nhỏ nhất: ', itemMinUnit)
+                    // bảng giá đã config giá nhỏ nhất
+                    if (productInfo.exp_tp === '1') {
+                        newProductInfo['price'] = invoiceType ? itemMinUnit.o_8 : itemMinUnit.o_9
+                        newProductInfo['discount_per'] = 0
+                        newProductInfo['vat_per'] = itemMinUnit.o_10
+                        setProductInfo(newProductInfo)
+                    }
+                } else {
+                    console.log('chưa cấu hình bảng giá cho đv nhỏ nhất: ', data)
+                    // bảng giá chưa config giá nhỏ nhất
+                    if (productInfo.exp_tp === '1') {
+                        newProductInfo['unit_id'] = data.rows[0].o_4;
+                        newProductInfo['price'] = invoiceType ? itemMinUnit.o_8 : itemMinUnit.o_9
+                        newProductInfo['discount_per'] = 0
+                        newProductInfo['vat_per'] = data.rows[0].o_10
+                        setProductInfo(newProductInfo)
+                    }
+                }
+            }
+        }
+    }
+
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
     const handleSelectUnit = obj => {
@@ -99,6 +168,10 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         newProductInfo['unit_id'] = !!object ? object.o_7 : null
         newProductInfo['exp_dt'] = !!object ? object.o_4 : null
         setProductInfo(newProductInfo)
+        setSelectLotNoFlag(true)
+        setTimeout(() => {
+            setSelectLotNoFlag(false)
+        }, 100);
     }
 
     const checkValidate = () => {

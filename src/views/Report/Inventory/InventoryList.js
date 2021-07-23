@@ -132,7 +132,7 @@ const InventoryList = () => {
             item = {}
             item['stt'] = index + 1
             item['product_name'] = data.o_2
-            item['lot_no'] =data.o_3
+            item['lot_no'] = data.o_3
             item['inven_qty'] = data.o_5
             item['imp_qty'] = data.o_6
             item['exp_qty'] = data.o_7
@@ -180,7 +180,7 @@ const InventoryList = () => {
                     }
                 />
                 <CardContent>
-                    <TableContainer className="tableContainer">
+                    <TableContainer className="tableContainer tableReport">
                         <Table stickyHeader>
                             <caption
                                 className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
