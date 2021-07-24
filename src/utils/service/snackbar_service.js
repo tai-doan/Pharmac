@@ -20,13 +20,13 @@ class SnackBarService {
         this.time = time
         switch (severity) {
             case 0:
-                this.severity = 'info'
+                this.severity = 'error'
                 break
             case 1:
                 this.severity = 'success'
                 break
             case 2:
-                this.severity = 'error'
+                this.severity = 'info'
                 break
             case 4:
                 this.severity = 'warning'

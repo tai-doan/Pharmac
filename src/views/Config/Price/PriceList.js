@@ -59,7 +59,7 @@ const PriceList = () => {
     }, [])
 
     const getList = (lastIndex, value) => {
-        const inputParam = [lastIndex, value.trim() + '%']
+        const inputParam = [lastIndex, '%' + value.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 
@@ -122,13 +122,13 @@ const PriceList = () => {
     const onRemove = item => {
         setShouldOpenRemoveModal(item ? true : false);
         setId(item ? item.o_1 : 0)
-        setName(item ? item.o_3 : '')
+        setName(item ? (item.o_3 + ' (' + item.o_5 + ')') : '')
     }
 
     const onEdit = item => {
         setShouldOpenEditModal(item ? true : false)
         setId(item ? item.o_1 : 0)
-        idRef.current = item && item.o_1 > 0 ? item.item && item.o_1 > 0 : 0
+        idRef.current = item && item.o_1 > 0 ? item.o_1 : 0
     }
 
     const handleDelete = e => {
@@ -152,6 +152,7 @@ const PriceList = () => {
             setId(0);
             setDataSource([]);
             setTotalRecords(0)
+            setShouldOpenRemoveModal(false)
             getList(glb_sv.defaultValueSearch, searchValue)
         }
     }

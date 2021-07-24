@@ -72,7 +72,7 @@ const UnitRateList = () => {
     }, [])
 
     const getList = (lastIndex, value) => {
-        const inputParam = [lastIndex, value.trim() + '%']
+        const inputParam = [lastIndex, '%' + value.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 
@@ -153,7 +153,7 @@ const UnitRateList = () => {
     const onRemove = item => {
         setShouldOpenRemoveModal(item ? true : false);
         setId(item ? item.o_1 : 0)
-        setName(item ? item.o_3 : '')
+        setName(item ? (item.o_3 + ': ' + item.o_5 + ' - ' + item.o_6 + ' - ' + item.o_8) : '')
     }
 
     const onEdit = item => {

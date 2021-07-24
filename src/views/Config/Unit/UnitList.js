@@ -64,7 +64,7 @@ const UnitList = () => {
     }, [])
 
     const getList = (lastIndex, value) => {
-        const inputParam = [lastIndex, value.trim() + '%']
+        const inputParam = [lastIndex, '%' + value.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 

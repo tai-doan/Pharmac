@@ -33,15 +33,19 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
 
     useEffect(() => {
         if (!!value || value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
+            let item = dataSource.find(x => x.o_2 === value)
+            setValueSelect(item)
+            setInputValue(value)
+        } else {
+            setValueSelect({})
         }
     }, [value, dataSource])
 
     useEffect(() => {
         if (!!productID && productID !== 0) {
-            setValueSelect(dataSource.find(x => x.o_1 === productID))
-        } else {
-            setValueSelect({})
+            let item = dataSource.find(x => x.o_1 === productID)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
         }
     }, [productID])
 
@@ -87,7 +91,7 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
             openOnFocus={openOnFocus}
-            renderInput={(params) => <TextField inputRef={inputRef} autoFocus={autoFocus || (!!inputRef ? true : false)} {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField inputRef={inputRef} value={inputValue} autoFocus={autoFocus || (!!inputRef ? true : false)} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

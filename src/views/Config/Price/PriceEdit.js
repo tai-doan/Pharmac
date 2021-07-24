@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Card, CardHeader, CardContent, CardActions, Dialog, TextField, Button, Grid } from '@material-ui/core'
@@ -36,6 +36,14 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const [Price, setPrice] = useState({})
     const [unitSelect, setUnitSelect] = useState('')
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
+    const step5Ref = useRef(null)
+    const step6Ref = useRef(null)
+    const step7Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => {
@@ -68,6 +76,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -83,6 +92,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [Price.o_1, Price.o_4, Price.o_6, Price.o_7, Price.o_8, Price.o_9, Price.o_10, Price.o_11 || ''];
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -90,6 +100,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const checkValidate = () => {
@@ -142,7 +153,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
 
     return (
         <Dialog
-            fullWidth={true}
+            // fullWidth={true}
             maxWidth="md"
             open={shouldOpenModal}
             onClose={e => {
@@ -152,8 +163,8 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
             <Card>
                 <CardHeader title={t('config.price.titleEdit', { name: Price.o_3 })} />
                 <CardContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6} sm={4}>
+                    <Grid container spacing={1}>
+                        <Grid item xs={12} sm={12}>
                             <Product_Autocomplete
                                 disabled={true}
                                 value={Price.o_3}
@@ -169,6 +180,12 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                 size={'small'}
                                 label={t('menu.configUnit')}
                                 onSelect={handleSelectUnit}
+                                inputRef={step1Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step2Ref.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
@@ -187,16 +204,16 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={step2Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step3Ref.current.focus()
                                     }
                                 }}
                             />
                         </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs>
+                        <Grid item xs={6} sm={4}>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
@@ -214,13 +231,17 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                     min: 0,
                                     max: 100
                                 }}
+                                inputRef={step3Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step4Ref.current.focus()
                                     }
                                 }}
                             />
                         </Grid>
+                    </Grid>
+                    <Grid container spacing={1}>
                         <Grid item xs>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
@@ -238,9 +259,11 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={step4Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step5Ref.current.focus()
                                     }
                                 }}
                             />
@@ -261,9 +284,11 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={step5Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step6Ref.current.focus()
                                     }
                                 }}
                             />
@@ -286,9 +311,11 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                     min: 0,
                                     max: 100
                                 }}
+                                inputRef={step6Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step7Ref.current.focus()
                                     }
                                 }}
                             />
@@ -306,6 +333,8 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             value={Price.o_11 || ''}
                             name='o_11'
                             variant="outlined"
+                            inputRef={step7Ref}
+                            onFocus={e => e.target.select()}
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
                                     handleUpdate()
@@ -317,6 +346,9 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false);
                             setPrice({})
                             setUnitSelect('')

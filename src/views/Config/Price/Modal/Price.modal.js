@@ -47,7 +47,19 @@ const config = {
     },
 }
 
+const priceDefaultModal = {
+    product: null,
+    unit: null,
+    importPrice: 0,
+    importVAT: 0,
+    price: 0,
+    wholePrice: 0,
+    exportVAT: 0,
+    note: ''
+}
+
 export {
+    priceDefaultModal,
     tableColumn,
     config
 }

@@ -17,7 +17,7 @@ const serviceInfo = {
     }
 }
 
-const Dictionary = ({ diectionName, onSelect, label, style, size, value, required = false, dictionaryID = null, disabled = false }) => {
+const Dictionary = ({ diectionName, onSelect, label, style, size, value, required = false, dictionaryID = null, disabled = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -75,6 +75,7 @@ const Dictionary = ({ diectionName, onSelect, label, style, size, value, require
             disabled={disabled}
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
             size={!!size ? size : 'small'}
             id="combo-box-demo"
             options={dataSource}
@@ -82,7 +83,7 @@ const Dictionary = ({ diectionName, onSelect, label, style, size, value, require
             getOptionLabel={(option) => option.o_2 || ''}
             inputValue={value}
             style={style}
-            renderInput={(params) => <TextField required={required} {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField inputRef={inputRef}  required={required} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

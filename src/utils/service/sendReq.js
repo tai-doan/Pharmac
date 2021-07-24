@@ -18,8 +18,8 @@ const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOu
     if (!socket_sv.getSocketStat()) {
         sendRequestFlag = false
         console.warn('mạng không ổn định, vui lòng thử lại ')
-        onTimeout({ type: 'network', inputParams })
-        return
+        // onTimeout({ type: 'network', inputParams })
+        // return
     }
 
     // Nếu không có thì gọi request
@@ -33,7 +33,7 @@ const sendRequest = (serviceInfo, inputParams, handleResultFunc, isControlTimeOu
     console.log('sendEvent 2 server => ', svInputPrm)
     socket_sv.sendMsg(socket_sv.key_ClientReq, svInputPrm)
 
-    const controlTimeOutKey = serviceInfo.screenName + '|' + serviceInfo.reqFunct + '|' + JSON.stringify(inputParams)
+    const controlTimeOutKey = serviceInfo.reqFunct + '|' + JSON.stringify(inputParams)
     // -- push request to request hashmap
     const reqInfo = new requestInfo()
     reqInfo.reqFunct = serviceInfo.reqFunct

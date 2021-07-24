@@ -34,6 +34,10 @@ const WarnTimeAdd = ({ onRefresh }) => {
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
     const inputRef = useRef(null)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -47,6 +51,7 @@ const WarnTimeAdd = ({ onRefresh }) => {
     const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -59,7 +64,7 @@ const WarnTimeAdd = ({ onRefresh }) => {
             if (saveContinue.current) {
                 saveContinue.current = false
                 setTimeout(() => {
-                    if (inputRef.current) inputRef.current.focus()
+                    if (step1Ref.current) step1Ref.current.focus()
                 }, 100)
             } else {
                 setShouldOpenModal(false)
@@ -71,12 +76,14 @@ const WarnTimeAdd = ({ onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleCreate = () => {
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [warnTime.product, Number(warnTime.warn_amt), warnTime.warn_time_tp]
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
     }
 
@@ -112,7 +119,7 @@ const WarnTimeAdd = ({ onRefresh }) => {
             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
             <Dialog
                 fullWidth={true}
-                maxWidth="md"
+                maxWidth="sm"
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
@@ -121,8 +128,8 @@ const WarnTimeAdd = ({ onRefresh }) => {
                 <Card>
                     <CardHeader title={t('config.warnTime.titleAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
-                            <Grid item xs>
+                        <Grid container spacing={1}>
+                            <Grid item xs={12}>
                                 <Product_Autocomplete
                                     autoFocus={true}
                                     value={productSelect || ''}
@@ -130,10 +137,16 @@ const WarnTimeAdd = ({ onRefresh }) => {
                                     size={'small'}
                                     label={t('menu.product')}
                                     onSelect={handleSelectProduct}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
-                            <Grid item xs>
-                                <NumberFormat className='inputNumber' 
+                            <Grid item xs={6}>
+                                <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
                                     value={warnTime.warn_amt || ''}
@@ -148,14 +161,15 @@ const WarnTimeAdd = ({ onRefresh }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    inputRef={step2Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step3Ref.current.focus()
                                         }
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs>
+                            <Grid item xs={6}>
                                 <Dictionary
                                     value={warnTime.warn_time_nm || ''}
                                     diectionName='warn_time_tp'
@@ -163,6 +177,12 @@ const WarnTimeAdd = ({ onRefresh }) => {
                                     size={'small'}
                                     label={t('config.warnTime.warn_time_tp')}
                                     onSelect={handleChangeTimeTp}
+                                    inputRef={step3Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            handleCreate();
+                                        }
+                                    }}
                                 />
                             </Grid>
                         </Grid>
@@ -170,6 +190,9 @@ const WarnTimeAdd = ({ onRefresh }) => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenModal(false);
                             }}
                             variant="contained"

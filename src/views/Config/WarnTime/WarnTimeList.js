@@ -60,7 +60,7 @@ const WarnTimeList = () => {
     }, [])
 
     const getList = (lastIndex, value) => {
-        const inputParam = [lastIndex, value.trim() + '%']
+        const inputParam = [lastIndex, '%' + value.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 
@@ -102,6 +102,7 @@ const WarnTimeList = () => {
             setId(0);
             setDataSource([]);
             setTotalRecords(0)
+            setShouldOpenRemoveModal(false)
             getList(glb_sv.defaultValueSearch, searchValue)
         }
     }
@@ -142,7 +143,7 @@ const WarnTimeList = () => {
     const onRemove = item => {
         setShouldOpenRemoveModal(item ? true : false);
         setId(item ? item.o_1 : 0)
-        setName(item ? item.o_3 : '')
+        setName(item ? (item.o_3 + ' (' + item.o_4 + ' - ' + item.o_6 + ')') : '')
     }
 
     const onEdit = item => {

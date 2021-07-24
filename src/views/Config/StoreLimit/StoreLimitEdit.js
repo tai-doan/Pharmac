@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Card, CardHeader, CardContent, CardActions, Dialog, TextField, Button, Grid } from '@material-ui/core'
@@ -34,20 +34,21 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     const { t } = useTranslation()
 
     const [StoreLimit, setStoreLimit] = useState({})
-    const [unitSelect, setUnitSelect] = useState('')
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => {
         setShouldOpenModal(false)
         setStoreLimit({})
-        setUnitSelect('')
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         if (shouldOpenModal && !!id && id !== 0) {
             setStoreLimit({})
-            setUnitSelect('')
             sendRequest(serviceInfo.GET_STORE_LIMIT_BY_ID, [id], handleResultGetStoreLimitByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
@@ -61,13 +62,13 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setStoreLimit(newData.rows[0])
-            setUnitSelect(newData.rows[0].o_5)
         }
     }
 
     const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -83,6 +84,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [StoreLimit.o_1, StoreLimit.o_4, StoreLimit.o_6, StoreLimit.o_7];
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -90,6 +92,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const checkValidate = () => {
@@ -102,7 +105,6 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     const handleSelectUnit = obj => {
         const newStoreLimit = { ...StoreLimit };
         newStoreLimit['o_4'] = !!obj ? obj?.o_1 : null
-        setUnitSelect(!!obj ? obj?.o_2 : '')
         setStoreLimit(newStoreLimit)
     }
 
@@ -120,7 +122,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="md"
+            maxWidth="sm"
             open={shouldOpenModal}
             onClose={e => {
                 setShouldOpenModal(false)
@@ -130,7 +132,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                 <CardHeader title={t('config.store_limit.titleEdit', { name: StoreLimit.o_3 })} />
                 <CardContent>
                     <Grid container spacing={2}>
-                        <Grid item xs>
+                        <Grid item xs={6}>
                             <Product_Autocomplete
                                 disabled={true}
                                 value={StoreLimit.o_3}
@@ -139,16 +141,23 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                                 label={t('menu.product')}
                             />
                         </Grid>
-                        <Grid item xs>
+                        <Grid item xs={6}>
                             <Unit_Autocomplete
-                                value={unitSelect}
+                                value={StoreLimit.o_5 || ''}
+                                // unitID={StoreLimit.o_5 || null}
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}
                                 label={t('menu.configUnit')}
                                 onSelect={handleSelectUnit}
+                                inputRef={step1Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step2Ref.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
-                        <Grid item xs>
+                        <Grid item xs={6}>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
@@ -165,14 +174,15 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={step2Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step3Ref.current.focus()
                                     }
                                 }}
                             />
                         </Grid>
-                        <Grid item xs>
+                        <Grid item xs={6}>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
@@ -188,6 +198,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={step3Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         handleUpdate()
@@ -200,9 +211,11 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false);
                             setStoreLimit({})
-                            setUnitSelect('')
                         }}
                         variant="contained"
                         disableElevation

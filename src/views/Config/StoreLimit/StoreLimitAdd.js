@@ -22,6 +22,12 @@ const serviceInfo = {
         reqFunct: reqFunction.STORE_LIMIT_CREATE,
         biz: 'common',
         object: 'store_limit'
+    },
+    GET_PRODUCT_INFO: {
+        functionName: 'get_imp_info',
+        reqFunct: reqFunction.GET_PRODUCT_IMPORT_INFO,
+        biz: 'common',
+        object: 'products'
     }
 }
 
@@ -29,12 +35,15 @@ const StoreLimitAdd = ({ onRefresh }) => {
     const { t } = useTranslation()
 
     const [StoreLimit, setStoreLimit] = useState({})
-    const [productSelect, setProductSelect] = useState('')
-    const [unitSelect, setUnitSelect] = useState('')
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
-    const inputRef = useRef(null)
+
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -42,13 +51,12 @@ const StoreLimitAdd = ({ onRefresh }) => {
     useHotkeys('esc', () => {
         setShouldOpenModal(false);
         setStoreLimit({})
-        setProductSelect('')
-        setUnitSelect('')
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -56,13 +64,11 @@ const StoreLimitAdd = ({ onRefresh }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             setStoreLimit({})
-            setProductSelect('')
-            setUnitSelect('')
             onRefresh()
             if (saveContinue.current) {
                 saveContinue.current = false
                 setTimeout(() => {
-                    if (inputRef.current) inputRef.current.focus()
+                    if (step1Ref.current) step1Ref.current.focus()
                 }, 100)
             } else {
                 setShouldOpenModal(false)
@@ -74,12 +80,14 @@ const StoreLimitAdd = ({ onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleCreate = () => {
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [StoreLimit.product, StoreLimit.unit, Number(StoreLimit.minQuantity), Number(StoreLimit.maxQuantity)]
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
     }
 
@@ -93,14 +101,27 @@ const StoreLimitAdd = ({ onRefresh }) => {
     const handleSelectProduct = obj => {
         const newStoreLimit = { ...StoreLimit };
         newStoreLimit['product'] = !!obj ? obj?.o_1 : null
-        setProductSelect(!!obj ? obj?.o_2 : '')
         setStoreLimit(newStoreLimit)
+        if (!!obj && !!obj.o_2) {
+            sendRequest(serviceInfo.GET_PRODUCT_INFO, [obj.o_1], handleResultGetProductInfo, true, handleTimeOut)
+        }
+    }
+
+    const handleResultGetProductInfo = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA']
+            setStoreLimit(prev => { return { ...prev, ...{ unit: data.rows[0]?.o_1 || null } } })
+        }
     }
 
     const handleSelectUnit = obj => {
         const newStoreLimit = { ...StoreLimit };
         newStoreLimit['unit'] = !!obj ? obj?.o_1 : null
-        setUnitSelect(!!obj ? obj?.o_2 : '')
         setStoreLimit(newStoreLimit)
     }
 
@@ -120,39 +141,49 @@ const StoreLimitAdd = ({ onRefresh }) => {
             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
             <Dialog
                 fullWidth={true}
-                maxWidth="md"
+                maxWidth="sm"
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
                     setStoreLimit({})
-                    setProductSelect('')
-                    setUnitSelect('')
                 }}
             >
                 <Card>
                     <CardHeader title={t('config.store_limit.titleAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
-                            <Grid item xs>
+                        <Grid container spacing={1}>
+                            <Grid item xs={6}>
                                 <Product_Autocomplete
                                     autoFocus={true}
-                                    value={productSelect}
+                                    productID={StoreLimit.product}
                                     style={{ marginTop: 8, marginBottom: 4 }}
                                     size={'small'}
                                     label={t('menu.product')}
                                     onSelect={handleSelectProduct}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
-                            <Grid item xs>
+                            <Grid item xs={6}>
                                 <Unit_Autocomplete
-                                    value={unitSelect}
+                                    unitID={StoreLimit.unit}
                                     style={{ marginTop: 8, marginBottom: 4 }}
                                     size={'small'}
                                     label={t('menu.configUnit')}
                                     onSelect={handleSelectUnit}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
-                            <Grid item xs>
+                            <Grid item xs={6}>
                                 <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
@@ -168,14 +199,15 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    inputRef={step3Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step4Ref.current.focus()
                                         }
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs>
+                            <Grid item xs={6}>
                                 <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
@@ -191,6 +223,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    inputRef={step4Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             handleCreate()
@@ -203,10 +236,11 @@ const StoreLimitAdd = ({ onRefresh }) => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenModal(false);
                                 setStoreLimit({})
-                                setProductSelect('')
-                                setUnitSelect('')
                             }}
                             variant="contained"
                             disableElevation

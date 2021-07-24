@@ -33,7 +33,7 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
         if (!!unitID && unitID !== 0) {
             let item = dataSource.find(x => x.o_1 === unitID)
             setValueSelect(item)
-            setInputValue(item.o_2)
+            setInputValue(!!item ? item.o_2 : '')
         } else {
             setValueSelect({})
         }

@@ -30,6 +30,10 @@ const UnitAdd = ({ onRefresh }) => {
     const saveContinue = useRef(false)
     const inputRef = useRef(null)
 
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -43,18 +47,21 @@ const UnitAdd = ({ onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleCreate = () => {
         if (!name || !name.trim()) return
         setProcess(true)
         const inputParam = [name, note];
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.CREATE, inputParam, handleResultAddUnit, true, handleTimeOut)
     }
 
     const handleResultAddUnit = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -119,9 +126,10 @@ const UnitAdd = ({ onRefresh }) => {
                             value={name}
                             variant="outlined"
                             className="uppercaseInput"
+                            inputRef={step1Ref}
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
-                                    handleCreate()
+                                    step2Ref.current.focus()
                                 }
                             }}
                         />
@@ -136,6 +144,7 @@ const UnitAdd = ({ onRefresh }) => {
                             onChange={handleChangeNote}
                             value={note || ''}
                             variant="outlined"
+                            inputRef={step2Ref}
                             onKeyPress={event => {
                                 if (event.key === 'Enter') {
                                     handleCreate()
@@ -146,6 +155,9 @@ const UnitAdd = ({ onRefresh }) => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenModal(false)
                                 setNote('')
                                 setName('')

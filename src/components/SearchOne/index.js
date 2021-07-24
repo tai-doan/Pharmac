@@ -11,6 +11,7 @@ const SearchOne = ({ label, name, searchSubmit }) => {
         <Grid container spacing={2}>
             <Grid item>
                 <TextField
+                className="uppercaseInput"
                     margin="dense"
                     autoComplete="off"
                     label={t(label)}

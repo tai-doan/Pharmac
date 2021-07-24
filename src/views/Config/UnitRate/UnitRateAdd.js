@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import NumberFormat from 'react-number-format'
@@ -9,9 +9,7 @@ import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
@@ -24,6 +22,12 @@ const serviceInfo = {
         reqFunct: reqFunction.UNIT_RATE_CREATE,
         biz: 'common',
         object: 'units_cvt'
+    },
+    GET_PRODUCT_INFO: {
+        functionName: 'get_imp_info',
+        reqFunct: reqFunction.GET_PRODUCT_IMPORT_INFO,
+        biz: 'common',
+        object: 'products'
     }
 }
 
@@ -31,12 +35,14 @@ const UnitRateAdd = ({ onRefresh }) => {
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
-    const [productSelect, setProductSelect] = useState('')
-    const [unitSelect, setUnitSelect] = useState('')
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
-    const inputRef = useRef(null)
+
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -44,13 +50,12 @@ const UnitRateAdd = ({ onRefresh }) => {
     useHotkeys('esc', () => {
         setShouldOpenModal(false)
         setUnitRate({})
-        setUnitSelect('')
-        setProductSelect('')
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -58,13 +63,11 @@ const UnitRateAdd = ({ onRefresh }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             setUnitRate({})
-            setProductSelect('')
-            setUnitSelect('')
             onRefresh()
             if (saveContinue.current) {
                 saveContinue.current = false
                 setTimeout(() => {
-                    if (inputRef.current) inputRef.current.focus()
+                    if (step1Ref.current) step1Ref.current.focus()
                 }, 100)
             } else {
                 setShouldOpenModal(false)
@@ -76,12 +79,14 @@ const UnitRateAdd = ({ onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleCreate = () => {
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [unitRate.product, unitRate.unit, Number(unitRate.rate)]
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
     }
 
@@ -96,14 +101,27 @@ const UnitRateAdd = ({ onRefresh }) => {
         const newUnitRate = { ...unitRate };
         newUnitRate['product'] = !!obj ? obj?.o_1 : null
         setUnitRate(newUnitRate)
-        setProductSelect(!!obj ? obj?.o_2 : '')
+        if (!!obj && !!obj.o_2) {
+            sendRequest(serviceInfo.GET_PRODUCT_INFO, [obj.o_1], handleResultGetProductInfo, true, handleTimeOut)
+        }
+    }
+
+    const handleResultGetProductInfo = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA']
+            setUnitRate(prev => { return { ...prev, ...{ unit: data.rows[0]?.o_1 || null } } })
+        }
     }
 
     const handleSelectUnit = obj => {
         const newUnitRate = { ...unitRate };
         newUnitRate['unit'] = !!obj ? obj?.o_1 : null
         setUnitRate(newUnitRate)
-        setUnitSelect(!!obj ? obj?.o_2 : '')
     }
 
     const handleChange = value => {
@@ -117,39 +135,49 @@ const UnitRateAdd = ({ onRefresh }) => {
             <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => setShouldOpenModal(true)} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => setShouldOpenModal(true)} label={t('btn.add')} />
             <Dialog
                 fullWidth={true}
-                maxWidth="md"
+                maxWidth="sm"
                 open={shouldOpenModal}
                 onClose={e => {
                     setShouldOpenModal(false)
                     setUnitRate({})
-                    setUnitSelect('')
-                    setProductSelect('')
                 }}
             >
                 <Card>
                     <CardHeader title={t('config.unitRate.titleAdd')} />
                     <CardContent>
-                        <Grid container className="{}" spacing={2}>
-                            <Grid item xs={6} sm={4}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={12}>
                                 <Product_Autocomplete
                                     autoFocus={true}
-                                    value={productSelect || ''}
+                                    productID={unitRate.product || null}
                                     style={{ marginTop: 8, marginBottom: 4 }}
                                     size={'small'}
                                     label={t('menu.product')}
                                     onSelect={handleSelectProduct}
+                                    inputRef={step1Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step2Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={4}>
+                            <Grid item xs={6} sm={6}>
                                 <Unit_Autocomplete
-                                    value={unitSelect || ''}
+                                    unitID={unitRate.unit || null}
                                     style={{ marginTop: 8, marginBottom: 4 }}
                                     size={'small'}
                                     label={t('menu.configUnit')}
                                     onSelect={handleSelectUnit}
+                                    inputRef={step2Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step3Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={4}>
+                            <Grid item xs={6} sm={6}>
                                 <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
@@ -162,6 +190,7 @@ const UnitRateAdd = ({ onRefresh }) => {
                                     variant="outlined"
                                     thousandSeparator={true}
                                     onValueChange={handleChange}
+                                    inputRef={step3Ref.current}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             handleCreate()
@@ -177,10 +206,11 @@ const UnitRateAdd = ({ onRefresh }) => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenModal(false);
                                 setUnitRate({})
-                                setProductSelect('')
-                                setUnitSelect('')
                             }}
                             variant="contained"
                             disableElevation

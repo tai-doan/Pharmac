@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Card, CardHeader, CardContent, CardActions, Dialog, TextField, Button, Grid } from '@material-ui/core'
@@ -35,6 +35,9 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
 
     const [warnTime, setWarnTime] = useState({})
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => {
@@ -64,6 +67,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -79,6 +83,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [warnTime.o_1, warnTime.o_4, warnTime.o_5];
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -86,6 +91,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const checkValidate = () => {
@@ -111,7 +117,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     return (
         <Dialog
             fullWidth={true}
-            maxWidth="md"
+            maxWidth="sm"
             open={shouldOpenModal}
             onClose={e => {
                 setShouldOpenModal(false)
@@ -120,8 +126,8 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             <Card>
                 <CardHeader title={t('config.warnTime.titleEdit', { name: warnTime?.o_3 })} />
                 <CardContent>
-                    <Grid container className="{}" spacing={2}>
-                        <Grid item xs={6} sm={4}>
+                    <Grid container spacing={1}>
+                        <Grid item xs={12} sm={12}>
                             <Product_Autocomplete
                                 disabled={true}
                                 value={warnTime?.o_3}
@@ -130,7 +136,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 label={t('menu.product')}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={4}>
+                        <Grid item xs={6} sm={6}>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
@@ -147,14 +153,15 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 inputProps={{
                                     min: 0,
                                 }}
+                                inputRef={step1Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step2Ref.current.focus()
                                     }
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={4}>
+                        <Grid item xs={6} sm={6}>
                             <Dictionary
                                 value={warnTime.o_6 || ''}
                                 diectionName='warn_time_tp'
@@ -162,6 +169,12 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 size={'small'}
                                 label={t('config.warnTime.warn_time_tp')}
                                 onSelect={handleChangeTimeTp}
+                                inputRef={step2Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        handleUpdate()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -169,6 +182,9 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false);
                         }}
                         variant="contained"

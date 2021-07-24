@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, TextField, Button, Card, CardHeader, CardContent, CardActions } from '@material-ui/core'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -32,6 +32,10 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
     const [note, setNote] = useState('')
     const [process, setProcess] = useState(false)
 
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => { setShouldOpenModal(false); setName(''); setNote('') }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
@@ -45,6 +49,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleResultGetByID = (reqInfoMap, message) => {
@@ -66,12 +71,14 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
         if (!id || id === 0 || !name || !name.trim()) return
         setProcess(true)
         const inputParam = [id, name, note];
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -126,9 +133,10 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
                         value={name}
                         variant="outlined"
                         className="uppercaseInput"
+                        inputRef={step1Ref}
                         onKeyPress={event => {
                             if (event.key === 'Enter') {
-                                handleUpdate()
+                                step2Ref.current.focus()
                             }
                         }}
                     />
@@ -143,6 +151,7 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
                         onChange={handleChangeNote}
                         value={note || ''}
                         variant="outlined"
+                        inputRef={step2Ref}
                         onKeyPress={event => {
                             if (event.key === 'Enter') {
                                 handleUpdate()
@@ -153,6 +162,9 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false);
                             setNote('')
                             setName('')
