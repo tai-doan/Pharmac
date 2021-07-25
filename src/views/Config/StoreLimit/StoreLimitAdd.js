@@ -127,12 +127,12 @@ const StoreLimitAdd = ({ onRefresh }) => {
 
     const handleMinQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['minQuantity'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
+        newStoreLimit['minQuantity'] = Number(value.value)
         setStoreLimit(newStoreLimit)
     }
     const handleMaxQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['maxQuantity'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 1000
+        newStoreLimit['maxQuantity'] = Number(value.value)
         setStoreLimit(newStoreLimit)
     }
 
@@ -143,10 +143,10 @@ const StoreLimitAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="sm"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setShouldOpenModal(false)
-                    setStoreLimit({})
-                }}
+                // onClose={e => {
+                //     setShouldOpenModal(false)
+                //     setStoreLimit({})
+                // }}
             >
                 <Card>
                     <CardHeader title={t('config.store_limit.titleAdd')} />

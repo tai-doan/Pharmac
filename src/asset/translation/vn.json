@@ -9,6 +9,7 @@
         "profile": "Thông tin",
         "emptyData": "Không có dữ liệu cần tra cứu!"
     },
+    "min_unit": "Đơn vị nhỏ nhất",
     "auto_update": "Ghi nhận bút toán chỉnh sửa tương ứng",
     "yes": "Đúng",
     "no": "Sai",

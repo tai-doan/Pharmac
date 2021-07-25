@@ -83,7 +83,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [warnTime.o_1, warnTime.o_4, warnTime.o_5];
-        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -119,9 +119,9 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-            }}
+        // onClose={e => {
+        //     setShouldOpenModal(false)
+        // }}
         >
             <Card>
                 <CardHeader title={t('config.warnTime.titleEdit', { name: warnTime?.o_3 })} />

@@ -132,11 +132,11 @@ const ProductGroupAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="sm"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setShouldOpenModal(false)
-                    setNote('')
-                    setName('')
-                }}
+                // onClose={e => {
+                //     setShouldOpenModal(false)
+                //     setNote('')
+                //     setName('')
+                // }}
             >
                 <Card>
                     <CardHeader title={t('products.productGroup.titleAdd')} />

@@ -261,7 +261,8 @@ const InsExportDestroy = ({ }) => {
 
     const handleUpdateInvoice = () => {
         if (!ExportDestroy.invoice_id && !invoiceFlag) {
-            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
+            handleCreateInvoice()
+            // SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!ExportDestroy.exp_dt) {
             SnackBarService.alert(t('message.requireExportDestroyInvoice'), true, 'error', 3000)

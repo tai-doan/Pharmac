@@ -113,11 +113,11 @@ const UnitEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-                setNote('')
-                setName('')
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            //     setNote('')
+            //     setName('')
+            // }}
         >
             <Card>
                 <CardHeader title={t(id === 0 ? 'config.unit.titleAdd' : 'config.unit.titleEdit', { name: name })} />

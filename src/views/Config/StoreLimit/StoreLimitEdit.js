@@ -84,7 +84,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [StoreLimit.o_1, StoreLimit.o_4, StoreLimit.o_6, StoreLimit.o_7];
-        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -124,9 +124,9 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            // }}
         >
             <Card>
                 <CardHeader title={t('config.store_limit.titleEdit', { name: StoreLimit.o_3 })} />

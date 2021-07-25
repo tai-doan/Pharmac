@@ -166,10 +166,10 @@ const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             fullWidth={true}
             maxWidth="md"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-                setCustomer({ ...defaultModalAdd })
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            //     setCustomer({ ...defaultModalAdd })
+            // }}
         >
             <Card>
                 <CardHeader title={t('partner.customer.titleEdit', { name: Customer.o_3 })} />

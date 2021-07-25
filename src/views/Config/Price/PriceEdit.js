@@ -92,7 +92,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [Price.o_1, Price.o_4, Price.o_6, Price.o_7, Price.o_8, Price.o_9, Price.o_10, Price.o_11 || ''];
-        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -156,9 +156,9 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
             // fullWidth={true}
             maxWidth="md"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            // }}
         >
             <Card>
                 <CardHeader title={t('config.price.titleEdit', { name: Price.o_3 })} />

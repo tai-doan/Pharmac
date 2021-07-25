@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
@@ -10,11 +10,9 @@ import ProductGroupAdd_Autocomplete from '../ProductGroup/Control/ProductGroupAd
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
 import reqFunction from '../../../utils/constan/functions';
-import { config, productDefaulModal } from './Modal/Product.modal'
-import { requestInfo } from '../../../utils/models/requestInfo'
+import { productDefaulModal } from './Modal/Product.modal'
 
 import AddIcon from '@material-ui/icons/Add';
 import LoopIcon from '@material-ui/icons/Loop';
@@ -36,7 +34,22 @@ const ProductAdd = ({ onRefresh }) => {
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
-    const inputRef = useRef(null)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
+    const step5Ref = useRef(null)
+    const step6Ref = useRef(null)
+    const step7Ref = useRef(null)
+    const step8Ref = useRef(null)
+    const step9Ref = useRef(null)
+    const step10Ref = useRef(null)
+    const step11Ref = useRef(null)
+    const step12Ref = useRef(null)
+    const step13Ref = useRef(null)
+    const step14Ref = useRef(null)
+    const step15Ref = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -46,50 +59,22 @@ const ProductAdd = ({ onRefresh }) => {
         setProduct(productDefaulModal)
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
-    useEffect(() => {
-        const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_ADD:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            productSub.unsubscribe()
-            setProduct(productDefaulModal)
-        }
-    }, [])
-
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setProduct(productDefaulModal)
             onRefresh()
             if (saveContinue.current) {
                 saveContinue.current = false
                 setTimeout(() => {
-                    if (inputRef.current) inputRef.current.focus()
+                    if (step1Ref.current) step1Ref.current.focus()
                 }, 100)
             } else {
                 setShouldOpenModal(false)
@@ -101,6 +86,7 @@ const ProductAdd = ({ onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleCreate = () => {
@@ -123,7 +109,8 @@ const ProductAdd = ({ onRefresh }) => {
             product.storages || '',
             product.packing || ''
         ];
-        sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
     }
 
     const checkValidate = () => {
@@ -162,10 +149,10 @@ const ProductAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="md"
                 open={shouldOpenModal}
-                onClose={(e) => {
-                    setShouldOpenModal(false)
-                    setProduct(productDefaulModal)
-                }}
+                // onClose={(e) => {
+                //     setShouldOpenModal(false)
+                //     setProduct(productDefaulModal)
+                // }}
             >
                 <Card>
                     <CardHeader title={t('products.product.titleAdd')} />
@@ -183,6 +170,12 @@ const ProductAdd = ({ onRefresh }) => {
                                         name="code"
                                         variant="outlined"
                                         className="uppercaseInput"
+                                        inputRef={step1Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step2Ref.current.focus()
+                                            }
+                                        }}
                                     />
                                 </Tooltip>
                             </Grid>
@@ -200,9 +193,10 @@ const ProductAdd = ({ onRefresh }) => {
                                     name="name"
                                     variant="outlined"
                                     className="uppercaseInput"
+                                    inputRef={step2Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step3Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -214,6 +208,12 @@ const ProductAdd = ({ onRefresh }) => {
                                     label={t('menu.productGroup')}
                                     onSelect={handleSelectProductGroup}
                                     onCreate={id => setProduct({ ...product, ...{ productGroup: id } })}
+                                    inputRef={step3Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step4Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
 
@@ -224,6 +224,12 @@ const ProductAdd = ({ onRefresh }) => {
                                     label={t('menu.configUnit')}
                                     onSelect={handleSelectUnit}
                                     onCreate={id => setProduct({ ...product, ...{ unit: id } })}
+                                    inputRef={step4Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step5Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
                         </Grid>
@@ -239,9 +245,10 @@ const ProductAdd = ({ onRefresh }) => {
                                         value={product.barcode}
                                         name="barcode"
                                         variant="outlined"
+                                        inputRef={step5Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleCreate()
+                                                step6Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -259,9 +266,10 @@ const ProductAdd = ({ onRefresh }) => {
                                     value={product.packing}
                                     name="packing"
                                     variant="outlined"
+                                    inputRef={step6Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step7Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -278,9 +286,10 @@ const ProductAdd = ({ onRefresh }) => {
                                     value={product.content}
                                     name="content"
                                     variant="outlined"
+                                    inputRef={step7Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step8Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -309,9 +318,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.designate}
                                             name="designate"
                                             variant="outlined"
+                                            inputRef={step8Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step9Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -327,9 +337,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.contraind}
                                             name="contraind"
                                             variant="outlined"
+                                            inputRef={step9Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step10Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -349,9 +360,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.dosage}
                                             name="dosage"
                                             variant="outlined"
+                                            inputRef={step10Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step11Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -367,9 +379,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.manufact}
                                             name="manufact"
                                             variant="outlined"
+                                            inputRef={step11Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step12Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -389,9 +402,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.interact}
                                             name="interact"
                                             variant="outlined"
+                                            inputRef={step12Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step13Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -407,9 +421,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.storages}
                                             name="storages"
                                             variant="outlined"
+                                            inputRef={step13Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step14Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -429,9 +444,10 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.effect}
                                             name="effect"
                                             variant="outlined"
+                                            inputRef={step14Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    handleCreate()
+                                                    step15Ref.current.focus()
                                                 }
                                             }}
                                         />
@@ -447,6 +463,7 @@ const ProductAdd = ({ onRefresh }) => {
                                             value={product.overdose}
                                             name="overdose"
                                             variant="outlined"
+                                            inputRef={step15Ref}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
                                                     handleCreate()
@@ -461,6 +478,9 @@ const ProductAdd = ({ onRefresh }) => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={(e) => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenModal(false)
                                 setProduct(productDefaulModal)
                             }}

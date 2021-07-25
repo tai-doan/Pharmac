@@ -35,6 +35,7 @@ const UnitRateAdd = ({ onRefresh }) => {
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
+    const [minUnit, setMinUnit] = useState(null)
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
@@ -114,7 +115,8 @@ const UnitRateAdd = ({ onRefresh }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             let data = message['PROC_DATA']
-            setUnitRate(prev => { return { ...prev, ...{ unit: data.rows[0]?.o_1 || null } } })
+            setMinUnit(data.rows[0]?.o_1 || null)
+            // setUnitRate(prev => { return { ...prev, ...{ unit: data.rows[0]?.o_1 || null } } })
         }
     }
 
@@ -137,10 +139,10 @@ const UnitRateAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="sm"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setShouldOpenModal(false)
-                    setUnitRate({})
-                }}
+                // onClose={e => {
+                //     setShouldOpenModal(false)
+                //     setUnitRate({})
+                // }}
             >
                 <Card>
                     <CardHeader title={t('config.unitRate.titleAdd')} />
@@ -162,7 +164,7 @@ const UnitRateAdd = ({ onRefresh }) => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={6}>
+                            <Grid item xs={6} sm={4}>
                                 <Unit_Autocomplete
                                     unitID={unitRate.unit || null}
                                     style={{ marginTop: 8, marginBottom: 4 }}
@@ -177,7 +179,7 @@ const UnitRateAdd = ({ onRefresh }) => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6} sm={6}>
+                            <Grid item xs={6} sm={4}>
                                 <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required
@@ -199,6 +201,15 @@ const UnitRateAdd = ({ onRefresh }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                />
+                            </Grid>
+                            <Grid item xs={6} sm={4}>
+                                <Unit_Autocomplete
+                                    disabled={true}
+                                    unitID={minUnit || null}
+                                    style={{ marginTop: 8, marginBottom: 4 }}
+                                    size={'small'}
+                                    label={t('min_unit')}
                                 />
                             </Grid>
                         </Grid>

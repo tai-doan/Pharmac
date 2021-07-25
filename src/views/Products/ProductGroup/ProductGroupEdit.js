@@ -138,10 +138,10 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-                setProductGroup({})
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            //     setProductGroup({})
+            // }}
         >
             <Card>
                 <CardHeader title={t('products.productGroup.titleEdit', { name: productGroup?.o_2 })} />

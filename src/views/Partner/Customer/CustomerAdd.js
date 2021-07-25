@@ -153,9 +153,9 @@ const CustomerAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="md"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setShouldOpenModal(false)
-                }}
+                // onClose={e => {
+                //     setShouldOpenModal(false)
+                // }}
             >
                 <Card>
                     <CardHeader title={t('partner.customer.titleAdd')} />

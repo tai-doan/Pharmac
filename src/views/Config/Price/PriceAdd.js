@@ -169,7 +169,6 @@ const PriceAdd = ({ onRefresh }) => {
     const handleExportVATChange = obj => {
         const newPrice = { ...Price };
         newPrice['exportVAT'] = Number(obj.value) >= 0 && Number(obj.value) < 100 ? Math.round(obj.value) : 10
-        console.log(newPrice)
         setPrice(newPrice)
     }
 
@@ -180,10 +179,10 @@ const PriceAdd = ({ onRefresh }) => {
                 fullWidth={false}
                 maxWidth="md"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setShouldOpenModal(false)
-                    setPrice({ ...priceDefaultModal })
-                }}
+                // onClose={e => {
+                //     setShouldOpenModal(false)
+                //     setPrice({ ...priceDefaultModal })
+                // }}
             >
                 <Card>
                     <CardHeader title={t('config.price.titleAdd')} />

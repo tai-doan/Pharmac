@@ -321,7 +321,8 @@ const ProductImport = () => {
 
     const handleUpdateInvoice = () => {
         if (!Import.invoice_id && !invoiceFlag) {
-            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
+            handleCreateInvoice()
+            // SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!Import.supplier || !Import.order_dt) {
             SnackBarService.alert(t('message.requireImportInvoice'), true, 'error', 3000)

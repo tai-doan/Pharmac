@@ -5,28 +5,19 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
 import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
-import { config } from '../Modal/WarnTime.modal'
 
 const serviceInfo = {
-    GET_ALL: {
-        functionName: config['list'].functionName,
-        reqFunct: config['list'].reqFunct,
-        biz: config.biz,
-        object: config.object
-    },
-    GET_UNIT_BY_ID: {
-        functionName: config['byId'].functionName,
-        reqFunct: config['byId'].reqFunct,
-        biz: config.biz,
-        object: config.object
+    DROPDOWN_LIST: {
+        functionName: 'dictionary',
+        reqFunct: reqFunction.WARN_TIME_DICTIONNARY,
+        biz: 'common',
+        object: 'dropdown_list'
     }
 }
 
-const WarnTime_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
+const WarnTimeAutocomplete = ({ onSelect, defaultSelect = false, label, style, size, value, required = false, dictionaryID = null, disabled = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -34,72 +25,39 @@ const WarnTime_Autocomplete = ({ onSelect, label, style, size, value, disabled =
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = [glb_sv.defaultValueSearch, '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
-
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.WARN_TIME_LIST) {
-                    resultGetList(msg, cltSeqResult, reqInfoMap)
-                }
-                if (reqInfoMap.reqFunct === reqFunction.WARN_TIME_BY_ID) {
-                    resultGetWarnTimeByID(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            unitSub.unsubscribe()
-        }
+        const inputParam = ['warn_time_tp']
+        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, handleResultDictionnaryDropDownList, true, handleTimeOut)
     }, [])
 
     useEffect(() => {
-        if (value) {
-            sendRequest(serviceInfo.GET_UNIT_BY_ID, [value], null, true, handleTimeOut)
+        if (!!dictionaryID && dictionaryID !== 0) {
+            let item = dataSource.find(x => x.o_1 === dictionaryID)
+            setValueSelect(item)
+            setInputValue(item.o_2)
+        } else {
+            setValueSelect({})
         }
-    }, [value])
+    }, [dictionaryID, dataSource])
 
-    const resultGetWarnTimeByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
+    useEffect(() => {
+        if (value !== null || value !== undefined) {
+            setValueSelect(dataSource.find(x => x.o_2 === value))
+            setInputValue(value)
         }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    }, [value, dataSource])
+
+    const handleResultDictionnaryDropDownList = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
-            setValueSelect(newData.rows[0])
-        }
-    }
-
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
-            let newData = message['PROC_DATA']
-            let newDataSource = dataSource.concat(newData.rows)
-            setDataSource(newDataSource)
-            if (newDataSource.length < newData.rowTotal) {
-                const inputParam = [newDataSource[newDataSource.length - 1].o_1, '%']
-                sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+            setDataSource(newData.rows)
+            if (defaultSelect) {
+                setValueSelect(newData.rows[2])
+                onSelect(newData.rows[2])
             }
         }
     }
@@ -116,22 +74,26 @@ const WarnTime_Autocomplete = ({ onSelect, label, style, size, value, disabled =
     const onChange = (event, object, reson) => {
         setValueSelect(object)
         onSelect(object)
+        setInputValue(object.o_2)
     }
 
     return (
         <Autocomplete
+            margin="dense"
             disabled={disabled}
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
             size={!!size ? size : 'small'}
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect}
             getOptionLabel={(option) => option.o_2 || ''}
+            inputValue={value}
             style={style}
-            renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField inputRef={inputRef} required={required} value={inputValue} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }
 
-export default WarnTime_Autocomplete
+export default WarnTimeAutocomplete

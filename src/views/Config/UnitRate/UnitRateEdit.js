@@ -41,6 +41,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     const { t } = useTranslation()
 
     const [unitRate, setUnitRate] = useState({})
+    const [minUnit, setMinUnit] = useState(null)
     const [process, setProcess] = useState(false)
     const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
 
@@ -63,6 +64,19 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setUnitRate(newData.rows[0])
+            sendRequest(serviceInfo.GET_PRODUCT_INFO, [newData.rows[0].o_2], handleResultGetProductInfo, true, handleTimeOut)
+        }
+    }
+
+    const handleResultGetProductInfo = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA']
+            setMinUnit(data.rows[0]?.o_1 || null)
         }
     }
 
@@ -85,7 +99,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
         if (checkValidate()) return
         setProcess(true)
         const inputParam = [unitRate.o_1, unitRate.o_6];
-        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
@@ -114,9 +128,9 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            // }}
         >
             <Card>
                 <CardHeader title={t('config.unitRate.titleEdit', { name: unitRate.o_3 })} />
@@ -131,7 +145,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 label={t('menu.product')}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={6}>
+                        <Grid item xs={6} sm={4}>
                             <Unit_Autocomplete
                                 disabled={true}
                                 value={unitRate.o_5}
@@ -140,7 +154,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 label={t('menu.configUnit')}
                             />
                         </Grid>
-                        <Grid item xs={6} sm={6}>
+                        <Grid item xs={6} sm={4}>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
@@ -162,6 +176,15 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 inputProps={{
                                     min: 0,
                                 }}
+                            />
+                        </Grid>
+                        <Grid item xs={6} sm={4}>
+                            <Unit_Autocomplete
+                                disabled={true}
+                                unitID={minUnit || null}
+                                style={{ marginTop: 8, marginBottom: 4 }}
+                                size={'small'}
+                                label={t('min_unit')}
                             />
                         </Grid>
                     </Grid>

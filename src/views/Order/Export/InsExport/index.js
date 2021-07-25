@@ -315,7 +315,8 @@ const InsExport = ({ }) => {
 
     const handleUpdateInvoice = () => {
         if (!Export.invoice_id && !invoiceFlag) {
-            SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
+            handleCreateInvoice()
+            // SnackBarService.alert(t('can_not_found_id_invoice_please_try_again'), true, 'error', 3000)
             return
         } else if (!Export.customer || !Export.order_dt) {
             SnackBarService.alert(t('message.requireExportInvoice'), true, 'error', 3000)

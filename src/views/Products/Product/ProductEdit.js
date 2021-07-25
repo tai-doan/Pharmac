@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Card, CardHeader, CardContent, CardActions, Tooltip, TextField, Grid, Button, Dialog, Accordion, AccordionDetails, AccordionSummary, Typography
@@ -39,42 +39,28 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
     const [product, setProduct] = useState({})
     const [isExpanded, setIsExpanded] = useState(false)
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
+    const step5Ref = useRef(null)
+    const step6Ref = useRef(null)
+    const step7Ref = useRef(null)
+    const step8Ref = useRef(null)
+    const step9Ref = useRef(null)
+    const step10Ref = useRef(null)
+    const step11Ref = useRef(null)
+    const step12Ref = useRef(null)
+    const step13Ref = useRef(null)
+    const step14Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => { setShouldOpenModal(false); setProduct(productDefaulModal) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const productSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_BY_ID:
-                        resultGetProductByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            productSub.unsubscribe()
-            setProduct({})
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && id && id !== 0) {
-            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRODUCT_BY_ID, [id], handleResultGetProductByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
@@ -82,17 +68,16 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
-    const resultGetProductByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetProductByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             let newConvertData = {
                 o_1: newData.rows[0].o_1, // id
@@ -117,18 +102,14 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        setProcess(false)
+    const handleResultUpdate = (reqInfoMap, message) => {
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            setControlTimeOutKey(null)
             setProduct(productDefaulModal)
             setShouldOpenModal(false)
             onRefresh()
@@ -136,11 +117,12 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
     }
 
     const handleUpdate = () => {
-        if (!product?.o_1 || !product?.o_2 || product?.o_3?.trim().length <= 0 || !product?.o_5) return
+        if (checkValidate()) return
         setProcess(true)
         let inputParam = Object.keys(product).map(key => product[key])
         inputParam.splice(-2); // xóa mã sp + tên units
-        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     const checkValidate = () => {
@@ -178,10 +160,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
             fullWidth={true}
             maxWidth="md"
             open={shouldOpenModal}
-            onClose={(e) => {
-                setShouldOpenModal(false)
-                setProduct(productDefaulModal)
-            }}
+        // onClose={(e) => {
+        //     setShouldOpenModal(false)
+        //     setProduct(productDefaulModal)
+        // }}
         >
             <Card>
                 <CardHeader title={t('products.product.titleEdit', { name: product.o_3 })} />
@@ -216,9 +198,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                 name="o_3"
                                 variant="outlined"
                                 className="uppercaseInput"
+                                inputRef={step1Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step2Ref.current.focus()
                                     }
                                 }}
                             />
@@ -231,6 +214,12 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                 size={'small'}
                                 label={t('menu.productGroup')}
                                 onSelect={handleSelectProductGroup}
+                                inputRef={step2Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step3Ref.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
 
@@ -242,6 +231,12 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                 label={t('menu.configUnit')}
                                 onSelect={handleSelectUnit}
                                 onCreate={id => setProduct({ ...product, ...{ o_5: id } })}
+                                inputRef={step3Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step4Ref.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -260,6 +255,12 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             handleUpdate()
+                                        }
+                                    }}
+                                    inputRef={step4Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step5Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -282,6 +283,12 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         handleUpdate()
                                     }
                                 }}
+                                inputRef={step5Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step6Ref.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
 
@@ -299,6 +306,12 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         handleUpdate()
+                                    }
+                                }}
+                                inputRef={step6Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step7Ref.current.focus()
                                     }
                                 }}
                             />
@@ -327,9 +340,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_8}
                                         name="o_8"
                                         variant="outlined"
+                                        inputRef={step7Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step8Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -345,9 +359,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_7}
                                         name="o_7"
                                         variant="outlined"
+                                        inputRef={step8Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step9Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -367,9 +382,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_9}
                                         name="o_9"
                                         variant="outlined"
+                                        inputRef={step9Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step10Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -385,9 +401,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_11}
                                         name="o_11"
                                         variant="outlined"
+                                        inputRef={step10Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step11Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -407,9 +424,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_10}
                                         name="o_10"
                                         variant="outlined"
+                                        inputRef={step11Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step12Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -425,9 +443,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_14}
                                         name="o_14"
                                         variant="outlined"
+                                        inputRef={step12Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step13Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -447,9 +466,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_12}
                                         name="o_12"
                                         variant="outlined"
+                                        inputRef={step13Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
-                                                handleUpdate()
+                                                step14Ref.current.focus()
                                             }
                                         }}
                                     />
@@ -465,6 +485,7 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         value={product.o_13}
                                         name="o_13"
                                         variant="outlined"
+                                        inputRef={step14Ref}
                                         onKeyPress={event => {
                                             if (event.key === 'Enter') {
                                                 handleUpdate()
@@ -479,6 +500,9 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={(e) => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false)
                             setProduct(productDefaulModal)
                         }}

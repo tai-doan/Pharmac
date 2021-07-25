@@ -164,9 +164,9 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             fullWidth={true}
             maxWidth="md"
             open={shouldOpenModal}
-            onClose={e => {
-                setShouldOpenModal(false)
-            }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            // }}
         >
             <Card>
                 <CardHeader title={t('partner.supplier.titleEdit', { name: Supplier.o_3 })} />

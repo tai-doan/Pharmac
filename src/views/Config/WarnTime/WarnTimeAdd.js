@@ -5,6 +5,7 @@ import NumberFormat from 'react-number-format'
 import { Card, CardHeader, CardContent, CardActions, Chip, Grid, Button, TextField, Dialog } from '@material-ui/core'
 
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
+import WarnTimeAutocompelte from './Control/WarnTime.Autocomplete'
 import Dictionary from '../../../components/Dictionary/index'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -121,9 +122,9 @@ const WarnTimeAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="sm"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setShouldOpenModal(false)
-                }}
+                // onClose={e => {
+                //     setShouldOpenModal(false)
+                // }}
             >
                 <Card>
                     <CardHeader title={t('config.warnTime.titleAdd')} />
@@ -170,7 +171,8 @@ const WarnTimeAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                             <Grid item xs={6}>
-                                <Dictionary
+                                <WarnTimeAutocompelte
+                                    defaultSelect={true}
                                     value={warnTime.warn_time_nm || ''}
                                     diectionName='warn_time_tp'
                                     style={{ marginTop: 8, marginBottom: 4 }}
