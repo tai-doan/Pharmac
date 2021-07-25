@@ -59,7 +59,7 @@ const InventoryList = () => {
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[6] === glb_sv.defaultValueSearch && reqInfoMap.inputParam[7] === glb_sv.defaultValueSearch) {
+                if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch && reqInfoMap.inputParam[1] === 'ZZZ') {
                     setTotalRecords(newData.rowTotal)
                 } else {
                     setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
@@ -180,7 +180,7 @@ const InventoryList = () => {
                     }
                 />
                 <CardContent>
-                    <TableContainer className="tableContainer tableReport">
+                    <TableContainer className="tableContainer">
                         <Table stickyHeader>
                             <caption
                                 className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
