@@ -14,10 +14,7 @@ import ExportExcel from '../../../components/ExportExcel'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/ExportRepay.modal'
@@ -56,42 +53,16 @@ const ExportRepayList = () => {
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const export_SendReqFlag = useRef(false)
     const dataSourceRef = useRef([])
     const idRef = useRef(0)
 
     useEffect(() => {
         getList(searchModal.start_dt, searchModal.end_dt, glb_sv.defaultValueSearch);
-        const exportSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.SETTLEMENT_EXPORT_REPAY_LIST:
-                        resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.SETTLEMENT_EXPORT_REPAY_DELETE:
-                        resultRemove(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            exportSub.unsubscribe()
-        }
     }, [])
 
     const getList = (startdate, endDate, index) => {
         const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch]
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -100,18 +71,13 @@ const ExportRepayList = () => {
         setProcessing(false)
     }
 
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        export_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetAll = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[2] === glb_sv.defaultValueSearch) {
@@ -129,21 +95,16 @@ const ExportRepayList = () => {
         }
     }
 
-    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        export_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultRemove = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-
         setShouldOpenRemoveModal(false)
         setProcessing(false)
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             dataSourceRef.current = []
             setName('')
             setId(0);
@@ -188,7 +149,7 @@ const ExportRepayList = () => {
         idRef.current = id;
         setProcessing(true)
         const inputParam = [id]
-        sendRequest(serviceInfo.DELETE, inputParam, null, true, handleTimeOut)
+        sendRequest(serviceInfo.DELETE, inputParam, handleResultRemove, true, handleTimeOut)
     }
 
     const getNextData = () => {
