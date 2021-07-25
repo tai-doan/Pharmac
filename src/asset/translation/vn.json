@@ -412,7 +412,7 @@
             "order_dt": "Ngày nhập hàng",
             "cancel_reason": "Lý do hủy",
             "total_prod": "Tổng loại sp nhập",
-            "invoice_type": "Loại hóa đơn",
+            "invoice_type": "Trạng thái hóa đơn",
             "invoice_val": "Tổng giá trị HĐ",
             "invoice_discount": "Tổng tiền chiết khấu",
             "invoice_vat": "Tổng tiền thuế VAT",
@@ -489,6 +489,7 @@
         "export": {
             "productAdd": "Thêm sản phẩm vào đơn xuất - bán",
             "productEdit": "Chỉnh sửa sản phẩm trong đơn xuất - bán",
+            "productDelete": "Xác nhận xóa sản phẩm",
             "invoice_info": "Thông tin hóa đơn xuất - bán",
             "productExportList": "Danh sách xuất hàng",
             "titleList": "Danh sách đơn xuất - bán",

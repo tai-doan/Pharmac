@@ -25,6 +25,12 @@ const serviceInfo = {
         biz: 'common',
         object: 'products'
     },
+    GET_PRICE_BY_PRODUCT_ID: {
+        functionName: 'get_by_prodid',
+        reqFunct: reqFunction.EXPORT_BY_ID,
+        biz: 'common',
+        object: 'setup_price'
+    }
 }
 
 const AddProduct = ({ onAddProduct, resetFlag }) => {
@@ -56,6 +62,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     useEffect(() => {
         if (productInfo.prod_id !== null) {
             sendRequest(serviceInfo.GET_PRODUCT_IMPORT_INFO, [productInfo.prod_id], handleResultGetProductImportInfo, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
         }
     }, [productInfo.prod_id])
 
@@ -72,15 +79,15 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             let data = message['PROC_DATA']
-            const newProductInfo = { ...productInfo };
+            const newProductInfo = {};
             setRequireExpDate(glb_sv.defaultProductGroupId.includes(data.rows[0]['o_4']))
             if (data.rowTotal > 1) {
                 newProductInfo['unit_id'] = data.rows[1].o_1
-                setProductInfo(newProductInfo)
+                setProductInfo(prev => { return { ...prev, ...newProductInfo } })
                 setproductImportInfoData(data.rows)
             } else {
                 newProductInfo['unit_id'] = 0
-                setProductInfo(newProductInfo)
+                setProductInfo(prev => { return { ...prev, ...newProductInfo } })
             }
         }
     }
@@ -96,6 +103,31 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         }
         setProductOpenFocus(false)
         setProductInfo(newProductInfo)
+    }
+
+    const handleResultGetPrice = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA'];
+            if (data.rows.length > 0) {
+                let itemMinUnit = data.rows.find(x => x.o_4 === productInfo?.unit_id)
+                const newProductInfo = {};
+                if (itemMinUnit) {
+                    // bảng giá đã config giá nhỏ nhất
+                    newProductInfo['price'] = itemMinUnit.o_6
+                    setProductInfo(prev => { return { ...prev, ...newProductInfo } })
+                } else {
+                    // bảng giá chưa config giá nhỏ nhất
+                    newProductInfo['unit_id'] = data.rows[0].o_4;
+                    newProductInfo['price'] = data.rows[0].o_6
+                    setProductInfo(prev => { return { ...prev, ...newProductInfo } })
+                }
+            }
+        }
     }
 
     const handleSelectUnit = obj => {

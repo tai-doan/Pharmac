@@ -210,8 +210,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     }
 
     const handleUpdate = () => {
-        if (!productInfo.price || productInfo.price <= 0 || !productInfo.qty || productInfo.qty <= 0 ||
-            !productInfo.vat_per || productInfo.vat_per <= 0 || productInfo.vat_per > 100 || !productInfo.discount_per || productInfo.discount_per <= 0 || productInfo.discount_per > 100) return
+        if (checkValidate()) return
         setProcess(true)
         const inputParam = [
             invoiceID,
@@ -458,15 +457,15 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <FormControlLabel
+                    {/* <FormControlLabel
                         control={<Checkbox checked={checked} onChange={handleCheckedChange} name="auto_update" />}
                         label={t('auto_update')}
-                    />
+                    /> */}
                     <Button size='small'
                         onClick={e => {
                             setProductInfo({ ...productImportModal })
-                    setShouldOpenModal(false)
-                    setProductEditID(-1)
+                            setShouldOpenModal(false)
+                            setProductEditID(-1)
                         }}
                         variant="contained"
                         disableElevation

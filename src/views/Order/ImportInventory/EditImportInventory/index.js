@@ -56,6 +56,7 @@ const EditImportInventory = ({ }) => {
     const [dataSource, setDataSource] = useState([])
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+    const [productDeleteIndex, setProductDeleteIndex] = useState(null)
     const [productDeleteModal, setProductDeleteModal] = useState({})
     const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
     const [deleteProcess, setDeleteProcess] = useState(false)
@@ -179,6 +180,7 @@ const EditImportInventory = ({ }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
+            setProductDeleteIndex(null)
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
             handleRefresh()
@@ -251,6 +253,7 @@ const EditImportInventory = ({ }) => {
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 onRemove(item)
+                                                                                setProductDeleteIndex(index + 1)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
@@ -365,7 +368,7 @@ const EditImportInventory = ({ }) => {
                 <Card>
                     <CardHeader title={t('order.import.productDelete')} />
                     <CardContent>
-                        <Grid container>{productDeleteModal.o_4}</Grid>
+                        <Grid container>{productDeleteModal.o_4 + ' - ' + t('order.import.qty') + ': ' + productDeleteModal.o_8 + ' ' + productDeleteModal.o_10 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

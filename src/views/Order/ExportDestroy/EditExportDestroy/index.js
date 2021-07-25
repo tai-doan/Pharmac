@@ -67,6 +67,7 @@ const EditExportDestroy = ({ }) => {
     const [dataSource, setDataSource] = useState([])
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
+    const [productDeleteIndex, setProductDeleteIndex] = useState(null)
     const [productDeleteModal, setProductDeleteModal] = useState({})
     const [paymentInfo, setPaymentInfo] = useState({})
     const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
@@ -234,6 +235,7 @@ const EditExportDestroy = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // xử lý thành công
+            setProductDeleteIndex(null)
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
             handleRefresh()
@@ -317,6 +319,7 @@ const EditExportDestroy = ({ }) => {
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 onRemove(item)
+                                                                                setProductDeleteIndex(index + 1)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
@@ -484,7 +487,7 @@ const EditExportDestroy = ({ }) => {
                 <Card>
                     <CardHeader title={t('order.export.productDelete')} />
                     <CardContent>
-                        <Grid container>{productDeleteModal.o_3}</Grid>
+                        <Grid container>{productDeleteModal.o_4 + ' - ' + t('order.export.qty') + ': ' + productDeleteModal.o_6 + ' ' + productDeleteModal.o_8 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

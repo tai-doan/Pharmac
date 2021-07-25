@@ -91,7 +91,7 @@ const ImportSearch = ({ handleSearch }) => {
                         <Select
                             labelId="status"
                             id="status-select"
-                            value={searchModal.id_status || 'Y'}
+                            value={searchModal.id_status || '1'}
                             onChange={handleChange}
                             label={t('order.import.invoice_type')}
                             name='id_status'
@@ -106,6 +106,7 @@ const ImportSearch = ({ handleSearch }) => {
                         fullWidth={true}
                         margin="dense"
                         autoComplete="off"
+                        className="uppercaseInput"
                         label={t('order.import.vender_nm_v')}
                         onChange={handleChange}
                         onKeyPress={key => {

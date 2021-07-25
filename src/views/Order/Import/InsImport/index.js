@@ -94,6 +94,7 @@ const ProductImport = () => {
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListAddColumn])
     const [shouldOpenPaymentModal, setShouldOpenPaymentModal] = useState(false)
+    const [productDeleteIndex, setProductDeleteIndex] = useState(null)
     const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
     const [paymentInfo, setPaymentInfo] = useState({})
     const [invoiceFlag, setInvoiceFlag] = useState(false)
@@ -284,6 +285,7 @@ const ProductImport = () => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
+            setProductDeleteIndex(null)
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
         }
@@ -539,6 +541,7 @@ const ProductImport = () => {
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 onRemove(item)
+                                                                                setProductDeleteIndex(index + 1)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
@@ -741,7 +744,7 @@ const ProductImport = () => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button fullWidth={true}
-                            size='small'
+                                size='small'
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
@@ -871,7 +874,7 @@ const ProductImport = () => {
                 <Card>
                     <CardHeader title={t('order.import.productDelete')} />
                     <CardContent>
-                        <Grid container>{productDeleteModal.o_6}</Grid>
+                        <Grid container>{productDeleteModal.o_6 + ' - ' + t('order.import.qty') + ': ' + productDeleteModal.o_10 + ' ' + productDeleteModal.o_12 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

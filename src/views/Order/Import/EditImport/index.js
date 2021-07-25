@@ -83,6 +83,7 @@ const EditImport = ({ }) => {
     const [supplierSelect, setSupplierSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
     const [productDeleteModal, setProductDeleteModal] = useState({})
+    const [productDeleteIndex, setProductDeleteIndex] = useState(null)
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListEditColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
@@ -179,12 +180,12 @@ const EditImport = ({ }) => {
     }
 
     const handleAddProduct = productObject => {
-        if (!productObject || !productObject.prod_id || !productObject.lot_no || !productObject.qty || productObject.qty <= 0 ||
-            !productObject.unit_id || !productObject.price || productObject.price <= 0 || !productObject.discount_per || productObject.discount_per <= 0 ||
-            productObject.discount_per > 100 || !productObject.vat_per || productObject.vat_per <= 0 || productObject.vat_per > 100) {
-            SnackBarService.alert(t('wrongData'), true, 'error', 3000)
-            return
-        }
+        // if (!productObject || !productObject.prod_id || !productObject.lot_no || !productObject.qty || productObject.qty <= 0 ||
+        //     !productObject.unit_id || !productObject.price || productObject.price <= 0 || !productObject.discount_per || productObject.discount_per <= 0 ||
+        //     productObject.discount_per > 100 || !productObject.vat_per || productObject.vat_per <= 0 || productObject.vat_per > 100) {
+        //     SnackBarService.alert(t('wrongData'), true, 'error', 3000)
+        //     return
+        // }
         const inputParam = [
             Import.invoice_id,
             productObject.imp_tp,
@@ -240,6 +241,7 @@ const EditImport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // xử lý thành công
+            setProductDeleteIndex(null)
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
             handleRefresh()
@@ -416,6 +418,7 @@ const EditImport = ({ }) => {
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 onRemove(item)
+                                                                                setProductDeleteIndex(index + 1)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
@@ -659,7 +662,7 @@ const EditImport = ({ }) => {
                 <Card>
                     <CardHeader title={t('order.import.productDelete')} />
                     <CardContent>
-                        <Grid container>{productDeleteModal.o_6}</Grid>
+                        <Grid container>{productDeleteModal.o_6 + ' - ' + t('order.import.qty') + ': ' + productDeleteModal.o_10 + ' ' + productDeleteModal.o_12 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

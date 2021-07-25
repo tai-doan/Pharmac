@@ -81,6 +81,7 @@ const InsExport = ({ }) => {
     const [column, setColumn] = useState([...tableListAddColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
     const [productDeleteModal, setProductDeleteModal] = useState({})
+    const [productDeleteIndex, setProductDeleteIndex] = useState(null)
     const [shouldOpenDeleteModal, setShouldOpenDeleteModal] = useState(false)
     const [resetFormAddFlag, setResetFormAddFlag] = useState(false)
     const [deleteProcess, setDeleteProcess] = useState(false)
@@ -186,6 +187,7 @@ const InsExport = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // xử lý thành công
+            setProductDeleteIndex(null)
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
             handleRefresh()
@@ -403,6 +405,7 @@ const InsExport = ({ }) => {
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 onRemove(item)
+                                                                                setProductDeleteIndex(index + 1)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
@@ -638,7 +641,7 @@ const InsExport = ({ }) => {
                 <Card>
                     <CardHeader title={t('order.export.productDelete')} />
                     <CardContent>
-                        <Grid container>{productDeleteModal.o_5}</Grid>
+                        <Grid container>{productDeleteModal.o_5 + ' - ' + t('order.export.qty') + ': ' + productDeleteModal.o_7 + ' ' + productDeleteModal.o_9 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

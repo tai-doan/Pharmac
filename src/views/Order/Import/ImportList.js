@@ -87,7 +87,7 @@ const ImportList = () => {
     }, [])
 
     const getList = (startdate, endDate, index, status, name) => {
-        const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status, name.trim() + '%']
+        const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status, '%' + name.trim() + '%']
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
@@ -143,6 +143,9 @@ const ImportList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
+        const newColumn = [...column]
+        newColumn[6].show = searchObject.id_status === '2' ? true : false;
+        setColumn(newColumn)
         getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch, searchObject.id_status, searchObject.vender_nm.trim())
     }
 

@@ -106,6 +106,7 @@ const ExportSearch = ({ handleSearch }) => {
                         fullWidth={true}
                         margin="dense"
                         autoComplete="off"
+                        className="uppercaseInput"
                         label={t('order.export.cust_nm_v')}
                         onChange={handleChange}
                         onKeyPress={key => {

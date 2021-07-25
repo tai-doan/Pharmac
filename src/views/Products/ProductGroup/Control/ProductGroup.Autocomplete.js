@@ -32,7 +32,7 @@ const serviceInfo = {
     }
 }
 
-const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabled = false }) => {
+const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabled = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -126,6 +126,7 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabl
         <Autocomplete
             onChange={onChange}
             onInputChange={handleChangeInput}
+            onKeyPress={onKeyPress}
             disabled={disabled}
             size={!!size ? size : 'small'}
             noOptionsText={t('noData')}
@@ -137,7 +138,7 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabl
             // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
-            renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField {...params} inputRef={inputRef} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

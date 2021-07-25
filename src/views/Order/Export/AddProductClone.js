@@ -89,7 +89,6 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
                 let itemMinUnit = data.rows.find(x => x.o_4 === productInfo?.unit_id)
                 const newProductInfo = { ...productInfo };
                 if (itemMinUnit) {
-                    console.log('đã cấu hình bảng giá cho đv nhỏ nhất: ', itemMinUnit)
                     // bảng giá đã config giá nhỏ nhất
                     if (productInfo.exp_tp === '1') {
                         newProductInfo['price'] = invoiceType ? itemMinUnit.o_8 : itemMinUnit.o_9
@@ -98,7 +97,6 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
                         setProductInfo(newProductInfo)
                     }
                 } else {
-                    console.log('chưa cấu hình bảng giá cho đv nhỏ nhất: ', data)
                     // bảng giá chưa config giá nhỏ nhất
                     if (productInfo.exp_tp === '1') {
                         newProductInfo['unit_id'] = data.rows[0].o_4;

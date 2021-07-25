@@ -26,7 +26,7 @@ const serviceInfo = {
     }
 }
 
-const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, label = '', style = {}, size = 'small', value = null, unitID = null, disabled = false, autoFocus= false }) => {
+const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, onKeyPress = () => null, inputRef = null, label = '', style = {}, size = 'small', value = null, unitID = null, disabled = false, autoFocus = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -131,6 +131,7 @@ const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, la
             <Autocomplete
                 disabled={disabled}
                 onChange={onChange}
+                onKeyPress={onKeyPress}
                 onInputChange={handleChangeInput}
                 size={size}
                 id="combo-box-demo"
@@ -160,6 +161,7 @@ const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, la
                     }
                     return <TextField
                         {...newParams}
+                        inputRef={inputRef}
                         autoFocus={autoFocus}
                         label={!!label ? label : ''}
                         variant="outlined"

@@ -26,7 +26,7 @@ const serviceInfo = {
     }
 }
 
-const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false, autoFocus = false }) => {
+const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false, autoFocus = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -123,14 +123,15 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
             <Autocomplete
                 disabled={disabled}
                 onChange={onChange}
+                onKeyPress={onKeyPress}
                 onInputChange={handleChangeInput}
                 size={!!size ? size : 'small'}
                 id="combo-box-demo"
                 options={dataSource}
                 value={valueSelect}
                 // autoSelect={true}
-            autoHighlight={true}
-            autoComplete={true}
+                autoHighlight={true}
+                autoComplete={true}
                 getOptionLabel={(option) => option.o_2 || ''}
                 // style={{ marginTop: 8, marginBottom: 4, width: !disabled ? '80%' : '100%' }}
                 // renderInput={(params) => <TextField {...params} label={!!label ? label : ''} variant="outlined" />}
@@ -155,6 +156,7 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
                     }
                     return <TextField
                         {...newParams}
+                        inputRef={inputRef}
                         autoFocus={autoFocus}
                         label={!!label ? label : ''}
                         variant="outlined"

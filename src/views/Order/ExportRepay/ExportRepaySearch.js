@@ -106,6 +106,7 @@ const ExportRepaySearch = ({ handleSearch }) => {
                         fullWidth={true}
                         margin="dense"
                         autoComplete="off"
+                        className="uppercaseInput"
                         label={t('order.exportRepay.supplier_nm')}
                         onChange={handleChange}
                         onKeyPress={key => {

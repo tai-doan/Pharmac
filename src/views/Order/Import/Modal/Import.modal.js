@@ -10,13 +10,13 @@ const tableColumn = [
     { field: 'o_7', title: 'order.import.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     // { field: 'o_8', title: 'order.import.person_s', show: true, disabled: false, minWidth: 200 },
     // { field: 'o_9', title: 'order.import.person_r', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_10', title: 'order.import.cancel_reason', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_10', title: 'order.import.cancel_reason', show: false, disabled: false, minWidth: 100 },
     { field: 'o_11', title: 'order.import.note', show: true, disabled: false, minWidth: 300 },
     { field: 'o_12', title: 'order.import.total_prod', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_13', title: 'order.import.invoice_val', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_14', title: 'order.import.invoice_discount', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_15', title: 'order.import.invoice_vat', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
-    { field: 'o_16', title: 'order.import.invoice_settl', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
+    { field: 'o_16', title: 'order.import.invoice_settl', show: false, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_17', title: 'updateUser', show: true, disabled: false, minWidth: 200 },
     { field: 'o_18', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }
 ]

@@ -70,7 +70,7 @@ const InsExportRepay = ({ }) => {
     const [ExportRepay, setExportRepay] = useState({ ...invoiceExportRepayModal })
     const [supplierSelect, setSupplierSelect] = useState('')
     const [dataSource, setDataSource] = useState([])
-    const [productEditData, setProductEditData] = useState({})
+    const [productDeleteIndex, setProductDeleteIndex] = useState(null)
     const [productEditID, setProductEditID] = useState(-1)
     const [column, setColumn] = useState([...tableListAddColumn])
     const [paymentInfo, setPaymentInfo] = useState({})
@@ -159,6 +159,7 @@ const InsExportRepay = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // xử lý thành công
+            setProductDeleteIndex(null)
             setProductDeleteModal({})
             setShouldOpenDeleteModal(false)
             handleRefresh()
@@ -341,7 +342,6 @@ const InsExportRepay = ({ }) => {
 
     const handleEditProduct = productObject => {
         if (productObject === null) {
-            setProductEditData({})
             setProductEditID(-1);
             return
         }
@@ -349,7 +349,6 @@ const InsExportRepay = ({ }) => {
         newDataSource[productEditID] = productObject
         dataSourceRef.current = newDataSource
         setDataSource([...newDataSource])
-        setProductEditData({})
         setProductEditID(-1);
     }
 
@@ -413,6 +412,7 @@ const InsExportRepay = ({ }) => {
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 onRemove(item)
+                                                                                setProductDeleteIndex(index + 1)
                                                                             }}
                                                                         >
                                                                             <DeleteIcon style={{ color: 'red' }} fontSize="small" />
@@ -636,7 +636,7 @@ const InsExportRepay = ({ }) => {
                 <Card>
                     <CardHeader title={t('order.export.productDelete')} />
                     <CardContent>
-                        <Grid container>{productDeleteModal.o_3}</Grid>
+                        <Grid container>{productDeleteModal.o_3 + ' - ' + t('order.export.qty') + ': ' + productDeleteModal.o_5 + ' ' + productDeleteModal.o_7 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

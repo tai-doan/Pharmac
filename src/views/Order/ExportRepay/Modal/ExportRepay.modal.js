@@ -6,7 +6,7 @@ const tableColumn = [
     { field: 'o_2', title: 'order.exportRepay.invoice_no', show: true, disabled: true, minWidth: 200 },
     { field: 'o_3', title: 'order.exportRepay.invoice_stat_nm', show: true, disabled: false, minWidth: 200, type: 'status' },
     { field: 'o_5', title: 'order.exportRepay.supplier_nm', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_6', title: 'order.exportRepay.order_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
+    { field: 'o_6', title: 'order.exportRepay.order_dt', show: false, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     // { field: 'o_7', title: 'order.exportRepay.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     // { field: 'o_8', title: 'order.exportRepay.staff_nm', show: true, disabled: false, minWidth: 200 },
     { field: 'o_9', title: 'order.exportRepay.cancel_reason', show: true, disabled: false, minWidth: 200 },
