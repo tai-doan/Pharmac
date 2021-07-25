@@ -36,6 +36,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const [productInfo, setProductInfo] = useState({ ...productExportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
 
     const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
@@ -81,6 +82,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleUpdate = () => {
@@ -95,19 +97,20 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
             productInfo.discount_per,
             productInfo.vat_per
         ]
+        setControlTimeOutKey(serviceInfo.UPDATE_PRODUCT_TO_INVOICE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, handleResultUpdateProduct, true, handleTimeOut)
     }
 
     const handleResultUpdateProduct = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
-            console.log('cập nhật sản phẩm thành công => ', message)
             // xử lý thành công
             // createSettlement()
             onRefresh()
@@ -195,11 +198,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                 fullWidth={true}
                 maxWidth="md"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setProductInfo({ ...productExportModal })
-                    setShouldOpenModal(false)
-                    setProductEditID(-1)
-                }}
+            // onClose={e => {
+            //     setProductInfo({ ...productExportModal })
+            //     setShouldOpenModal(false)
+            //     setProductEditID(-1)
+            // }}
             >
                 <DialogTitle className="titleDialog pb-0">
                     {t('order.export.productEdit')}
@@ -383,6 +386,9 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                 <DialogActions>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setProductInfo({ ...productExportModal })
                             setShouldOpenModal(false)
                             setProductEditID(-1)

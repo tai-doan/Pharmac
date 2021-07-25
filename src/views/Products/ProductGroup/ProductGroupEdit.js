@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Card, CardHeader, CardContent, CardActions, Button, TextField, Dialog } from '@material-ui/core'
@@ -34,73 +34,41 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
 
     const [productGroup, setProductGroup] = useState({})
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => { setShouldOpenModal(false); setProductGroup({}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const productGroupSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.PRODUCT_GROUP_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.PRODUCT_GROUP_BY_ID:
-                        resultGetProductGroupByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            productGroupSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && id !== 0) {
-            sendRequest(serviceInfo.GET_PRODUCT_GROUP_BY_ID, [id], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRODUCT_GROUP_BY_ID, [id], handleResultGetProductByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
-    const resultGetProductGroupByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetProductByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setProductGroup(newData.rows[0])
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setProductGroup({})
             setShouldOpenModal(false)
             onRefresh()
@@ -111,13 +79,15 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
         if (!productGroup?.o_1 || productGroup?.o_2?.trim().length <= 0) return
         setProcess(true)
         const inputParam = [productGroup.o_1, productGroup.o_2, productGroup.o_3]
-        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const checkValidate = () => {
@@ -138,10 +108,10 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            // onClose={e => {
-            //     setShouldOpenModal(false)
-            //     setProductGroup({})
-            // }}
+        // onClose={e => {
+        //     setShouldOpenModal(false)
+        //     setProductGroup({})
+        // }}
         >
             <Card>
                 <CardHeader title={t('products.productGroup.titleEdit', { name: productGroup?.o_2 })} />
@@ -158,9 +128,10 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
                         name='o_2'
                         variant="outlined"
                         className="uppercaseInput"
+                        inputRef={step1Ref}
                         onKeyPress={event => {
                             if (event.key === 'Enter') {
-                                handleUpdate()
+                                step2Ref.current.focus()
                             }
                         }}
                     />
@@ -176,6 +147,7 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
                         value={productGroup.o_3 || ''}
                         name='o_3'
                         variant="outlined"
+                        inputRef={step2Ref}
                         onKeyPress={event => {
                             if (event.key === 'Enter') {
                                 handleUpdate()
@@ -186,6 +158,9 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false);
                         }}
                         variant="contained"

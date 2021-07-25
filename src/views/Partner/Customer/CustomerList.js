@@ -13,17 +13,13 @@ import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/Customer.modal'
 import CustomerAdd from './CustomerAdd';
 import CustomerEdit from './CustomerEdit'
 import SearchOne from '../../../components/SearchOne'
-import { useHotkeys } from 'react-hotkeys-hook';
 import LoopIcon from '@material-ui/icons/Loop';
 import ExportExcel from '../../../components/ExportExcel'
 
@@ -50,55 +46,24 @@ const CustomerList = () => {
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
-    const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
-    const [shouldOpenViewModal, setShouldOpenViewModal] = useState(false)
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
 
-    const customer_SendReqFlag = useRef(false)
-    const customer_ProcTimeOut = useRef(null)
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
-    const saveContinue = useRef(false)
     const idRef = useRef(0)
 
-    useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
         getList(glb_sv.defaultValueSearch, '');
-        const customerSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.CUSTOMER_LIST:
-                        resultGetList(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.CUSTOMER_DELETE:
-                        resultRemove(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            customerSub.unsubscribe()
-        }
     }, [])
 
     const getList = (lastIndex, value) => {
-        const inputParam = [lastIndex, value.trim() + '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
+        const inputParam = [lastIndex, '%' + value.trim() + '%']
+        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -107,18 +72,13 @@ const CustomerList = () => {
         setProcessing(false)
     }
 
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetAll = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             if (newData.rows.length > 0) {
                 if (reqInfoMap.inputParam[0] === glb_sv.defaultValueSearch) {
@@ -136,21 +96,16 @@ const CustomerList = () => {
         }
     }
 
-    const resultRemove = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        customer_SendReqFlag.current = false
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultRemove = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-
         setShouldOpenRemoveModal(false)
         setProcessing(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             dataSourceRef.current = []
             setName('')
             setId(0);
@@ -201,7 +156,7 @@ const CustomerList = () => {
     const handleDelete = e => {
         // e.preventDefault();
         idRef.current = id;
-        sendRequest(serviceInfo.DELETE, [id], null, true, handleTimeOut)
+        sendRequest(serviceInfo.DELETE, [id], handleResultRemove, true, handleTimeOut)
     }
 
     const getNextData = () => {

@@ -58,6 +58,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const [productInfo, setProductInfo] = useState({ ...productImportModal })
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
 
     const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
@@ -102,6 +103,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleUpdate = () => {
@@ -113,13 +115,14 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
             productInfo.qty,
             productInfo.price
         ]
-        console.log('invoiceID: ', invoiceID, 'productEditID: ', productEditID)
+        setControlTimeOutKey(serviceInfo.UPDATE_PRODUCT_TO_INVOICE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE_PRODUCT_TO_INVOICE, inputParam, handleResultUpdateProduct, true, handleTimeOut)
     }
 
     const handleResultUpdateProduct = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -160,11 +163,11 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                 fullWidth={true}
                 maxWidth="md"
                 open={shouldOpenModal}
-                onClose={e => {
-                    setProductInfo({ ...productImportModal })
-                    setShouldOpenModal(false)
-                    setProductEditID(-1)
-                }}
+                // onClose={e => {
+                //     setProductInfo({ ...productImportModal })
+                //     setShouldOpenModal(false)
+                //     setProductEditID(-1)
+                // }}
             >
                 <Card>
                     <CardHeader title={t('order.import.productEdit')} />
@@ -277,6 +280,9 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setProductInfo({ ...productImportModal })
                                 setShouldOpenModal(false);
                                 setProductEditID(-1)

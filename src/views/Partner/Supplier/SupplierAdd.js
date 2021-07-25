@@ -10,10 +10,8 @@ import Dictionary from '../../../components/Dictionary'
 import sendRequest from '../../../utils/service/sendReq'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
 import reqFunction from '../../../utils/constan/functions';
-import { requestInfo } from '../../../utils/models/requestInfo'
 
 import AddIcon from '@material-ui/icons/Add';
 import LoopIcon from '@material-ui/icons/Loop';
@@ -34,7 +32,22 @@ const SupplierAdd = ({ onRefresh }) => {
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
-    const inputRef = useRef(null)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
+    const step5Ref = useRef(null)
+    const step6Ref = useRef(null)
+    const step7Ref = useRef(null)
+    const step8Ref = useRef(null)
+    const step9Ref = useRef(null)
+    const step10Ref = useRef(null)
+    const step11Ref = useRef(null)
+    const step12Ref = useRef(null)
+    const step13Ref = useRef(null)
+    const step14Ref = useRef(null)
+    const step15Ref = useRef(null)
 
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -44,49 +57,22 @@ const SupplierAdd = ({ onRefresh }) => {
         setSupplier({ ...defaultModalAdd })
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
-    useEffect(() => {
-        const supplierSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.SUPPLIER_CREATE:
-                        resultCreate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            supplierSub.unsubscribe()
-        }
-    }, [])
-
-    const resultCreate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultCreate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setSupplier({ ...defaultModalAdd })
             onRefresh()
             if (saveContinue.current) {
                 saveContinue.current = false
                 setTimeout(() => {
-                    if (inputRef.current) inputRef.current.focus()
+                    if (step1Ref.current) step1Ref.current.focus()
                 }, 100)
             } else {
                 setShouldOpenModal(false)
@@ -98,6 +84,7 @@ const SupplierAdd = ({ onRefresh }) => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const handleCreate = () => {
@@ -123,7 +110,8 @@ const SupplierAdd = ({ onRefresh }) => {
             Supplier.agent_email,
             Supplier.default_yn
         ];
-        sendRequest(serviceInfo.CREATE, inputParam, null, true, handleTimeOut)
+        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.CREATE, inputParam, handleResultCreate, true, handleTimeOut)
     }
 
     const checkValidate = () => {
@@ -152,9 +140,9 @@ const SupplierAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="md"
                 open={shouldOpenModal}
-                // onClose={e => {
-                //     setShouldOpenModal(false)
-                // }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            // }}
             >
                 <Card>
                     <CardHeader title={t('partner.supplier.titleAdd')} />
@@ -172,9 +160,11 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.vender_nm_v || ''}
                                     name='vender_nm_v'
                                     variant="outlined"
+                                    autoFocus={true}
+                                    inputRef={step1Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step2Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -189,9 +179,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.address || ''}
                                     name='address'
                                     variant="outlined"
+                                    inputRef={step2Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step3Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -206,9 +197,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.phone || ''}
                                     name='phone'
                                     variant="outlined"
+                                    inputRef={step3Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step4Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -223,9 +215,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.fax || ''}
                                     name='fax'
                                     variant="outlined"
+                                    inputRef={step4Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step5Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -242,9 +235,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.email || ''}
                                     name='email'
                                     variant="outlined"
+                                    inputRef={step5Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step6Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -259,9 +253,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.website || ''}
                                     name='website'
                                     variant="outlined"
+                                    inputRef={step6Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step7Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -276,9 +271,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.tax_cd || ''}
                                     name='tax_cd'
                                     variant="outlined"
+                                    inputRef={step7Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step8Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -293,9 +289,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.bank_acnt_no || ''}
                                     name='bank_acnt_no'
                                     variant="outlined"
+                                    inputRef={step8Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step9Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -312,9 +309,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.bank_acnt_nm || ''}
                                     name='bank_acnt_nm'
                                     variant="outlined"
+                                    inputRef={step9Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step10Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -325,6 +323,12 @@ const SupplierAdd = ({ onRefresh }) => {
                                     onSelect={handleSelectBank}
                                     label={t('partner.supplier.bank_cd')}
                                     style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                    inputRef={step10Ref}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            step11Ref.current.focus()
+                                        }
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={6} sm={4}>
@@ -356,9 +360,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.agent_nm || ''}
                                     name='agent_nm'
                                     variant="outlined"
+                                    inputRef={step11Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step12Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -374,9 +379,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.agent_fun || ''}
                                     name='agent_fun'
                                     variant="outlined"
+                                    inputRef={step12Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step13Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -392,9 +398,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.agent_phone || ''}
                                     name='agent_phone'
                                     variant="outlined"
+                                    inputRef={step3Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step14Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -410,9 +417,10 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.agent_email || ''}
                                     name='agent_email'
                                     variant="outlined"
+                                    inputRef={step14Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            handleCreate()
+                                            step15Ref.current.focus()
                                         }
                                     }}
                                 />
@@ -432,6 +440,7 @@ const SupplierAdd = ({ onRefresh }) => {
                                     value={Supplier.agent_address || ''}
                                     name='agent_address'
                                     variant="outlined"
+                                    inputRef={step15Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             handleCreate()
@@ -444,6 +453,9 @@ const SupplierAdd = ({ onRefresh }) => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenModal(false);
                                 setSupplier({ ...defaultModalAdd })
                             }}

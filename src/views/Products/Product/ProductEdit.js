@@ -103,6 +103,9 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
     }
 
     const handleResultUpdate = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setControlTimeOutKey(null)
+        setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -121,7 +124,7 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
         setProcess(true)
         let inputParam = Object.keys(product).map(key => product[key])
         inputParam.splice(-2); // xóa mã sp + tên units
-        setControlTimeOutKey(serviceInfo.CREATE.reqFunct + '|' + JSON.stringify(inputParam))
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 

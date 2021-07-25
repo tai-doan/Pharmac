@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook'
 import {
@@ -37,70 +37,57 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
 
     const [Supplier, setSupplier] = useState({})
     const [process, setProcess] = useState(false)
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
+    const step5Ref = useRef(null)
+    const step6Ref = useRef(null)
+    const step7Ref = useRef(null)
+    const step8Ref = useRef(null)
+    const step9Ref = useRef(null)
+    const step10Ref = useRef(null)
+    const step11Ref = useRef(null)
+    const step12Ref = useRef(null)
+    const step13Ref = useRef(null)
+    const step14Ref = useRef(null)
+    const step15Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => { setShouldOpenModal(false); setSupplier({ ...defaultModalAdd }) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     useEffect(() => {
-        const SupplierSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                switch (reqInfoMap.reqFunct) {
-                    case reqFunction.SUPPLIER_UPDATE:
-                        resultUpdate(msg, cltSeqResult, reqInfoMap)
-                        break
-                    case reqFunction.SUPPLIER_BY_ID:
-                        resultGetSupplierByID(msg, cltSeqResult, reqInfoMap)
-                        break
-                    default:
-                        return
-                }
-            }
-        })
-        return () => {
-            SupplierSub.unsubscribe()
-        }
-    }, [])
-
-    useEffect(() => {
         if (shouldOpenModal && id !== 0) {
-            sendRequest(serviceInfo.GET_SUPPLIER_BY_ID, [id], null, true, timeout => console.log('timeout: ', timeout))
+            sendRequest(serviceInfo.GET_SUPPLIER_BY_ID, [id], handleResultGetSupplierByID, true, handleTimeOut)
         }
     }, [shouldOpenModal])
 
-    const resultGetSupplierByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultGetSupplierByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setSupplier(newData.rows[0])
+            if (step1Ref?.current) {
+                step1Ref.current.focus()
+            }
         }
     }
 
-    const resultUpdate = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
+    const handleResultUpdate = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setControlTimeOutKey(null)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
-            reqInfoMap.resSucc = false
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        } else {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
             setSupplier({ ...defaultModalAdd })
             setShouldOpenModal(false)
             onRefresh()
@@ -131,13 +118,15 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             Supplier.o_19, //email
             Supplier.o_22 //xét mặc định
         ];
-        sendRequest(serviceInfo.UPDATE, inputParam, null, true, handleTimeOut)
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcess(false)
+        setControlTimeOutKey(null)
     }
 
     const checkValidate = () => {
@@ -164,9 +153,9 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             fullWidth={true}
             maxWidth="md"
             open={shouldOpenModal}
-            // onClose={e => {
-            //     setShouldOpenModal(false)
-            // }}
+        // onClose={e => {
+        //     setShouldOpenModal(false)
+        // }}
         >
             <Card>
                 <CardHeader title={t('partner.supplier.titleEdit', { name: Supplier.o_3 })} />
@@ -184,9 +173,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_2 || ''}
                                 name='o_2'
                                 variant="outlined"
+                                inputRef={step1Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step2Ref.current.focus()
                                     }
                                 }}
                             />
@@ -201,9 +191,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_5 || ''}
                                 name='o_5'
                                 variant="outlined"
+                                inputRef={step2Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step3Ref.current.focus()
                                     }
                                 }}
                             />
@@ -218,9 +209,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_6 || ''}
                                 name='o_6'
                                 variant="outlined"
+                                inputRef={step3Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step4Ref.current.focus()
                                     }
                                 }}
                             />
@@ -235,9 +227,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_7 || ''}
                                 name='o_7'
                                 variant="outlined"
+                                inputRef={step4Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step5Ref.current.focus()
                                     }
                                 }}
                             />
@@ -254,9 +247,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_8 || ''}
                                 name='o_8'
                                 variant="outlined"
+                                inputRef={step5Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step6Ref.current.focus()
                                     }
                                 }}
                             />
@@ -271,9 +265,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_9 || ''}
                                 name='o_9'
                                 variant="outlined"
+                                inputRef={step6Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step7Ref.current.focus()
                                     }
                                 }}
                             />
@@ -288,9 +283,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_10 || ''}
                                 name='o_10'
                                 variant="outlined"
+                                inputRef={step7Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step8Ref.current.focus()
                                     }
                                 }}
                             />
@@ -305,9 +301,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_11 || ''}
                                 name='o_11'
                                 variant="outlined"
+                                inputRef={step8Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step9Ref.current.focus()
                                     }
                                 }}
                             />
@@ -324,9 +321,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_12 || ''}
                                 name='o_12'
                                 variant="outlined"
+                                inputRef={step9Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step10Ref.current.focus()
                                     }
                                 }}
                             />
@@ -338,6 +336,12 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 onSelect={handleSelectBank}
                                 label={t('partner.supplier.bank_cd')}
                                 style={{ marginTop: 8, marginBottom: 4, width: '100%' }}
+                                inputRef={step10Ref}
+                                onKeyPress={event => {
+                                    if (event.key === 'Enter') {
+                                        step11Ref.current.focus()
+                                    }
+                                }}
                             />
                         </Grid>
                         <Grid item xs={6} sm={4}>
@@ -369,9 +373,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_15 || ''}
                                 name='o_15'
                                 variant="outlined"
+                                inputRef={step11Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step12Ref.current.focus()
                                     }
                                 }}
                             />
@@ -387,9 +392,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_16 || ''}
                                 name='o_16'
                                 variant="outlined"
+                                inputRef={step12Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step13Ref.current.focus()
                                     }
                                 }}
                             />
@@ -405,9 +411,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_18 || ''}
                                 name='o_18'
                                 variant="outlined"
+                                inputRef={step13Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step14Ref.current.focus()
                                     }
                                 }}
                             />
@@ -423,9 +430,10 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_19 || ''}
                                 name='o_19'
                                 variant="outlined"
+                                inputRef={step14Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        handleUpdate()
+                                        step15Ref.current.focus()
                                     }
                                 }}
                             />
@@ -445,6 +453,7 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 value={Supplier.o_17 || ''}
                                 name='o_17'
                                 variant="outlined"
+                                inputRef={step15Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         handleUpdate()
@@ -457,6 +466,9 @@ const SupplierEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                 <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                     <Button size='small'
                         onClick={e => {
+                            if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                return
+                            }
                             setShouldOpenModal(false);
                             setSupplier({ ...defaultModalAdd })
                         }}
