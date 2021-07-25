@@ -92,6 +92,7 @@
         "reportExportRepay": "Report Export Repay",
         "reportExportDestroy": "Report Export Destroy",
         "reportSettlement": "Report Settlement",
+        "reportTransactionStatement": "Transaction statement",
         "configUnit": "Unit",
         "configUnitRate": "Unit Rate",
         "configStoreLimit": "Store Limit",
