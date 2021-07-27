@@ -15,8 +15,9 @@ import { Grid } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Dictionary_Autocomplete from '../../../components/Dictionary_Autocomplete/index'
 import SearchIcon from '@material-ui/icons/Search';
+import LoopIcon from '@material-ui/icons/Loop';
 
-const InventorySearch = ({ handleSearch }) => {
+const InventorySearch = ({ handleSearch, process = false }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
@@ -95,7 +96,7 @@ const InventorySearch = ({ handleSearch }) => {
                     </FormControl>
                 </Grid>
                 <Grid item className='d-flex align-items-center'>
-                    <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button className={process ? 'button-loading' : ''} endIcon={process ? <LoopIcon /> : <SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

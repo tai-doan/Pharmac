@@ -205,9 +205,9 @@ thead.MuiTableHead-root {
     color: #fff !important;
 }
 
-.button-loading .MuiButton-iconSizeSmall {
+.button-loading .MuiButton-iconSizeSmall, .button-loading .MuiButton-endIcon {
     animation-name: spin;
-    animation-duration: 3000ms;
+    animation-duration: 2000ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear; 
 }

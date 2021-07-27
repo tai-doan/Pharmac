@@ -63,6 +63,7 @@ const ExportRepayList = () => {
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
+    const [searchProcess, setSearchProcess] = useState(false)
 
     const dataSourceRef = useRef([])
     const idRef = useRef(0)
@@ -75,10 +76,12 @@ const ExportRepayList = () => {
 
     const getList = (startdate, endDate, index, status, name) => {
         const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status, '%' + name.trim() + '%']
+        setSearchProcess(true)
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
     const handleResultGetAll = (reqInfoMap, message) => {
+        setSearchProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -131,6 +134,7 @@ const ExportRepayList = () => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
+        setSearchProcess(false)
     }
 
     const onClickColumn = e => {
@@ -242,6 +246,7 @@ const ExportRepayList = () => {
                 />
                 <CardContent>
                     <ExportRepaySearch
+                        process={searchProcess}
                         handleSearch={searchSubmit}
                     />
                 </CardContent>

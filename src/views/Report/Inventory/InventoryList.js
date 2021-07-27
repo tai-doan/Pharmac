@@ -38,6 +38,7 @@ const InventoryList = () => {
     const [searchModal, setSearchModal] = useState({ ...searchDefaultModal })
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
+    const [searchProcess, setSearchProcess] = useState(false)
 
     const dataSourceRef = useRef([])
 
@@ -46,11 +47,13 @@ const InventoryList = () => {
     }, [])
 
     const getList = (last_product_id, last_lot_no_id, group_id, invent_yn) => {
+        setSearchProcess(true)
         const inputParam = [last_product_id || glb_sv.defaultValueSearch, last_lot_no_id || 'ZZZ', group_id, invent_yn]
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
     const handleResultGetAll = (reqInfoMap, message) => {
+        setSearchProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -77,6 +80,7 @@ const InventoryList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setSearchProcess(false)
     }
 
     const onClickColumn = e => {
@@ -154,6 +158,7 @@ const InventoryList = () => {
                 />
                 <CardContent>
                     <InventorySearch
+                        process={searchProcess}
                         handleSearch={searchSubmit}
                     />
                 </CardContent>

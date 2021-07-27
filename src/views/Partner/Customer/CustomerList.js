@@ -51,6 +51,7 @@ const CustomerList = () => {
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
+    const [searchProcess, setSearchProcess] = useState(false)
 
     const dataSourceRef = useRef([])
     const searchRef = useRef('')
@@ -63,6 +64,7 @@ const CustomerList = () => {
 
     const getList = (lastIndex, value) => {
         const inputParam = [lastIndex, '%' + value.trim() + '%']
+        setSearchProcess(true)
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
@@ -70,9 +72,11 @@ const CustomerList = () => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
+        setSearchProcess(false)
     }
 
     const handleResultGetAll = (reqInfoMap, message) => {
+        setSearchProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -237,6 +241,7 @@ const CustomerList = () => {
                 />
                 <CardContent>
                     <SearchOne
+                        process={searchProcess}
                         name='supplier_name'
                         label={'partner.customer.search_name'}
                         searchSubmit={searchSubmit}

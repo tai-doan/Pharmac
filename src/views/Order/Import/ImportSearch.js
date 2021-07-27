@@ -10,8 +10,9 @@ import {
 } from '@material-ui/pickers';
 import moment from 'moment'
 import SearchIcon from '@material-ui/icons/Search';
+import LoopIcon from '@material-ui/icons/Loop';
 
-const ImportSearch = ({ handleSearch }) => {
+const ImportSearch = ({ handleSearch, process = false }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
@@ -118,7 +119,7 @@ const ImportSearch = ({ handleSearch }) => {
                     />
                 </Grid>
                 <Grid item className='d-flex align-items-center'>
-                    <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button className={process ? 'button-loading' : ''} endIcon={process ? <LoopIcon /> : <SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

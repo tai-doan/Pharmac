@@ -39,6 +39,7 @@ const TransactionStatementList = () => {
     const [searchModal, setSearchModal] = useState({ ...searchDefaultModal })
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
+    const [searchProcess, setSearchProcess] = useState(false)
 
     const dataSourceRef = useRef([])
 
@@ -47,11 +48,13 @@ const TransactionStatementList = () => {
     }, [])
 
     const getList = (startdate, endDate, product_id, lastID) => {
+        setSearchProcess(true)
         const inputParam = [startdate, endDate, product_id, lastID || glb_sv.defaultValueSearch]
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
     const handleResultGetAll = (reqInfoMap, message) => {
+        setSearchProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -78,6 +81,7 @@ const TransactionStatementList = () => {
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setSearchProcess(false)
     }
 
     const onClickColumn = e => {
@@ -164,6 +168,7 @@ const TransactionStatementList = () => {
                 />
                 <CardContent>
                     <TransactionStatementSearch
+                        process={searchProcess}
                         handleSearch={searchSubmit}
                     />
                 </CardContent>

@@ -22,8 +22,9 @@ import moment from 'moment'
 import Supplier_Autocomplete from '../../Partner/Supplier/Control/Supplier.Autocomplete'
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete'
 import SearchIcon from '@material-ui/icons/Search';
+import LoopIcon from '@material-ui/icons/Loop';
 
-const ExportRepaySearch = ({ handleSearch }) => {
+const ExportRepaySearch = ({ handleSearch, process = false }) => {
     const { t } = useTranslation()
 
     const [searchModal, setSearchModal] = useState({
@@ -183,7 +184,7 @@ const ExportRepaySearch = ({ handleSearch }) => {
                     />
                 </Grid>
                 <Grid item className='d-flex align-items-center'>
-                    <Button endIcon={<SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
+                    <Button className={process ? 'button-loading' : ''} endIcon={process ? <LoopIcon /> : <SearchIcon />} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} onClick={() => handleSearch(searchModal)} variant="contained">{t('search_btn')}</Button>
                 </Grid>
             </Grid>
         </>

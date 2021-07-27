@@ -53,6 +53,7 @@ const UnitList = () => {
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
+    const [searchProcess, setSearchProcess] = useState(false)
 
     const unit_SendReqFlag = useRef(false)
     const dataSourceRef = useRef([])
@@ -65,6 +66,7 @@ const UnitList = () => {
 
     const getList = (lastIndex, value) => {
         const inputParam = [lastIndex, '%' + value.trim() + '%']
+        setSearchProcess(true)
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 
@@ -72,9 +74,11 @@ const UnitList = () => {
     const handleTimeOut = (e) => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
+        setSearchProcess(false)
     }
 
     const handleResultGetList = (reqInfoMap, message) => {
+        setSearchProcess(false)
         // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
@@ -213,6 +217,7 @@ const UnitList = () => {
                 />
                 <CardContent>
                     <SearchOne
+                        process={searchProcess}
                         name='unit_name'
                         label={'config.unit.search_name'}
                         searchSubmit={searchSubmit}

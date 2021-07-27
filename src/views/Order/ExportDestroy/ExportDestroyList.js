@@ -63,6 +63,7 @@ const ExportDestroyList = () => {
     const [id, setId] = useState(0)
     const [name, setName] = useState('')
     const [processing, setProcessing] = useState(false)
+    const [searchProcess, setSearchProcess] = useState(false)
 
     const exportDestroy_SendReqFlag = useRef(false)
     const dataSourceRef = useRef([])
@@ -77,10 +78,12 @@ const ExportDestroyList = () => {
 
     const getList = (startdate, endDate, index, status) => {
         const inputParam = [startdate, endDate, index || glb_sv.defaultValueSearch, status]
+        setSearchProcess(true)
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetAll, true, handleTimeOut)
     }
 
     const handleResultGetAll = (reqInfoMap, message) => {
+        setSearchProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -131,8 +134,8 @@ const ExportDestroyList = () => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        console.log('handleTimeOut: ', e)
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
+        setSearchProcess(false)
     }
 
     const onClickColumn = e => {
@@ -231,6 +234,7 @@ const ExportDestroyList = () => {
                 />
                 <CardContent>
                     <ExportDestroySearch
+                        process={searchProcess}
                         handleSearch={searchSubmit}
                     />
                 </CardContent>
