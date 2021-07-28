@@ -594,7 +594,7 @@ const EditImport = ({ }) => {
                                 variant="outlined"
                                 thousandSeparator={true}
                                 disabled={true}
-                            />
+                            /> */}
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
@@ -612,7 +612,7 @@ const EditImport = ({ }) => {
                             <Divider orientation="horizontal" flexItem />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                value={Import.payment_amount - paymentInfo.invoice_needpay}
+                                value={Import.payment_amount - paymentInfo.invoice_needpay > 0 ? Import.payment_amount - paymentInfo.invoice_needpay: 0}
                                 label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -621,7 +621,7 @@ const EditImport = ({ }) => {
                                 variant="outlined"
                                 thousandSeparator={true}
                                 disabled={true}
-                            /> */}
+                            />
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'

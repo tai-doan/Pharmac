@@ -106,6 +106,7 @@ const invoiceExportModal = {
     invoice_discount: 0,
     invoice_vat: 0,
     invoice_settl: 0,
+    payment_amount: 0,
     note: ''
 }
 

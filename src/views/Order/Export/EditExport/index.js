@@ -183,6 +183,12 @@ const EditExport = ({ }) => {
         setExport(newExport)
     }
 
+    const handleAmountChange = value => {
+        const newExport = { ...Export };
+        newExport['payment_amount'] = Number(value.value)
+        setExport(newExport)
+    }
+
     const handleAddProduct = productObject => {
         if (!productObject) {
             SnackBarService.alert(t('wrongData'), true, 'error', 3000)
@@ -522,6 +528,33 @@ const EditExport = ({ }) => {
                                 required
                                 value={paymentInfo.invoice_needpay}
                                 label={t('order.export.invoice_needpay')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={Export.payment_amount}
+                                label={t('settlement.payment_amount')}
+                                onValueChange={handleAmountChange}
+                                name='payment_amount'
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                            />
+                            <Divider orientation="horizontal" flexItem />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                value={Export.payment_amount - paymentInfo.invoice_needpay > 0 ? Export.payment_amount - paymentInfo.invoice_needpay : 0}
+                                label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"

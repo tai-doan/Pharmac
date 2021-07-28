@@ -86,6 +86,7 @@ const invoiceExportDestroyModal = {
     invoice_id: null,
     exp_dt: moment().toString(),
     invoice_val: 0,
+    payment_amount: 0,
     invoice_no: '',
     staff_exp: '',
     note: ''

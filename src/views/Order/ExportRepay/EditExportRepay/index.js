@@ -94,13 +94,13 @@ const EditExportRepay = ({ }) => {
     useEffect(() => {
         const newData = { ...paymentInfo }
         newData['invoice_val'] = dataSource.reduce(function (acc, obj) {
-            return acc + Math.round(obj.o_7 * obj.o_10)
+            return acc + Math.round(obj.o_5 * obj.o_8)
         }, 0) || 0
         newData['invoice_discount'] = dataSource.reduce(function (acc, obj) {
-            return acc + Math.round(obj.o_11 / 100 * newData.invoice_val)
+            return acc + Math.round(obj.o_9 / 100 * newData.invoice_val)
         }, 0) || 0
         newData['invoice_vat'] = dataSource.reduce(function (acc, obj) {
-            return acc + Math.round(obj.o_12 / 100 * Math.round(newData.invoice_val * (1 - (obj.o_11 / 100))))
+            return acc + Math.round(obj.o_10 / 100 * Math.round(newData.invoice_val * (1 - (obj.o_9 / 100))))
         }, 0) || 0
         newData['invoice_needpay'] = newData.invoice_val - newData.invoice_discount + newData.invoice_vat || 0
         setExportRepay(prevState => { return { ...prevState, ...{ payment_amount: newData.invoice_needpay } } })
@@ -128,8 +128,12 @@ const EditExportRepay = ({ }) => {
                 input_dt: moment(newData.rows[0].o_7, 'YYYYMMDD').toString(),
                 staff_exp: newData.rows[0].o_8,
                 cancel_reason: newData.rows[0].o_9,
-                note: newData.rows[0].o_10
+                note: newData.rows[0].o_10,
+                invoice_val: newData.rows[0].o_12,
+                invoice_discount: newData.rows[0].o_13,
+                invoice_vat: newData.rows[0].o_14
             }
+            console.log(newData, dataExportRepay)
             setSupplierSelect(newData.rows[0].o_5)
             setExportRepay(dataExportRepay)
         }
@@ -169,6 +173,12 @@ const EditExportRepay = ({ }) => {
     const handleChange = e => {
         const newExportRepay = { ...ExportRepay };
         newExportRepay[e.target.name] = e.target.value
+        setExportRepay(newExportRepay)
+    }
+
+    const handleAmountChange = value => {
+        const newExportRepay = { ...ExportRepay };
+        newExportRepay['payment_amount'] = Number(value.value)
         setExportRepay(newExportRepay)
     }
 
@@ -499,6 +509,33 @@ const EditExportRepay = ({ }) => {
                                 required
                                 value={paymentInfo.invoice_needpay || 0}
                                 label={t('order.exportRepay.invoice_needpay')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={ExportRepay.payment_amount}
+                                label={t('settlement.payment_amount')}
+                                onValueChange={handleAmountChange}
+                                name='payment_amount'
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                            />
+                            <Divider orientation="horizontal" flexItem />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                value={ExportRepay.payment_amount - paymentInfo.invoice_needpay > 0 ? ExportRepay.payment_amount - paymentInfo.invoice_needpay : 0}
+                                label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"

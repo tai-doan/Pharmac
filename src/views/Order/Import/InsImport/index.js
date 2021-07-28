@@ -712,7 +712,7 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            {/* <NumberFormat className='inputNumber'
+                            <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
                                 value={Import.payment_amount}
@@ -729,7 +729,7 @@ const ProductImport = () => {
                             <Divider orientation="horizontal" flexItem />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                value={Import.payment_amount - paymentInfo.invoice_needpay}
+                                value={Import.payment_amount - paymentInfo.invoice_needpay > 0 ? Import.payment_amount - paymentInfo.invoice_needpay : 0}
                                 label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -739,7 +739,7 @@ const ProductImport = () => {
                                 thousandSeparator={true}
                                 disabled={true}
                             />
-                            <LinkMT href="#" onClick={changePaymentType} variant="body2" color='error'>
+                            {/* <LinkMT href="#" onClick={changePaymentType} variant="body2" color='error'>
                                 {Import.payment_type === '1' ? t('settlement.payment_transfer') : t('settlement.payment_cash')}
                             </LinkMT> */}
                         </Grid>

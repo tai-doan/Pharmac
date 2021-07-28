@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Dialog, CardActions } from '@material-ui/core'
+import { Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, TextField, Card, CardHeader, CardContent, Dialog, CardActions, Divider } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
     MuiPickersUtilsProvider,
@@ -315,6 +315,12 @@ const InsExportDestroy = ({ }) => {
         setExportDestroy(newExportDestroy)
     }
 
+    const handleAmountChange = value => {
+        const newExportDestroy = { ...ExportDestroy };
+        newExportDestroy['payment_amount'] = Number(value.value)
+        setExportDestroy(newExportDestroy)
+    }
+
     const checkValidate = () => {
         if (invoiceFlag && !!ExportDestroy.exp_dt) {
             return false
@@ -484,6 +490,33 @@ const InsExportDestroy = ({ }) => {
                                 style={{ width: '100%' }}
                                 value={ExportDestroy.invoice_val || 0}
                                 label={t('order.exportDestroy.invoice_val')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={ExportDestroy.payment_amount}
+                                label={t('settlement.payment_amount')}
+                                onValueChange={handleAmountChange}
+                                name='payment_amount'
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                            />
+                            <Divider orientation="horizontal" flexItem />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                value={ExportDestroy.payment_amount - paymentInfo.invoice_needpay > 0 ? ExportDestroy.payment_amount - paymentInfo.invoice_needpay : 0}
+                                label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"

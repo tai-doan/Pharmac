@@ -341,6 +341,12 @@ const InsExportRepay = ({ }) => {
         setExportRepay(newExportRepay)
     }
 
+    const handleAmountChange = value => {
+        const newExportRepay = { ...ExportRepay };
+        newExportRepay['payment_amount'] = Number(value.value)
+        setExportRepay(newExportRepay)
+    }
+
     const handleEditProduct = productObject => {
         if (productObject === null) {
             setProductEditID(-1);
@@ -578,6 +584,33 @@ const InsExportRepay = ({ }) => {
                                 required
                                 value={paymentInfo.invoice_needpay}
                                 label={t('order.exportRepay.invoice_needpay')}
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                                disabled={true}
+                            />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                required
+                                value={ExportRepay.payment_amount}
+                                label={t('settlement.payment_amount')}
+                                onValueChange={handleAmountChange}
+                                name='payment_amount'
+                                customInput={TextField}
+                                autoComplete="off"
+                                margin="dense"
+                                type="text"
+                                variant="outlined"
+                                thousandSeparator={true}
+                            />
+                            <Divider orientation="horizontal" flexItem />
+                            <NumberFormat className='inputNumber'
+                                style={{ width: '100%' }}
+                                value={ExportRepay.payment_amount - paymentInfo.invoice_needpay > 0 ? ExportRepay.payment_amount - paymentInfo.invoice_needpay : 0}
+                                label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
                                 margin="dense"
