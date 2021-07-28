@@ -21,6 +21,7 @@ import InventorySearch from './InventorySearch';
 import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 
 const serviceInfo = {
     GET_ALL: {
@@ -172,9 +173,7 @@ const InventoryList = () => {
             <Card>
                 <CardHeader
                     title={<>{t('list_of_products_in_stock_with_lot_details')}
-                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
+                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>}
                     action={
                         <div className='d-flex align-items-center'>

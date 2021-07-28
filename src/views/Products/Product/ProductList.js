@@ -20,6 +20,7 @@ import ProductAdd from './ProductAdd';
 import ProductEdit from './ProductEdit'
 import SearchOne from '../../../components/SearchOne'
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 
 const serviceInfo = {
     GET_ALL: {
@@ -251,9 +252,10 @@ const ProductList = () => {
                     title={
                         <>
                             {t('products.product.titleList')}
-                            <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                            {/* <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
                                 <MoreVertIcon />
-                            </IconButton>
+                            </IconButton> */}
+                            <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                         </>
                     }
                     action={

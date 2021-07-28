@@ -16,6 +16,7 @@ import AddIcon from '@material-ui/icons/Add'
 import LoopIcon from '@material-ui/icons/Loop'
 
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -248,9 +249,7 @@ const ExportDestroyList = () => {
             <Card>
                 <CardHeader
                     title={<>{t('order.exportDestroy.titleList')}
-                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
+                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>}
                     action={
                         <div className='d-flex align-items-center'>

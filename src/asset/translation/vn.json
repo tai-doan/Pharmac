@@ -45,7 +45,7 @@
     "createdUser": "Người thực hiện",
     "createdDate": "Thời gian thực hiện",
     "viewDetail": "Xem chi tiết {{name}}",
-    "updateUser": "Người cập nhật TT",
+    "updateUser": "Người cập nhật",
     "updateDate": "Thời gian cập nhật",
     "normal": "Bình thường",
     "cancelled": "Đã hủy",
@@ -436,7 +436,7 @@
             "inv_values": "Giá trị hóa đơn",
             "person_s": "Người giao hàng",
             "person_r": "Người nhận hàng",
-            "upd_user": "Người cập nhật TT",
+            "upd_user": "Người cập nhật",
             "upd_date": "Thời gian cập nhật"
         },
         "importInventory": {
@@ -484,7 +484,7 @@
             "inv_values": "Giá trị hóa đơn",
             "person_s": "Người giao hàng",
             "person_r": "Người nhận hàng",
-            "upd_user": "Người cập nhật TT",
+            "upd_user": "Người cập nhật",
             "upd_date": "Thời gian cập nhật"
         },
         "export": {
@@ -532,7 +532,7 @@
             "discount_per": "% Chiết khấu",
             "total_prod": "Tổng loại sp xuất",
             "note": "Ghi chú",
-            "upd_user": "Người cập nhật TT",
+            "upd_user": "Người cập nhật",
             "upd_date": "Thời gian cập nhật",
             "start_date": "Ngày bắt đầu",
             "end_date": "Ngày kết thúc",
@@ -587,7 +587,7 @@
             "discount_per": "% Chiết khấu",
             "total_prod": "Tổng loại sp xuất",
             "note": "Ghi chú",
-            "upd_user": "Người cập nhật TT",
+            "upd_user": "Người cập nhật",
             "upd_date": "Thời gian cập nhật",
             "start_date": "Ngày bắt đầu",
             "end_date": "Ngày kết thúc",
@@ -647,7 +647,7 @@
             "discount_per": "% Chiết khấu",
             "total_prod": "Tổng loại sp xuất",
             "note": "Ghi chú",
-            "upd_user": "Người cập nhật TT",
+            "upd_user": "Người cập nhật",
             "upd_date": "Thời gian cập nhật",
             "start_date": "Ngày bắt đầu",
             "end_date": "Ngày kết thúc",

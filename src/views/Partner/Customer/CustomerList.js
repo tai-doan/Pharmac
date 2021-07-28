@@ -22,6 +22,7 @@ import CustomerEdit from './CustomerEdit'
 import SearchOne from '../../../components/SearchOne'
 import LoopIcon from '@material-ui/icons/Loop';
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 
 const serviceInfo = {
     GET_ALL: {
@@ -256,9 +257,12 @@ const CustomerList = () => {
             />
             <Card>
                 <CardHeader
-                    title={<>{t('partner.customer.titleList')}<IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
+                    title={<>{t('partner.customer.titleList')}
+                    {/* <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
                         <MoreVertIcon />
-                    </IconButton></>}
+                    </IconButton> */}
+                    <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
+                    </>}
                     action={
                         <div className='d-flex align-items-center'>
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />

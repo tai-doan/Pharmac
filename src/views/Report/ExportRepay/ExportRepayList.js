@@ -22,6 +22,7 @@ import { Card, CardHeader, CardContent, IconButton } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import moment from 'moment'
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 
 const serviceInfo = {
     GET_ALL: {
@@ -199,9 +200,7 @@ const ExportRepayList = () => {
             <Card>
                 <CardHeader
                     title={<>{t('order.exportRepay.titleList')}
-                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
+                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>}
                     action={
                         <div className='d-flex align-items-center'>

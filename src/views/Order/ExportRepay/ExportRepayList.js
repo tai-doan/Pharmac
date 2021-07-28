@@ -17,6 +17,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -260,9 +261,7 @@ const ExportRepayList = () => {
             <Card>
                 <CardHeader
                     title={<>{t('order.exportRepay.titleList')}
-                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
+                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>}
                     action={
                         <div className='d-flex align-items-center'>

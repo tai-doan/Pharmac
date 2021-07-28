@@ -28,6 +28,7 @@ import { Link } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 
 const serviceInfo = {
     GET_ALL: {
@@ -263,9 +264,7 @@ const ExportList = () => {
             <Card>
                 <CardHeader
                     title={<>{t('order.export.titleList')}
-                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
+                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>}
                     action={
                         <div className='d-flex align-items-center'>

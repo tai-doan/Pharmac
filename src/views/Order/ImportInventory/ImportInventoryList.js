@@ -16,6 +16,7 @@ import LoopIcon from '@material-ui/icons/Loop';
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 
 import ExportExcel from '../../../components/ExportExcel'
+import DisplayColumn from '../../../components/DisplayColumn';
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -261,9 +262,7 @@ const ImportInventoryList = () => {
             <Card>
                 <CardHeader
                     title={<>{t('order.importInventory.titleList')}
-                        <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton>
+                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>}
                     action={
                         <div className='d-flex align-items-center'>
