@@ -99,6 +99,9 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                 o_17: newData.rows[0].o_18 // unit name
             }
             setProduct(newConvertData)
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
         }
     }
 
@@ -111,6 +114,9 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
         } else if (message['PROC_DATA']) {
             setControlTimeOutKey(null)
             setProduct(productDefaulModal)
@@ -192,7 +198,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                             <TextField
                                 fullWidth={true}
                                 required={true}
-                                autoFocus={true}
                                 autoComplete="off"
                                 margin="dense"
                                 label={t('products.product.name')}

@@ -68,6 +68,9 @@ const ProductAdd = ({ onRefresh }) => {
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
         } else if (message['PROC_DATA']) {
             setProduct(productDefaulModal)
             onRefresh()

@@ -56,6 +56,9 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setProductGroup(newData.rows[0])
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
         }
     }
 
@@ -68,6 +71,9 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
         } else if (message['PROC_DATA']) {
             setProductGroup({})
             setShouldOpenModal(false)
@@ -119,7 +125,6 @@ const ProductGroupEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }
                     <TextField
                         fullWidth={true}
                         required={true}
-                        autoFocus={true}
                         autoComplete="off"
                         margin="dense"
                         label={t('products.productGroup.name')}
