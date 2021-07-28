@@ -33,7 +33,7 @@ const ImportSearch = ({ handleSearch, process = false }) => {
         supplier_nm: '',
         supplier_id: null,
         invoice_no: '',
-        invoice_status: '%',
+        invoice_status: '1',
         product_id: null,
         product_nm: ''
     })
@@ -157,7 +157,7 @@ const ImportSearch = ({ handleSearch, process = false }) => {
                         <Select
                             labelId="status"
                             id="status-select"
-                            value={searchModal.invoice_status || '%'}
+                            value={searchModal.invoice_status || '1'}
                             onChange={handleChange}
                             onKeyPress={key => {
                                 if (key.which === 13) return handleSearch(searchModal)
@@ -165,7 +165,7 @@ const ImportSearch = ({ handleSearch, process = false }) => {
                             label={t('invoice_status')}
                             name='invoice_status'
                         >
-                            <MenuItem value="%">{t('all')}</MenuItem>
+                            {/* <MenuItem value="%">{t('all')}</MenuItem> */}
                             <MenuItem value="1">{t('normal')}</MenuItem>
                             <MenuItem value="2">{t('cancelled')}</MenuItem>
                         </Select>

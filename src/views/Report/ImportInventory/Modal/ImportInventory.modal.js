@@ -18,7 +18,7 @@ const searchDefaultModal = {
     start_dt: moment().subtract(1, 'months').format('YYYYMMDD'),
     end_dt: moment().format('YYYYMMDD'),
     invoice_no: '%',
-    invoice_status: '%',
+    invoice_status: '1',
     product_id: 0,
     product_nm: '',
     last_invoice_id: 999999999999,

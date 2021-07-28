@@ -22,7 +22,7 @@ const searchDefaultModal = {
     customer_id: 0,
     customer_nm: '',
     invoice_no: '%',
-    invoice_status: '%',
+    invoice_status: '1',
     product_id: 0,
     product_nm: '',
     last_invoice_id: 999999999999,
