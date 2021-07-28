@@ -8,7 +8,7 @@ const tableColumn = [
     { field: 'o_4', title: 'order.import.total_prod', show: true, disabled: false, minWidth: 200, type: 'number', align: 'right' },
     { field: 'o_5', title: 'order.import.invoice_val', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_6', title: 'order.import.cancel_reason', show: false, disabled: false, minWidth: 100 },
-    { field: 'o_7', title: 'order.import.note', show: true, disabled: false, minWidth: 300 },
+    { field: 'o_7', title: 'order.import.note', show: false, disabled: false, minWidth: 300 },
     { field: 'o_8', title: 'order.import.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     { field: 'o_9', title: 'updateUser', show: true, disabled: false, minWidth: 200 },
     { field: 'o_10', title: 'updateDate', show: true, disabled: false, minWidth: 100, type: 'date', align: 'center' }

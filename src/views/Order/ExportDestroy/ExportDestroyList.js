@@ -160,6 +160,9 @@ const ExportDestroyList = () => {
         dataSourceRef.current = []
         setSearchModal({ ...searchObject })
         setTotalRecords(0)
+        const newColumn = [...column]
+        newColumn[4].show = searchObject.id_status === '2' ? true : false;
+        setColumn(newColumn)
         getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch, searchObject.id_status)
     }
 

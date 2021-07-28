@@ -8,7 +8,7 @@ const tableColumn = [
     { field: 'o_4', title: 'order.exportDestroy.exp_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     // { field: 'o_5', title: 'order.exportDestroy.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     // { field: 'o_6', title: 'order.exportDestroy.staff_nm', show: true, disabled: false, minWidth: 200 },
-    { field: 'o_7', title: 'order.exportDestroy.note', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_7', title: 'order.exportDestroy.note', show: false, disabled: false, minWidth: 100 },
     { field: 'o_8', title: 'order.exportDestroy.total_prod', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_9', title: 'order.exportDestroy.invoice_val', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_10', title: 'updateUser', show: true, disabled: false, minWidth: 200 },

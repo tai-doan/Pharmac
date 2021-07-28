@@ -10,7 +10,7 @@ const tableColumn = [
     { field: 'o_7', title: 'order.export.input_dt', show: true, disabled: false, minWidth: 100, type: 'dated', align: 'center' },
     // { field: 'o_8', title: 'order.export.staff_nm', show: true, disabled: false, minWidth: 200 },
     { field: 'o_9', title: 'order.export.cancel_reason', show: false, disabled: false, minWidth: 200 },
-    { field: 'o_10', title: 'order.export.note', show: true, disabled: false, minWidth: 100 },
+    { field: 'o_10', title: 'order.export.note', show: false, disabled: false, minWidth: 100 },
     { field: 'o_11', title: 'order.export.total_prod', show: true, disabled: false, minWidth: 100, type: 'number', align: 'right' },
     { field: 'o_12', title: 'order.export.invoice_val', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },
     { field: 'o_13', title: 'order.export.invoice_discount', show: true, disabled: false, minWidth: 100, type: 'currency', align: 'right' },

@@ -161,6 +161,7 @@ const ExportRepayList = () => {
         setTotalRecords(0)
         const newColumn = [...column]
         newColumn[5].show = searchObject.id_status === '2' ? true : false;
+        newColumn[6].show = searchObject.id_status === '2' ? true : false;
         setColumn(newColumn)
         getList(moment(searchObject.start_dt).format('YYYYMMDD'), moment(searchObject.end_dt).format('YYYYMMDD'), glb_sv.defaultValueSearch, searchObject.id_status, searchObject.supplier.trim())
     }
