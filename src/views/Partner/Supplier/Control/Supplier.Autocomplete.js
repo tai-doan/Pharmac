@@ -5,11 +5,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
 import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
-import { config } from '../Modal/Supplier.modal'
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -29,26 +26,7 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
 
     useEffect(() => {
         const inputParam = ['venders', '%']
-        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, e => console.log('result ', e), true, handleTimeOut)
-
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.SUPPLIER_DROPDOWN_LIST) {
-                    resultSupplierDropDownList(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            unitSub.unsubscribe()
-        }
+        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, resultSupplierDropDownList, true, handleTimeOut)
     }, [])
 
     useEffect(() => {
@@ -57,15 +35,14 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
         }
     }, [value, dataSource])
 
-    const resultSupplierDropDownList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const resultSupplierDropDownList = (reqInfoMap, message ) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
+            // thành công
             let newData = message['PROC_DATA']
             setDataSource(newData.rows)
         }

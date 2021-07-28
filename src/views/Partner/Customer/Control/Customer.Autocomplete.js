@@ -4,11 +4,8 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
-import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import { config } from '../Modal/Customer.modal'
 
 const serviceInfo = {
@@ -41,65 +38,36 @@ const Customer_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
 
     useEffect(() => {
         const inputParam = [glb_sv.defaultValueSearch, '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
-
-        const unitSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRICE_LIST) {
-                    resultGetList(msg, cltSeqResult, reqInfoMap)
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRICE_BY_ID) {
-                    resultGetCustomerByID(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            unitSub.unsubscribe()
-        }
+        sendRequest(serviceInfo.GET_ALL, inputParam, resultGetList, true, handleTimeOut)
     }, [])
 
     useEffect(() => {
         if (value !== null || value !== undefined) {
-            sendRequest(serviceInfo.GET_UNIT_BY_ID, [value], null, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_UNIT_BY_ID, [value], resultGetCustomerByID, true, handleTimeOut)
         }
     }, [value])
 
-    const resultGetCustomerByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const resultGetCustomerByID = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             setValueSelect(newData.rows[0])
         }
     }
 
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const resultGetList = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-        }
-        if (message['PROC_DATA']) {
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
             let newDataSource = dataSource.concat(newData.rows)
             setDataSource(newDataSource)

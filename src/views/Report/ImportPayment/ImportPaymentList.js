@@ -242,8 +242,8 @@ const ImportPaymentList = () => {
                                                     switch (col.field) {
                                                         case 'o_3':
                                                             return (
-                                                                <Tooltip title={`${t('report.invoice_val')} : ${glb_sv.formatValue(item.o_5, 'number')}`}>
-                                                                    <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                <Tooltip key={col.field+indexRow} title={`${t('report.invoice_val')} : ${glb_sv.formatValue(item.o_5, 'number')}`}>
+                                                                    <TableCell nowrap="true" key={col.field+indexRow} align={col.align}>
                                                                         {glb_sv.formatValue(value, col['type'])}
                                                                     </TableCell>
                                                                 </Tooltip>
@@ -251,9 +251,9 @@ const ImportPaymentList = () => {
                                                         case 'o_8':
                                                             if (item.o_7 === '2') {
                                                                 return (
-                                                                    <Tooltip placement='top'
+                                                                    <Tooltip key={col.field+indexRow} placement='top'
                                                                         title={
-                                                                            <Grid container spacing={2}>
+                                                                            <Grid key={col.field+indexRow} container spacing={2}>
                                                                                 <Grid item xs={12}>
                                                                                     {t('report.bank_transf_acc_name')} : {item.o_10}
                                                                                 </Grid>
@@ -275,21 +275,21 @@ const ImportPaymentList = () => {
                                                                             </Grid>
                                                                         }
                                                                     >
-                                                                        < TableCell nowrap="true" key={indexRow} align={col.align} >
+                                                                        < TableCell nowrap="true" key={col.field+indexRow} align={col.align} >
                                                                             {glb_sv.formatValue(value, col['type'])}
                                                                         </TableCell>
                                                                     </Tooltip>
                                                                 )
                                                             } else {
                                                                 return (
-                                                                    < TableCell nowrap="true" key={indexRow} align={col.align} >
+                                                                    <TableCell nowrap="true" key={col.field+indexRow} align={col.align} >
                                                                         {glb_sv.formatValue(value, col['type'])}
                                                                     </TableCell>
                                                                 )
                                                             }
                                                         default:
                                                             return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                <TableCell nowrap="true" key={col.field+indexRow} align={col.align}>
                                                                     {glb_sv.formatValue(value, col['type'])}
                                                                 </TableCell>
                                                             )
