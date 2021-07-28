@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import NumberFormat from 'react-number-format'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -44,6 +44,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
     const [minUnit, setMinUnit] = useState(null)
     const [process, setProcess] = useState(false)
     const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const step1Ref = useRef(null)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => { setShouldOpenModal(false); setUnitRate({}) }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -77,6 +78,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
         } else if (message['PROC_DATA']) {
             let data = message['PROC_DATA']
             setMinUnit(data.rows[0]?.o_1 || null)
+            step1Ref.current.focus()
         }
     }
 
@@ -128,9 +130,9 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            // onClose={e => {
-            //     setShouldOpenModal(false)
-            // }}
+        // onClose={e => {
+        //     setShouldOpenModal(false)
+        // }}
         >
             <Card>
                 <CardHeader title={t('config.unitRate.titleEdit', { name: unitRate.o_3 })} />
@@ -158,8 +160,7 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
-                                value={unitRate.o_6}
-                                autoFocus={true}
+                                value={unitRate.o_6 || 0}
                                 label={t('config.unitRate.rate')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -168,6 +169,8 @@ const UnitRateEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                 variant="outlined"
                                 thousandSeparator={true}
                                 onValueChange={handleChange}
+                                onFocus={e => e.target.select()}
+                                inputRef={step1Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         handleUpdate()

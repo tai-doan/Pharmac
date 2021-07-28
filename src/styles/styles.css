@@ -265,6 +265,10 @@ div.MuiCardHeader-action span.MuiTypography-root.MuiFormControlLabel-label.MuiTy
     max-height: calc(100vh - 330px);
 }
 
+.MuiGrid-spacing-xs-1 > .MuiGrid-item {
+    padding: 0px 4px !important;
+}
+
 note {
     font-size: 13px;
 }

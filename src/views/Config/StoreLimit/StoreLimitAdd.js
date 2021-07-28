@@ -6,6 +6,7 @@ import { Card, CardHeader, CardContent, CardActions, Chip, Grid, Button, TextFie
 
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import Unit_Autocomplete from '../Unit/Control/Unit.Autocomplete'
+import { modalDefaultAdd } from './Modal/StoreLimit.modal'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -34,7 +35,7 @@ const serviceInfo = {
 const StoreLimitAdd = ({ onRefresh }) => {
     const { t } = useTranslation()
 
-    const [StoreLimit, setStoreLimit] = useState({})
+    const [StoreLimit, setStoreLimit] = useState(modalDefaultAdd)
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
@@ -50,7 +51,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
     useHotkeys('f4', () => { handleCreate(); saveContinue.current = true }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('esc', () => {
         setShouldOpenModal(false);
-        setStoreLimit({})
+        setStoreLimit(modalDefaultAdd)
     }, { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
 
     const handleResultCreate = (reqInfoMap, message) => {
@@ -63,7 +64,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
-            setStoreLimit({})
+            setStoreLimit(modalDefaultAdd)
             onRefresh()
             if (saveContinue.current) {
                 saveContinue.current = false
@@ -127,12 +128,12 @@ const StoreLimitAdd = ({ onRefresh }) => {
 
     const handleMinQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['minQuantity'] = Number(value.value)
+        newStoreLimit['minQuantity'] = Number(value.value) >= 0 ? Number(value.value) : 10
         setStoreLimit(newStoreLimit)
     }
     const handleMaxQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['maxQuantity'] = Number(value.value)
+        newStoreLimit['maxQuantity'] = Number(value.value) >= 0 ? Number(value.value) : 1000
         setStoreLimit(newStoreLimit)
     }
 
@@ -143,10 +144,10 @@ const StoreLimitAdd = ({ onRefresh }) => {
                 fullWidth={true}
                 maxWidth="sm"
                 open={shouldOpenModal}
-                // onClose={e => {
-                //     setShouldOpenModal(false)
-                //     setStoreLimit({})
-                // }}
+            // onClose={e => {
+            //     setShouldOpenModal(false)
+            //     setStoreLimit({})
+            // }}
             >
                 <Card>
                     <CardHeader title={t('config.store_limit.titleAdd')} />
@@ -175,6 +176,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                     size={'small'}
                                     label={t('menu.configUnit')}
                                     onSelect={handleSelectUnit}
+                                    onFocus={e => e.target.select()}
                                     inputRef={step2Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
@@ -199,6 +201,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    onFocus={e => e.target.select()}
                                     inputRef={step3Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
@@ -223,6 +226,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                     inputProps={{
                                         min: 0,
                                     }}
+                                    onFocus={e => e.target.select()}
                                     inputRef={step4Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
@@ -240,7 +244,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
                                     return
                                 }
                                 setShouldOpenModal(false);
-                                setStoreLimit({})
+                                setStoreLimit(modalDefaultAdd)
                             }}
                             variant="contained"
                             disableElevation

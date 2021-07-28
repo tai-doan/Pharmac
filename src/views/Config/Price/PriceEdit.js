@@ -70,6 +70,7 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
             let newData = message['PROC_DATA']
             setPrice(newData.rows[0])
             setUnitSelect(newData.rows[0].o_5)
+            step4Ref.current.focus()
         }
     }
 
@@ -247,7 +248,6 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                                 style={{ width: '100%' }}
                                 required
                                 value={Price.o_8}
-                                autoFocus={true}
                                 label={t('config.price.price')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -326,7 +326,8 @@ const PriceEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => {
                             fullWidth={true}
                             margin="dense"
                             multiline
-                            rows={2}
+                            rows={1}
+                            rowsMax={5}
                             autoComplete="off"
                             label={t('config.price.note')}
                             onChange={handleChange}

@@ -34,7 +34,6 @@ const WarnTimeAdd = ({ onRefresh }) => {
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
-    const inputRef = useRef(null)
     const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
     const step1Ref = useRef(null)
     const step2Ref = useRef(null)
@@ -163,6 +162,7 @@ const WarnTimeAdd = ({ onRefresh }) => {
                                         min: 0,
                                     }}
                                     inputRef={step2Ref}
+                                    onFocus={e => e.target.select()}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             step3Ref.current.focus()

@@ -62,6 +62,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setStoreLimit(newData.rows[0])
+            step2Ref.current.focus()
         }
     }
 
@@ -110,12 +111,12 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
 
     const handleMinQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['o_6'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 10
+        newStoreLimit['o_6'] = Number(value.value) >= 0 ? Number(value.value) : 10
         setStoreLimit(newStoreLimit)
     }
     const handleMaxQuantityChange = value => {
         const newStoreLimit = { ...StoreLimit };
-        newStoreLimit['o_7'] = Number(value.value) >= 0 && Number(value.value) <= 100 ? Math.round(value.value) : 1000
+        newStoreLimit['o_7'] = Number(value.value) >= 0 ? Number(value.value) : 1000
         setStoreLimit(newStoreLimit)
     }
 
@@ -124,14 +125,14 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
             fullWidth={true}
             maxWidth="sm"
             open={shouldOpenModal}
-            // onClose={e => {
-            //     setShouldOpenModal(false)
-            // }}
+        // onClose={e => {
+        //     setShouldOpenModal(false)
+        // }}
         >
             <Card>
                 <CardHeader title={t('config.store_limit.titleEdit', { name: StoreLimit.o_3 })} />
                 <CardContent>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={6}>
                             <Product_Autocomplete
                                 disabled={true}
@@ -161,7 +162,6 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
-                                autoFocus={true}
                                 value={StoreLimit.o_6}
                                 label={t('config.store_limit.minQuantity')}
                                 customInput={TextField}
@@ -174,6 +174,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                                 inputProps={{
                                     min: 0,
                                 }}
+                                onFocus={e => e.target.select()}
                                 inputRef={step2Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
@@ -199,6 +200,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
                                     min: 0,
                                 }}
                                 inputRef={step3Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         handleUpdate()

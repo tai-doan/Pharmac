@@ -75,7 +75,7 @@ const UnitAdd = ({ onRefresh }) => {
             if (saveContinue.current) {
                 saveContinue.current = false
                 setTimeout(() => {
-                    if (inputRef.current) inputRef.current.focus()
+                    if (step1Ref.current) step1Ref.current.focus()
                 }, 100)
             } else {
                 setShouldOpenModal(false)
@@ -118,7 +118,6 @@ const UnitAdd = ({ onRefresh }) => {
                             fullWidth={true}
                             required
                             autoFocus
-                            inputRef={inputRef}
                             autoComplete="off"
                             margin="dense"
                             label={t('config.unit.name')}

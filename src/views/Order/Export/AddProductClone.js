@@ -100,7 +100,7 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
                     // bảng giá chưa config giá nhỏ nhất
                     if (productInfo.exp_tp === '1') {
                         newProductInfo['unit_id'] = data.rows[0].o_4;
-                        newProductInfo['price'] = invoiceType ? itemMinUnit.o_8 : itemMinUnit.o_9
+                        newProductInfo['price'] = invoiceType ? data.rows[0].o_8 : data.rows[0].o_9
                         newProductInfo['discount_per'] = 0
                         newProductInfo['vat_per'] = data.rows[0].o_10
                         setProductInfo(newProductInfo)

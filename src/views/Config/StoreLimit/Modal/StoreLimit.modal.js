@@ -42,7 +42,15 @@ const config = {
     },
 }
 
+const modalDefaultAdd = {
+    product: null,
+    unit: null,
+    minQuantity: 0,
+    maxQuantity: 0
+}
+
 export {
+    modalDefaultAdd,
     tableColumn,
     config
 }

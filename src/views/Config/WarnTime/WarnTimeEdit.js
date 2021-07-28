@@ -61,6 +61,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
             setWarnTime(newData.rows[0])
+            step1Ref.current.focus()
         }
     }
 
@@ -140,7 +141,6 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
                                 required
-                                autoFocus={true}
                                 value={warnTime?.o_4}
                                 label={t('config.warnTime.warn_amt')}
                                 customInput={TextField}
@@ -154,6 +154,7 @@ const WarnTimeEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                                     min: 0,
                                 }}
                                 inputRef={step1Ref}
+                                onFocus={e => e.target.select()}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
                                         step2Ref.current.focus()

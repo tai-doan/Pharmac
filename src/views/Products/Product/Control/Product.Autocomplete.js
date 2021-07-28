@@ -46,6 +46,9 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             let item = dataSource.find(x => x.o_1 === productID)
             setValueSelect(item)
             setInputValue(!!item ? item.o_2 : '')
+        } else {
+            setValueSelect({})
+            setInputValue('')
         }
     }, [productID])
 

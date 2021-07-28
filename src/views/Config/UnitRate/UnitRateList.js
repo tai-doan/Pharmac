@@ -118,6 +118,7 @@ const UnitRateList = () => {
             setId(0);
             setDataSource([]);
             setTotalRecords(0)
+            setShouldOpenRemoveModal(false)
             getList(glb_sv.defaultValueSearch, searchValue)
         }
     }

@@ -147,7 +147,7 @@ const UnitRateAdd = ({ onRefresh }) => {
                 <Card>
                     <CardHeader title={t('config.unitRate.titleAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={12} sm={12}>
                                 <Product_Autocomplete
                                     autoFocus={true}
@@ -192,7 +192,8 @@ const UnitRateAdd = ({ onRefresh }) => {
                                     variant="outlined"
                                     thousandSeparator={true}
                                     onValueChange={handleChange}
-                                    inputRef={step3Ref.current}
+                                    onFocus={e => e.target.select()}
+                                    inputRef={step3Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             handleCreate()
