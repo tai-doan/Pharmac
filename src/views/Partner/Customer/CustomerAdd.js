@@ -151,7 +151,7 @@ const CustomerAdd = ({ onRefresh }) => {
                 <Card>
                     <CardHeader title={t('partner.customer.titleAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     fullWidth={true}
@@ -228,7 +228,7 @@ const CustomerAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     fullWidth={true}
@@ -302,7 +302,7 @@ const CustomerAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     fullWidth={true}
@@ -371,7 +371,7 @@ const CustomerAdd = ({ onRefresh }) => {
                                 </FormControl>
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     disabled={Customer.cust_tp === '1'}
@@ -449,7 +449,7 @@ const CustomerAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={12} sm={12}>
                                 <TextField
                                     disabled={Customer.cust_tp === '1'}

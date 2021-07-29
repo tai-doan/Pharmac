@@ -150,7 +150,7 @@ const SupplierAdd = ({ onRefresh }) => {
                 <Card>
                     <CardHeader title={t('partner.supplier.titleAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     fullWidth={true}
@@ -227,7 +227,7 @@ const SupplierAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     fullWidth={true}
@@ -301,7 +301,7 @@ const SupplierAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={4}>
                                 <TextField
                                     fullWidth={true}
@@ -351,7 +351,7 @@ const SupplierAdd = ({ onRefresh }) => {
                                 </FormControl>
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <TextField
                                     disabled={Supplier.vender_tp === '1'}
@@ -429,7 +429,7 @@ const SupplierAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={12} sm={12}>
                                 <TextField
                                     disabled={Supplier.agent_nm === '1'}

@@ -163,7 +163,7 @@ const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
             <Card>
                 <CardHeader title={t('partner.customer.titleEdit', { name: Customer.o_3 })} />
                 <CardContent>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
@@ -239,7 +239,7 @@ const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             />
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
@@ -313,7 +313,7 @@ const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             />
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={6} sm={3}>
                             <TextField
                                 fullWidth={true}
@@ -383,7 +383,7 @@ const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             </FormControl>
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={6} sm={3}>
                             <TextField
                                 disabled={Customer.o_23 === '1'}
@@ -461,7 +461,7 @@ const CustomerEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) =>
                             />
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={12} sm={12}>
                             <TextField
                                 disabled={Customer.o_23 === '1'}

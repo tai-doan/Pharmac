@@ -127,6 +127,12 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                     setProductInfo(prev => { return { ...prev, ...newProductInfo } })
                 }
             }
+        } else {
+            const newProductInfo = { ...productInfo };
+            newProductInfo['price'] = 0
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = 0
+            setProductInfo(newProductInfo)
         }
     }
 

@@ -9,6 +9,8 @@
         "profile": "Thông tin",
         "emptyData": "Không có dữ liệu cần tra cứu!"
     },
+    "scan_barcode": "Quét mã vạch",
+    "edit_base": "Nhập cơ bản",
     "min_unit": "Đơn vị nhỏ nhất",
     "auto_update": "Ghi nhận bút toán chỉnh sửa tương ứng",
     "yes": "Đúng",

@@ -160,7 +160,7 @@ const ProductAdd = ({ onRefresh }) => {
                 <Card>
                     <CardHeader title={t('products.product.titleAdd')} />
                     <CardContent>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <Tooltip placement="top" title={t('product.tooltip.productCode')} arrow>
                                     <TextField
@@ -236,7 +236,7 @@ const ProductAdd = ({ onRefresh }) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid item xs={6} sm={3}>
                                 <Tooltip placement="top" title={t('product.tooltip.barcode')} arrow>
                                     <TextField
@@ -309,7 +309,7 @@ const ProductAdd = ({ onRefresh }) => {
                                 <Typography className={''}>{t('product.infoExpand')}</Typography>
                             </AccordionSummary>
                             <AccordionDetails className="pt-0 pb-0">
-                                <Grid container className={''} spacing={2}>
+                                <Grid container className={''} spacing={1}>
                                     <Grid item xs={12} sm={6} md={6}>
                                         <TextField
                                             fullWidth={true}
@@ -351,7 +351,7 @@ const ProductAdd = ({ onRefresh }) => {
                                 </Grid>
                             </AccordionDetails>
                             <AccordionDetails className="pt-0 pb-0">
-                                <Grid container className="{}" spacing={2}>
+                                <Grid container className="{}" spacing={1}>
                                     <Grid item xs={12} sm={6} md={6}>
                                         <TextField
                                             fullWidth={true}
@@ -393,7 +393,7 @@ const ProductAdd = ({ onRefresh }) => {
                                 </Grid>
                             </AccordionDetails>
                             <AccordionDetails className="pt-0 pb-0">
-                                <Grid container className={''} spacing={2}>
+                                <Grid container className={''} spacing={1}>
                                     <Grid item xs={12} sm={6} md={6}>
                                         <TextField
                                             fullWidth={true}
@@ -435,7 +435,7 @@ const ProductAdd = ({ onRefresh }) => {
                                 </Grid>
                             </AccordionDetails>
                             <AccordionDetails className="pt-0">
-                                <Grid container className="{}" spacing={2}>
+                                <Grid container className="{}" spacing={1}>
                                     <Grid item xs={12} sm={6} md={6}>
                                         <TextField
                                             fullWidth={true}

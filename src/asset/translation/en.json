@@ -9,6 +9,8 @@
         "profile": "Profile",
         "emptyData": "Empty data!"
     },
+    "scan_barcode": "Scan barcode",
+    "edit_base": "Edit base",
     "min_unit": "Min units",
     "auto_update": "Auto update",
     "yes": "Yes",
