@@ -319,7 +319,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                 inputRef={step6Ref}
                                 onKeyPress={event => {
                                     if (event.key === 'Enter') {
-                                        step7Ref.current.focus()
+                                        setIsExpanded(true)
+                                        setTimeout(() => {
+                                            step7Ref.current.focus()
+                                        }, 10);
                                     }
                                 }}
                             />

@@ -292,7 +292,10 @@ const ProductAdd = ({ onRefresh }) => {
                                     inputRef={step7Ref}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
-                                            step8Ref.current.focus()
+                                            setIsExpanded(true)
+                                            setTimeout(() => {
+                                                step8Ref.current.focus()
+                                            }, 10);
                                         }
                                     }}
                                 />
