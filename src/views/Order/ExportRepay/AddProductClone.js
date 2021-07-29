@@ -18,6 +18,12 @@ import reqFunction from '../../../utils/constan/functions'
 import sendRequest from '../../../utils/service/sendReq'
 
 const serviceInfo = {
+    GET_PRICE_BY_PRODUCT_ID: {
+        functionName: 'get_by_prodid',
+        reqFunct: reqFunction.EXPORT_BY_ID,
+        biz: 'common',
+        object: 'setup_price'
+    },
     GET_PRODUCT_BY_BARCODE: {
         functionName: 'get_by_barcode',
         reqFunct: reqFunction.GET_PRODUCT_BY_BARCODE,
@@ -30,6 +36,8 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     const { t } = useTranslation()
     const [productInfo, setProductInfo] = useState({ ...productExportRepayModal })
     const [isInventory, setIsInventory] = useState(true)
+    const [priceList, setPriceList] = useState([])
+    const [selectLotNoFlag, setSelectLotNoFlag] = useState(false)
     const [barcodeScaned, setBarcodeScaned] = useState('')
     const [isScan, setIsScan] = useState(false)
     const inputBarcodeRef = useRef(null)
@@ -49,6 +57,13 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         }
     }, [resetFlag])
 
+    useEffect(() => {
+        if (selectLotNoFlag && productInfo.prod_id) {
+            setPriceList([])
+            sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
+        }
+    }, [selectLotNoFlag])
+
     const handleSelectProduct = obj => {
         const newProductInfo = { ...productInfo };
         newProductInfo['prod_id'] = !!obj ? obj?.o_1 : null
@@ -63,10 +78,56 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         setProductInfo(newProductInfo)
     }
 
+    const handleResultGetPrice = (reqInfoMap, message) => {
+        if (message['PROC_CODE'] !== 'SYS000') {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            let data = message['PROC_DATA']
+            setPriceList(data.rows)
+            if (data.rows.length > 0) {
+                let itemMinUnit = data.rows.find(x => x.o_4 === productInfo?.unit_id)
+                const newProductInfo = { ...productInfo };
+                if (itemMinUnit) {
+                    // bảng giá đã config giá nhỏ nhất
+                    newProductInfo['price'] = itemMinUnit.o_9// invoiceType ? itemMinUnit.o_8 : itemMinUnit.o_9
+                    newProductInfo['discount_per'] = 0
+                    newProductInfo['vat_per'] = itemMinUnit.o_10
+                    setProductInfo(newProductInfo)
+                } else {
+                    // bảng giá chưa config giá nhỏ nhất
+                    newProductInfo['unit_id'] = data.rows[0].o_4;
+                    newProductInfo['price'] = data.rows[0].o_9// invoiceType ? data.rows[0].o_8 : data.rows[0].o_9
+                    newProductInfo['discount_per'] = 0
+                    newProductInfo['vat_per'] = data.rows[0].o_10
+                    setProductInfo(newProductInfo)
+                }
+            } else {
+                const newProductInfo = { ...productInfo };
+                newProductInfo['price'] = 0
+                newProductInfo['discount_per'] = 0
+                newProductInfo['vat_per'] = 0
+                setProductInfo(newProductInfo)
+            }
+        }
+    }
+
     const handleSelectUnit = obj => {
         const newProductInfo = { ...productInfo };
         newProductInfo['unit_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['unit_nm'] = !!obj ? obj?.o_2 : ''
+        const priceData = priceList.find(x => x.o_4 === obj.o_1)
+        if (priceData) {
+            newProductInfo['price'] = priceData.o_9
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = priceData.o_10
+        } else {
+            newProductInfo['price'] = 0
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = 0
+        }
         setProductInfo(newProductInfo)
     }
 
@@ -101,6 +162,10 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         newProductInfo['unit_id'] = !!object ? object.o_7 : null
         newProductInfo['exp_dt'] = !!object ? object.o_4 : null
         setProductInfo(newProductInfo)
+        setSelectLotNoFlag(true)
+        setTimeout(() => {
+            setSelectLotNoFlag(false)
+        }, 100);
     }
 
     const handleBarCodeChange = e => {

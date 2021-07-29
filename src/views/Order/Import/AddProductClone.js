@@ -40,6 +40,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     const [productImportInfoData, setproductImportInfoData] = useState([])
     const [requireExpDate, setRequireExpDate] = useState(false)
     const [productOpenFocus, setProductOpenFocus] = useState(false)
+    const [priceList, setPriceList] = useState([])
 
     const stepOneRef = useRef(null)
     const stepTwoRef = useRef(null)
@@ -61,6 +62,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
 
     useEffect(() => {
         if (productInfo.prod_id !== null) {
+            setPriceList([])
             sendRequest(serviceInfo.GET_PRODUCT_IMPORT_INFO, [productInfo.prod_id], handleResultGetProductImportInfo, true, handleTimeOut)
             sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
         }
@@ -114,6 +116,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             let data = message['PROC_DATA'];
+            setPriceList(data.rows)
             if (data.rows.length > 0) {
                 let itemMinUnit = data.rows.find(x => x.o_4 === productInfo?.unit_id)
                 const newProductInfo = {};
@@ -122,6 +125,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                     if (productInfo.imp_tp === '1') {
                         newProductInfo['price'] = itemMinUnit.o_6
                         newProductInfo['vat_per'] = itemMinUnit.o_7
+                        newProductInfo['discount_per'] = 0
                         setProductInfo(prev => { return { ...prev, ...newProductInfo } })
                     }
                 } else {
@@ -130,6 +134,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                         newProductInfo['unit_id'] = data.rows[0].o_4;
                         newProductInfo['price'] = data.rows[0].o_6
                         newProductInfo['vat_per'] = data.rows[0].o_7
+                        newProductInfo['discount_per'] = 0
                         setProductInfo(prev => { return { ...prev, ...newProductInfo } })
                     }
                 }
@@ -147,6 +152,16 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['unit_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['unit_nm'] = !!obj ? obj?.o_2 : ''
+        const priceData = priceList.find(x => x.o_4 === obj.o_1)
+        if (priceData) {
+            newProductInfo['price'] = priceData.o_6
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = priceData.o_10
+        } else {
+            newProductInfo['price'] = 0
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = 0
+        }
         setProductInfo(newProductInfo)
     }
 

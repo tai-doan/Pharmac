@@ -37,6 +37,7 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
     const [productInfo, setProductInfo] = useState({ ...productExportModal })
     const [productOpenFocus, setProductOpenFocus] = useState(false)
     const [isInventory, setIsInventory] = useState(true)
+    const [priceList, setPriceList] = useState([])
     const [selectLotNoFlag, setSelectLotNoFlag] = useState(false)
     const [barcodeScaned, setBarcodeScaned] = useState('')
     const [isScan, setIsScan] = useState(false)
@@ -61,12 +62,14 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
 
     useEffect(() => {
         if (selectLotNoFlag && productInfo.prod_id) {
+            setPriceList([])
             sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
         }
     }, [selectLotNoFlag])
 
     useEffect(() => {
         if (productInfo.prod_id) {
+            setPriceList([])
             sendRequest(serviceInfo.GET_PRICE_BY_PRODUCT_ID, [productInfo.prod_id], handleResultGetPrice, true, handleTimeOut)
         }
     }, [invoiceType])
@@ -94,6 +97,7 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             let data = message['PROC_DATA']
+            setPriceList(data.rows)
             if (data.rows.length > 0) {
                 let itemMinUnit = data.rows.find(x => x.o_4 === productInfo?.unit_id)
                 const newProductInfo = { ...productInfo };
@@ -134,6 +138,16 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
         const newProductInfo = { ...productInfo };
         newProductInfo['unit_id'] = !!obj ? obj?.o_1 : null
         newProductInfo['unit_nm'] = !!obj ? obj?.o_2 : ''
+        const priceData = priceList.find(x => x.o_4 === obj.o_1)
+        if (priceData) {
+            newProductInfo['price'] = invoiceType ? priceData.o_8 : priceData.o_9
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = priceData.o_10
+        } else {
+            newProductInfo['price'] = 0
+            newProductInfo['discount_per'] = 0
+            newProductInfo['vat_per'] = 0
+        }
         setProductInfo(newProductInfo)
     }
 
