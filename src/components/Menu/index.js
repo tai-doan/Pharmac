@@ -316,7 +316,7 @@ const MenuView = ({ baseLink }) => {
                                     to={baseLink + item.link}
                                     className={keyActive === item.key ? 'active' : ' ' + " text-decoration-none text-dark"}
                                 >
-                                    <Tooltip arrow interactive leaveDelay={100000} key={item.key} className='menu-item' placement='right' title={
+                                    <Tooltip arrow interactive key={item.key} className='menu-item' placement='right' title={
                                         item.children.length > 0 ? (<List component="nav" aria-label="main mailbox folders" style={{ padding: 0 }}>
                                             {item?.children?.map((row, index) => (
                                                 <React.Fragment key={index}>

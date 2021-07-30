@@ -337,7 +337,7 @@ note {
     position: relative;
 }
 
-#menu_view a:hover b:nth-child(1), #menu_view a:hover b:nth-child(2) {
+#menu_view a.active b:nth-child(1), #menu_view a.active b:nth-child(2), #menu_view a:hover b:nth-child(1), #menu_view a:hover b:nth-child(2) {
     display: block;
 }
 
