@@ -25,7 +25,7 @@ const serviceInfo = {
         object: 'setup_price'
     },
     GET_PRODUCT_BY_BARCODE: {
-        functionName: 'get_by_barcode',
+        functionName: 'get_imp_info',
         reqFunct: reqFunction.GET_PRODUCT_BY_BARCODE,
         biz: 'common',
         object: 'products'
@@ -206,7 +206,7 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
             console.log('barcode change: ', e.target.value)
             setBarcodeScaned(e.target.value)
             // Gửi event lấy thông tin sp theo barcode
-            sendRequest(serviceInfo.GET_PRODUCT_BY_BARCODE, [e.target.value], handleResultGetProductByBarcode, true, handleTimeOut)
+            sendRequest(serviceInfo.GET_PRODUCT_BY_BARCODE, [e.target.value, 'Y'], handleResultGetProductByBarcode, true, handleTimeOut)
         }
     }
 

@@ -40,7 +40,7 @@ function Child() {
 }
 
 const Page = () => {
-    const [widthMenu, setWidthMenu] = useState(285)
+    const [widthMenu, setWidthMenu] = useState(100)
 
     useEffect(() => {
         setTimeout(() => {

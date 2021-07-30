@@ -32,7 +32,7 @@
 }
 
 .navbar__item {
-  padding: 4px 5px 4px 4px;
+  padding: 5px 0px 5px 5px;
   cursor: pointer;
   outline: none;
 }
@@ -40,7 +40,8 @@
 .navbar__item>div {
   text-align: center;
   margin: auto;
-  border-radius: 6px;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
   padding: 10px 4px;
   font-size: 12px;
   color: #bcbab8;
@@ -81,4 +82,13 @@
 
 .close {
   transform: rotate(0deg);
+}
+
+.icon {
+  min-width: auto;
+  margin-right: 5px;
+}
+
+.title {
+  font-size: 14px!important;
 }
