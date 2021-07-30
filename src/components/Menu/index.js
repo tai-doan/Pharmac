@@ -320,7 +320,6 @@ const MenuView = ({ baseLink }) => {
                                         item.children.length > 0 ? (<List component="nav" aria-label="main mailbox folders" style={{ padding: 0 }}>
                                             {item?.children?.map((row, index) => (
                                                 <React.Fragment key={index}>
-                                                    {console.log('rows link: ', row.link)}
                                                     <Link to={baseLink + row.link} key={row.link + index} className="text-decoration-none text-light" >
                                                         <ListItem style={{ padding: '5px 12px', margin: '4px auto' }} button className={activeLink === row.link ? 'sub-active submenu-link' : 'submenu-link'}>
                                                             <ListItemIcon className={style.icon}>{row.icon}</ListItemIcon>

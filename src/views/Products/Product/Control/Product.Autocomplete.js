@@ -50,7 +50,7 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
             setValueSelect({})
             setInputValue('')
         }
-    }, [productID])
+    }, [productID, dataSource])
 
     const resultProductDropDownList = (reqInfoMap, message = {}) => {
         if (message['PROC_CODE'] !== 'SYS000') {

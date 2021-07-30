@@ -297,7 +297,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                         <Grid item xs>
                             <Product_Autocomplete
                                 disabled={true}
-                                value={productInfo.prod_nm}
+                                productID={productInfo.prod_id}
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}
                                 label={t('menu.product')}
@@ -368,7 +368,7 @@ const EditProductRows = ({ productEditID, invoiceID, onRefresh, setProductEditID
                         <Grid item xs>
                             <Unit_Autocomplete
                                 disabled={true}
-                                value={productInfo.unit_nm || ''}
+                                unitID={productInfo.unit_id || null}
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}
                                 label={t('menu.configUnit')}

@@ -28,7 +28,7 @@ const serviceInfo = {
         object: 'setup_price'
     },
     GET_PRODUCT_BY_BARCODE: {
-        functionName: 'get_imp_info',
+        functionName: 'get_exp_barcode',
         reqFunct: reqFunction.GET_PRODUCT_BY_BARCODE,
         biz: 'common',
         object: 'products'
@@ -44,6 +44,8 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     const [selectLotNoFlag, setSelectLotNoFlag] = useState(false)
     const [barcodeScaned, setBarcodeScaned] = useState('')
     const [isScan, setIsScan] = useState(false)
+    const [shouldConfirmOpenModal, setShouldConfirmOpenModal] = useState(false)
+    const [dataConfirm, setDataConfirm] = useState({})
     const inputBarcodeRef = useRef(null)
 
     const stepOneRef = useRef(null)
@@ -56,7 +58,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     useEffect(() => {
         if (resetFlag) {
             setProductInfo({ ...productExportDestroyModal })
-            stepOneRef.current.focus()
+            if (stepOneRef.current) stepOneRef.current.focus()
         }
     }, [resetFlag])
 
@@ -157,12 +159,13 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
     }
 
     const handleBarCodeChange = e => {
-        if (!!e.target.value) {
-            console.log('barcode change: ', e.target.value)
-            setBarcodeScaned(e.target.value)
-            // Gửi event lấy thông tin sp theo barcode
-            sendRequest(serviceInfo.GET_PRODUCT_BY_BARCODE, [e.target.value, 'Y'], handleResultGetProductByBarcode, true, handleTimeOut)
-        }
+        setBarcodeScaned(e.target.value)
+    }
+
+    const handleScanner = e => {
+        setBarcodeScaned([])
+        // Gửi event lấy thông tin sp theo barcode
+        sendRequest(serviceInfo.GET_PRODUCT_BY_BARCODE, [barcodeScaned, 'Y'], handleResultGetProductByBarcode, true, handleTimeOut)
     }
 
     const handleResultGetProductByBarcode = (reqInfoMap, message) => {
@@ -173,10 +176,30 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
-            setBarcodeScaned('')
-            inputBarcodeRef.current.focus()
             // thêm sản phẩm xuống form
+            const data = message['PROC_DATA']
+            if (data.rows.length > 0) {
+                const dataConvert = {
+                    exp_tp: '1',
+                    prod_id: data.rows[0].o_1,
+                    lot_no: data.rows[0].o_3,
+                    qty: 1,
+                    unit_id: data.rows[0].o_6,
+                    price: data.rows[0].o_9,
+                    discount_per: 0,
+                    vat_per: data.rows[0].o_11,
+                }
+                setDataConfirm(dataConvert)
+                setShouldConfirmOpenModal(true)
+            }
         }
+    }
+
+    const handleClostConfirmModal = () => {
+        setDataConfirm({})
+        setShouldConfirmOpenModal(false);
+        setBarcodeScaned('')
+        inputBarcodeRef.current.focus()
     }
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
@@ -193,11 +216,37 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
 
     return (
         <Card className='mb-2'>
+            {/* <ConfirmProduct productData={dataConfirm}
+                isInventory={isInventory}
+                shouldOpenModal={shouldConfirmOpenModal}
+                handleCloseModal={handleClostConfirmModal}
+                onAddProduct={onAddProduct}
+                invoiceType={invoiceType}
+            /> */}
             <CardHeader
-                title={t('order.import.productAdd')}
+                title={<>
+                    {t('order.import.productAdd')}
+                    <span className='ml-2'>
+                        {isScan ?
+                            <Tooltip onClick={() => {
+                                setIsScan(false);
+                            }}
+                                title={t('edit_base')}>
+                                <IC_SCANNER />
+                            </Tooltip>
+                            :
+                            <Tooltip onClick={() => {
+                                setIsScan(true);
+                            }}
+                                title={t('scan_barcode')}>
+                                <IC_ADD_BASIC />
+                            </Tooltip>
+                        }
+                    </span>
+                </>}
                 action={
                     <>
-                        {isScan ?
+                        {/* {isScan ?
                             <Tooltip onClick={() => {
                                 setIsScan(false);
                             }}
@@ -210,7 +259,7 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                                 title={t('scan_barcode')}>
                                 <IC_ADD_BASIC />
                             </Tooltip>
-                        }
+                        } */}
                         <FormControlLabel style={{ margin: 0 }}
                             control={<Checkbox style={{ padding: 0 }} checked={isInventory} onChange={e => setIsInventory(e.target.checked)} name="only_get_inventory_lot_no" />}
                             label={t('only_get_inventory_lot_no')}
@@ -234,6 +283,11 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
                                     variant="outlined"
                                     autoFocus={true}
                                     inputRef={inputBarcodeRef}
+                                    onKeyPress={event => {
+                                        if (event.key === 'Enter') {
+                                            handleScanner()
+                                        }
+                                    }}
                                 />
                             </Tooltip>
                         </Grid>

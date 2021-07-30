@@ -30,22 +30,26 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
     }, [])
 
     useEffect(() => {
-        if (!!unitID && unitID !== 0) {
-            let item = dataSource.find(x => x.o_1 === unitID)
-            setValueSelect(item)
-            setInputValue(!!item ? item.o_2 : '')
-        } else {
-            setValueSelect({})
-        }
-    }, [unitID, dataSource])
-
-    useEffect(() => {
         if (value !== null || value !== undefined) {
             let item = dataSource.find(x => x.o_2 === value)
             setValueSelect(item)
             setInputValue(value)
+        } else {
+            setValueSelect({})
         }
     }, [value, dataSource])
+
+    useEffect(() => {
+        if (!!unitID && unitID !== 0) {
+            let item = dataSource.find(x => x.o_1 === unitID)
+            console.log('unitID: ', unitID, dataSource, item)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
+        } else {
+            setValueSelect({})
+            setInputValue('')
+        }
+    }, [unitID, dataSource])
 
     const resultUnitDropDownList = (reqInfoMap, message = {}) => {
         if (message['PROC_CODE'] !== 'SYS000') {
@@ -82,12 +86,13 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
             autoHighlight={true}
             autoComplete={true}
             size={!!size ? size : 'small'}
+            noOptionsText={t('noData')}
             id="combo-box-demo"
             options={dataSource}
             value={valueSelect}
             getOptionLabel={(option) => option.o_2 || ''}
             style={style}
-            renderInput={(params) => <TextField {...params} value={inputValue} inputRef={inputRef} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField inputRef={inputRef} value={inputValue} {...params} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }
