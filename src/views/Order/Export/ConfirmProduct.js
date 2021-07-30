@@ -43,6 +43,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
 
     useEffect(() => {
         setProductInfo(productData)
+        if (stepFourRef?.current) stepFourRef.current.focus()
     }, [productData])
 
     useEffect(() => {
@@ -89,6 +90,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                 newProductInfo['vat_per'] = 0
                 setProductInfo(newProductInfo)
             }
+            if (stepFourRef?.current) stepFourRef.current.focus()
         }
     }
 
