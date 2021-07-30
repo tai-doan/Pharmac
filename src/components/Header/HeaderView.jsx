@@ -16,6 +16,8 @@ import LocalShippingIcon from '@material-ui/icons/LocalShipping'
 import TranslateIcon from '@material-ui/icons/Translate'
 // import glb_sv from "../../utils/service/global_service";
 
+import { ReactComponent as IC_IMPORT } from '../../asset/images/import.svg'
+
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1,
@@ -106,7 +108,7 @@ const HeaderView = () => {
                 </div> */}
                 {/* <Link to="/page/order/import" className="mr-2 text-decoration-none"> */}
                 <Link to="/page/order/ins-import" className="mr-2 text-decoration-none">
-                    <Button startIcon={<StoreIcon />} className="text-white">
+                    <Button startIcon={<IC_IMPORT />} className="text-white">
                         {t('header.import')}
                     </Button>
                 </Link>
