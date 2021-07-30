@@ -96,7 +96,7 @@ const StoreLimitAdd = ({ onRefresh }) => {
     }
 
     const checkValidate = () => {
-        if (!!StoreLimit.product && !!StoreLimit.unit && StoreLimit.minQuantity > -1 && StoreLimit.maxQuantity > -1) {
+        if (!!StoreLimit.product && !!StoreLimit.unit && (StoreLimit.minQuantity > 0 || StoreLimit.maxQuantity > 0) && StoreLimit.maxQuantity >= StoreLimit.minQuantity) {
             return false
         }
         return true

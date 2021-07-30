@@ -100,7 +100,7 @@ const StoreLimitEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) 
     }
 
     const checkValidate = () => {
-        if (!!StoreLimit.o_1 && !!StoreLimit.o_4 && StoreLimit.o_6 > -1 && StoreLimit.o_7 > -1) {
+        if (!!StoreLimit.o_1 && !!StoreLimit.o_4 && (StoreLimit.o_6 > 0 || StoreLimit.o_7 > 0) && StoreLimit.o_7 >= StoreLimit.o_6) {
             return false
         }
         return true
