@@ -273,15 +273,19 @@ note {
     font-size: 13px;
 }
 
+.submenu-link {
+    border-radius: 5px !important;
+}
+
 .submenu-link:hover, .sub-active {
     color: var(--primary) !important;
     background-color: #373e4c !important;
-    border-radius: 5px !important;
 }
 
 .MuiTooltip-popper.MuiTooltip-popperInteractive .MuiTooltip-tooltip.MuiTooltip-tooltipPlacementRight {
     margin: auto;
     background-color: #1b1f26;
+    border-radius: 5px;
 }
 
 .MuiTooltip-popper.MuiTooltip-popperInteractive span.MuiTooltip-arrow::before {
