@@ -195,7 +195,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                     <CardHeader title={t('order.export.productAdd')} />
                     <CardContent>
                         <Grid container spacing={1}>
-                            <Grid item xs={6}>
+                            <Grid item xs={4}>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
                                     <InputLabel id="export_type">{t('order.export.export_type')}</InputLabel>
                                     <Select
@@ -216,7 +216,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={8}>
                                 <Product_Autocomplete
                                     disabled={true}
                                     productID={productInfo.prod_id || null}
@@ -225,7 +225,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                                     label={t('menu.product')}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={8}>
                                 <LotNoByProduct_Autocomplete
                                     isInventory={isInventory}
                                     disabled={!productInfo.prod_id}
@@ -240,7 +240,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={4}>
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                     <KeyboardDatePicker
                                         disabled={true}
@@ -259,7 +259,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                                     />
                                 </MuiPickersUtilsProvider>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={9}>
                                 <TextField
                                     disabled={true}
                                     fullWidth={true}
@@ -271,7 +271,7 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={3}>
                                 <NumberFormat className='inputNumber'
                                     style={{ width: '100%' }}
                                     required

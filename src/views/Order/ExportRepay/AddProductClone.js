@@ -20,6 +20,8 @@ import sendRequest from '../../../utils/service/sendReq'
 import { ReactComponent as IC_SCANNER } from '../../../asset/images/scanner.svg'
 import { ReactComponent as IC_ADD_BASIC } from '../../../asset/images/add-basic.svg'
 
+import ConfirmProduct from './ConfirmProduct'
+
 const serviceInfo = {
     GET_PRICE_BY_PRODUCT_ID: {
         functionName: 'get_by_prodid',
@@ -232,13 +234,13 @@ const AddProduct = ({ onAddProduct, resetFlag }) => {
 
     return (
         <Card className='mb-2'>
-            {/* <ConfirmProduct productData={dataConfirm}
+            <ConfirmProduct productData={dataConfirm}
                 isInventory={isInventory}
                 shouldOpenModal={shouldConfirmOpenModal}
                 handleCloseModal={handleClostConfirmModal}
                 onAddProduct={onAddProduct}
-                invoiceType={invoiceType}
-            /> */}
+                // invoiceType={invoiceType}
+            />
             <CardHeader
                 title={<>
                     {t('order.import.productAdd')}
