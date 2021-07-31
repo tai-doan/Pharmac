@@ -346,6 +346,10 @@ note {
     color: #fff !important;
 }
 
+button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit.Mui-disabled.Mui-disabled {
+    background-color: #e32047
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);
