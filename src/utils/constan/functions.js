@@ -18,6 +18,7 @@ export default {
     GET_PRODUCT_IMPORT_INFO: 'GET_PRODUCT_IMPORT_INFO',
     GET_PRODUCT_BY_BARCODE: 'GET_PRODUCT_BY_BARCODE',
     REGISTER_PHARMACY: 'REGISTER_PHARMACY',
+    LOGIN: 'LOGIN',
     //-- Lấy danh sách sản phẩm
     GET_PROD_LIST: 'GET_PROD_LIST',
     //-- Lấy thông tin 1 sản phẩm

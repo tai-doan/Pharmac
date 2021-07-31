@@ -346,7 +346,7 @@ note {
     color: #fff !important;
 }
 
-button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit.Mui-disabled.Mui-disabled {
+button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     background-color: #e32047
 }
 

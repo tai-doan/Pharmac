@@ -177,7 +177,8 @@ const enhance = compose(
             this.props.setUserName('nhathuoc.101.1.1')
             this.props.setUserPass('hello1')
             setTimeout(() => {
-                login(this.props)
+
+                // login(this.props)
             }, 200)
         },
         componentWillUnmount() {
