@@ -104,7 +104,13 @@
         "configWarnDefault": "Mốc cảnh báo trước HSD MĐ",
         "settlImp": "TT đơn nhập",
         "settlExp": "TT đơn bán",
-        "settlExpRepay": "TT trả hàng"
+        "settlExpRepay": "TT trả hàng",
+        "management": "Quản lý",
+        "setting-pharmacy": "Thông tin nhà thuốc",
+        "setting-user": "Thông tin người dùng",
+        "setting-permission": "Phân quyền",
+        "setting-lock-order": "Khóa đơn hàng",
+        "setting-lock-product": "Khóa sản phẩm"
     },
     "user": {
         "profile": "Thông tin",

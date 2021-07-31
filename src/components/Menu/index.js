@@ -39,6 +39,12 @@ import { ReactComponent as IC_UNIT_RATE } from '../../asset/images/unit-rate.svg
 import { ReactComponent as IC_STORE_LIMIT } from '../../asset/images/store-limit.svg'
 import { ReactComponent as IC_PRICE } from '../../asset/images/price.svg'
 import { ReactComponent as IC_WARN_TIME } from '../../asset/images/warn-time.svg'
+import { ReactComponent as IC_MANAGEMENT } from '../../asset/images/management.svg'
+import { ReactComponent as IC_SETTING_PHARMACY } from '../../asset/images/setting-pharmacy.svg'
+import { ReactComponent as IC_SETTING_USER } from '../../asset/images/setting-user.svg'
+import { ReactComponent as IC_SETTING_PERMISSION } from '../../asset/images/setting-permission.svg'
+import { ReactComponent as IC_SETTING_LOCK_ORDER } from '../../asset/images/setting-lock-order.svg'
+import { ReactComponent as IC_SETTING_LOCK_PRODUCT } from '../../asset/images/setting-lock-product.svg'
 
 const menuList = [
     {
@@ -255,6 +261,44 @@ const menuList = [
                 icon: <IC_WARN_TIME />,
                 link: 'config/warn-time',
                 key: 'configWarn'
+            },
+        ],
+    },
+    {
+        title: 'menu.management',
+        icon: <IC_MANAGEMENT />,
+        link: 'management',
+        key: 'management',
+        children: [
+            {
+                title: 'menu.setting-pharmacy',
+                icon: <IC_SETTING_PHARMACY />,
+                link: 'management/pharmacy',
+                key: 'settingPharmacy'
+            },
+            {
+                title: 'menu.setting-user',
+                icon: <IC_SETTING_USER />,
+                link: 'management/user',
+                key: 'settingUser'
+            },
+            {
+                title: 'menu.setting-permission',
+                icon: <IC_SETTING_PERMISSION />,
+                link: 'management/permission',
+                key: 'settingPermission'
+            },
+            {
+                title: 'menu.setting-lock-order',
+                icon: <IC_SETTING_LOCK_ORDER />,
+                link: 'management/lock-order',
+                key: 'settingLockOrder'
+            },
+            {
+                title: 'menu.setting-lock-product',
+                icon: <IC_SETTING_LOCK_PRODUCT />,
+                link: 'management/lock-product',
+                key: 'settingLockProduct'
             },
         ],
     },

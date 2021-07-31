@@ -103,7 +103,13 @@
         "configWarnDefault": "Warning Experience MĐ",
         "settlImp": "Sett imp",
         "settlExp": "Sett exp",
-        "settlExpRepay": "Sett exp repay"
+        "settlExpRepay": "Sett exp repay",
+        "management": "Management",
+        "setting-pharmacy": "Pharmacy",
+        "setting-user": "User",
+        "setting-permission": "Permission",
+        "setting-lock-order": "Lock Order",
+        "setting-lock-product": "Lock Product"
     },
     "user": {
         "profile": "Profile",
