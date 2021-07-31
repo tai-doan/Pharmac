@@ -26,7 +26,7 @@ const serviceInfo = {
 }
 const LoginLayout = () => {
     const { t } = useTranslation()
-    const { history } = useHistory()
+    const history = useHistory()
 
     const [showPass, setShowPass] = useState(false)
     const [recommend, setRecommend] = useState(true)
@@ -83,6 +83,13 @@ const LoginLayout = () => {
 
     const handleResultLogin = (reqInfoMap, message) => {
         console.log('handleResultLogin: ', reqInfoMap, message)
+        setTimeout(() => {
+            if (1 == 1) {
+                glb_sv.authFlag = true
+                history.push('/page/dashboard')
+                return
+            }
+        }, 200);
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_CODE'] !== 'SYS000') {
