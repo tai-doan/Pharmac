@@ -9,6 +9,7 @@
         "profile": "Profile",
         "emptyData": "Empty data!"
     },
+    "branch": "Branch",
     "scan_barcode": "Scan barcode",
     "edit_base": "Edit base",
     "min_unit": "Min units",
@@ -112,6 +113,21 @@
         "setting-lock-product": "Lock Product"
     },
     "user": {
+        "userName": "Name",
+        "userID": "Username",
+        "userActiveStatus": "User active status",
+        "userEmail": "Email",
+        "userPass": "Password",
+        "userPhone": "Phone",
+        "lastLogin": "Last login",
+        "lock_login": "Lock login",
+        "addUser": "Add user",
+        "updateUserInfo": "Update user info",
+        "titleList": "User list",
+        "update_password": "Update password",
+        "status": "Status",
+        "locked": "Locked user",
+        "unlocked": "Unlock user",
         "profile": "Profile",
         "logout": "Logout"
     },

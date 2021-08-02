@@ -13,6 +13,7 @@ import Partner from '../Partner/index'
 import Order from '../Order/index'
 import Products from '../Products'
 import SettlementLayout from '../Settlement'
+import AdminManagementLayout from '../AdminManagement'
 
 const baseLink = '/page/'
 
@@ -34,6 +35,8 @@ function Child() {
             return <Products />
         case 'settlement':
             return <SettlementLayout />
+        case 'management':
+            return <AdminManagementLayout />
         default:
             break
     }

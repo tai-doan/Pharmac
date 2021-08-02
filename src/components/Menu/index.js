@@ -267,7 +267,7 @@ const menuList = [
     {
         title: 'menu.management',
         icon: <IC_MANAGEMENT />,
-        link: 'management',
+        link: 'management/user',
         key: 'management',
         children: [
             {
@@ -408,6 +408,7 @@ const MenuView = ({ baseLink }) => {
                                 glb_sv.authFlag = false
                                 sessionStorage.removeItem('0101X10')
                                 sessionStorage.removeItem('0101X11')
+                                localStorage.removeItem('userInfo')
                                 history.push('/login')
                             }}
                         >

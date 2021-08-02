@@ -9,6 +9,7 @@
         "profile": "Thông tin",
         "emptyData": "Không có dữ liệu cần tra cứu!"
     },
+    "branch": "Chi nhánh",
     "scan_barcode": "Quét mã vạch",
     "edit_base": "Nhập cơ bản",
     "min_unit": "Đơn vị nhỏ nhất",
@@ -113,6 +114,21 @@
         "setting-lock-product": "Khóa sản phẩm"
     },
     "user": {
+        "userName": "Tên người dùng",
+        "userID": "Tên đăng nhập",
+        "userActiveStatus": "Trạng thái người dùng",
+        "userEmail": "Email",
+        "userPass": "Mật khẩu",
+        "userPhone": "SĐT",
+        "lastLogin": "Đăng nhập lần cuối",
+        "lock_login": "Khóa đăng nhập",
+        "addUser": "Thêm người dùng",
+        "updateUserInfo": "Cập nhật thông tin người dùng",
+        "titleList": "Danh sách người dùng",
+        "update_password": "Cập nhật mật khẩu",
+        "status": "Trạng thái quyền",
+        "locked": "Khóa quyền người dùng",
+        "unlocked": "Mở quyền",
         "profile": "Thông tin",
         "logout": "Đăng Xuất"
     },

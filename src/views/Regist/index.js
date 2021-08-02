@@ -94,7 +94,7 @@ const RegistLayout = () => {
     const handleRegister = () => {
         if (checkValidate()) return
         setProcess(true)
-        const inputParam = [pharmacy.name, pharmacy.liscence, moment(pharmacy.licence_dt).format('DDMMYYYY'), pharmacy.licence_pl, pharmacy.address, pharmacy.boss_nm, pharmacy.boss_phone, pharmacy.boss_email];
+        const inputParam = [pharmacy.name, pharmacy.liscence, moment(pharmacy.licence_dt).format('YYYYMMDD'), pharmacy.licence_pl, pharmacy.address, pharmacy.boss_nm, pharmacy.boss_phone, pharmacy.boss_email];
         sendRequest(serviceInfo.REGISTER, inputParam, handleResultRegister, true, handleTimeOut)
     }
 
