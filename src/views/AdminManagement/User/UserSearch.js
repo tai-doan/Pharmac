@@ -52,7 +52,6 @@ const UserSearch = ({ handleSearch, process = false }) => {
                 <Grid item xs={3}>
                     <TextField
                         fullWidth={true}
-                        required
                         autoFocus
                         autoComplete="off"
                         margin="dense"

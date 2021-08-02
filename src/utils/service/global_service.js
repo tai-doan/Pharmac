@@ -10,7 +10,7 @@ class globalService {
         this.debugYn = true // -- dev
         // this.sslMode = true; // -- prod
         this.sslMode = false // -- dev
-        this.authFlag = true
+        this.authFlag = false
 
         this.checkFullScreen = false
         // this.developeFlag = false // -- prod

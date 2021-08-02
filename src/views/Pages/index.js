@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import style from './Pages.module.css'
 import { Switch, Route, Redirect, useParams } from 'react-router-dom'
@@ -14,6 +15,8 @@ import Order from '../Order/index'
 import Products from '../Products'
 import SettlementLayout from '../Settlement'
 import AdminManagementLayout from '../AdminManagement'
+
+import glb_sv from '../../utils/service/global_service'
 
 const baseLink = '/page/'
 
@@ -43,23 +46,13 @@ function Child() {
 }
 
 const Page = () => {
-    const [widthMenu, setWidthMenu] = useState(100)
+    const history = useHistory()
 
     useEffect(() => {
-        setTimeout(() => {
-            setWidthMenu(document.getElementById('menu_view').offsetWidth)
-        }, 400);
-        document.getElementById('menu_view').addEventListener('click', handleResize)
-        return () => {
-            document.getElementById('menu_view').removeEventListener('click', handleResize)
+        if (!glb_sv.authFlag) {
+            history.push('/login')
         }
     }, [])
-
-    const handleResize = () => {
-        setTimeout(() => {
-            setWidthMenu(document.getElementById('menu_view').offsetWidth)
-        }, 400);
-    }
 
     return (
         <div className={style.app_page}>
@@ -67,7 +60,7 @@ const Page = () => {
                 <div id='menu_view'>
                     <MenuView baseLink={baseLink} />
                 </div>
-                <div className={'w-100 ' + style.bgLightCustome} style={{ maxWidth: `calc(100vw - ${widthMenu}px)` }}>
+                <div className={'w-100 ' + style.bgLightCustome} style={{ maxWidth: `calc(100vw - 100px)` }}>
                     <header className="w-100">
                         <HeaderView />
                     </header>
