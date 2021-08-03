@@ -118,7 +118,8 @@ const Permission = ({ }) => {
             <FormGroup>
                 {Object.keys(listPermission).length > 0 ?
                     Object.values(listPermission)?.map((item, index) => (
-                        <Card key={item.parent_cd + index}>
+                        <Card className='mb-2' key={item.parent_cd + index}>
+                            <CardHeader title={item.parent_nm} />
                             <CardContent key={item.parent_cd}>
                                 {item?.result?.map((control, indexControl) => (
                                     <FormControl key={control.scrn_cd + indexControl} component="fieldset">
