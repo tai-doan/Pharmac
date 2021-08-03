@@ -825,5 +825,11 @@
         "payment_type": "Loại hình thanh toán",
         "cash": "Tiền mặt",
         "bank_transfer": "Chuyển khoản"
+    },
+    "permission": {
+        "query": "Tra cứu",
+        "del": "Xóa",
+        "ins": "Thêm mới",
+        "upd": "Chỉnh sửa"
     }
 }

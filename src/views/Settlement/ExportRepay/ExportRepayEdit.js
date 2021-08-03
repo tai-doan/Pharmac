@@ -126,7 +126,7 @@ const ExportRepayEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh })
         reqInfoMap.procStat = 2
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             reqInfoMap.resSucc = false
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
         } else {

@@ -2,6 +2,7 @@ import React, { lazy } from 'react'
 import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 
 const User = lazy(() => import('./User'))
+const Permission = lazy(() => import('./Permission'))
 
 const AdminManagementLayout = () => {
     return (
@@ -23,7 +24,7 @@ function Child() {
         case 'user':
             return <User />
         case 'permission':
-            return null
+            return <Permission />
         case 'lock-order':
             return null
         case 'lock-product':

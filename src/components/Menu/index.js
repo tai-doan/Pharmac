@@ -264,6 +264,9 @@ const menuList = [
             },
         ],
     },
+]
+
+const menuAdmin = [
     {
         title: 'menu.management',
         icon: <IC_MANAGEMENT />,
@@ -392,6 +395,43 @@ const MenuView = ({ baseLink }) => {
                             </React.Fragment>
                         )
                     })}
+                    {glb_sv.userLev === '0' && menuAdmin.map((item, index) => (
+                        <React.Fragment key={item.key}>
+                            <Link
+                                to={baseLink + item.link}
+                                className={keyActive === item.key ? 'active' : ' ' + " text-decoration-none text-dark"}
+                            >
+                                <Tooltip arrow interactive key={item.key} className='menu-item' placement='right' title={
+                                    item.children.length > 0 ? (<List component="nav" aria-label="main mailbox folders" style={{ padding: 0 }}>
+                                        {item?.children?.map((row, index) => (
+                                            <React.Fragment key={index}>
+                                                <Link to={baseLink + row.link} key={row.link + index} className="text-decoration-none text-light" >
+                                                    <ListItem style={{ padding: '5px 12px', margin: '4px auto' }} button className={activeLink === row.link ? 'sub-active submenu-link' : 'submenu-link'}>
+                                                        <ListItemIcon className={style.icon}>{row.icon}</ListItemIcon>
+                                                        <ListItemText><span className={style.title}>{t(row.title)}</span></ListItemText>
+                                                    </ListItem>
+                                                </Link>
+                                            </React.Fragment>
+                                        ))}
+                                    </List>) : ''
+                                }>
+                                    <div className={style.navbar__item}
+                                        key={item.key}
+                                        onClick={(e) => {
+                                            changeMenu(item)
+                                        }}
+                                    >
+                                        <b></b>
+                                        <b></b>
+                                        <div className={keyActive === item.key ? style.active : ''}>
+                                            <div>{item.icon}</div>
+                                            <div className={style.navbar_item_text}>{t(item.title)}</div>
+                                        </div>
+                                    </div>
+                                </Tooltip>
+                            </Link>
+                        </React.Fragment>
+                    ))}
                 </div>
 
                 <div className={[style.navbar_item_avatar].join(' ')}>

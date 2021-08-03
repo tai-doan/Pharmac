@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router'
 import {
     Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog,
     Button, Chip, IconButton, Grid, TextField, FormControl, MenuItem, Select, InputLabel, Tooltip
@@ -26,6 +27,7 @@ import UserEdit from './UserEdit';
 
 import { ReactComponent as IC_UPDATE_PASSWORD } from '../../../asset/images/update-password.svg'
 import { ReactComponent as IC_LOCK_PERMISSION } from '../../../asset/images/lock-login.svg'
+import { ReactComponent as IC_PERMISSION } from '../../../asset/images/permission.svg'
 
 const serviceInfo = {
     GET_ALL: {
@@ -50,6 +52,7 @@ const serviceInfo = {
 
 const UserList = () => {
     const { t } = useTranslation()
+    const history = useHistory()
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState({
@@ -96,7 +99,7 @@ const UserList = () => {
     const handleResultGetList = (reqInfoMap, message) => {
         setSearchProcess(false)
         // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -124,7 +127,7 @@ const UserList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcessing(false)
         setControlTimeOutKey('')
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -248,7 +251,7 @@ const UserList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setControlTimeOutKey(null)
         setProcessing(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -359,6 +362,15 @@ const UserList = () => {
                                                                             }}
                                                                         >
                                                                             <IC_UPDATE_PASSWORD />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                    <Tooltip title={t('menu.setting-permission')}>
+                                                                        <IconButton
+                                                                            onClick={e => {
+                                                                                history.push('/page/management/permission', { userID: item.o_5 })
+                                                                            }}
+                                                                        >
+                                                                            <IC_PERMISSION />
                                                                         </IconButton>
                                                                     </Tooltip>
                                                                 </TableCell>

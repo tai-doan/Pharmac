@@ -186,7 +186,7 @@ const InsExport = ({ }) => {
     const handleResultDeleteProduct = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setDeleteProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -225,7 +225,7 @@ const InsExport = ({ }) => {
 
     const handleResultCreateInvoice = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -260,7 +260,7 @@ const InsExport = ({ }) => {
 
     const handleResultAddProductToInvoice = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -278,7 +278,7 @@ const InsExport = ({ }) => {
 
     const handleResultGetInvoiceByID = (reqInfoMap, message) => {
         // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -307,7 +307,7 @@ const InsExport = ({ }) => {
     }
 
     const handleGetAllProductByInvoiceID = (reqInfoMap, message) => {
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -343,7 +343,7 @@ const InsExport = ({ }) => {
     const handleResultUpdateInvoice = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setUpdateProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)

@@ -55,7 +55,7 @@ const InventoryList = () => {
 
     const handleResultGetAll = (reqInfoMap, message) => {
         setSearchProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)

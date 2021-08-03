@@ -102,7 +102,7 @@ const ImportInventoryList = () => {
 
     const handleResultGetAll = (reqInfoMap, message) => {
         setSearchProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -128,7 +128,7 @@ const ImportInventoryList = () => {
     const handleResultDelete = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcessing(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)

@@ -60,7 +60,7 @@ const UserEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
 
     const handleResultGetByID = (reqInfoMap, message) => {
         setProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -84,7 +84,7 @@ const UserEdit = ({ id, onRefresh, shouldOpenModal, setShouldOpenModal }) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         setControlTimeOutKey(null)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)

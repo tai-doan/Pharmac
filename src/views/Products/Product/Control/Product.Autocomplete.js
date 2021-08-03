@@ -53,7 +53,7 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
     }, [productID, dataSource])
 
     const resultProductDropDownList = (reqInfoMap, message = {}) => {
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)

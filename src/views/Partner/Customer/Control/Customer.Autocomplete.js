@@ -48,7 +48,7 @@ const Customer_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
     }, [value])
 
     const resultGetCustomerByID = (reqInfoMap, message) => {
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -61,7 +61,7 @@ const Customer_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
     }
 
     const resultGetList = (reqInfoMap, message) => {
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)

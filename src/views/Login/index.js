@@ -83,17 +83,17 @@ const LoginLayout = () => {
     }
 
     const handleResultLogin = (reqInfoMap, message) => {
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        console.log('handleResultLogin: ', message)
         setProcess(false)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
+            SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // đăng ký thành công
             let dataMessage = message['PROC_DATA']
-            console.log('login success: ', message['PROC_DATA'])
             glb_sv.authFlag = true
             glb_sv.userId = dataMessage.rows[0].o_6 || user.username.trim()
             glb_sv.pharId = dataMessage.rows[0].o_1
@@ -128,10 +128,10 @@ const LoginLayout = () => {
                 auFlag: true,
             }
             localStorage.setItem('userInfo', JSON.stringify(objAuthen))
-            // const msgss = CryptoJS.AES.encrypt(JSON.stringify(objAuthen), glb_sv.configInfo['0101X10']).toString()
-            // const secrInfo = CryptoJS.AES.encrypt(message['PROC_DATA'][0]['tk'], glb_sv.configInfo['0101X10']).toString()
-            // sessionStorage.setItem('0101X10', msgss)
-            // sessionStorage.setItem('0101X11', secrInfo)
+            const msgss = CryptoJS.AES.encrypt(JSON.stringify(objAuthen), glb_sv.configInfo['0101X10']).toString()
+            const secrInfo = CryptoJS.AES.encrypt(dataMessage.rows[1]['tk'], glb_sv.configInfo['0101X10']).toString()
+            sessionStorage.setItem('0101X10', msgss)
+            sessionStorage.setItem('0101X11', secrInfo)
             if (recommend) {
                 localStorage.setItem('userNm', user.username)
             } else {

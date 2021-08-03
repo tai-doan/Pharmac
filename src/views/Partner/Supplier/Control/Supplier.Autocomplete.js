@@ -36,7 +36,7 @@ const Supplier_Autocomplete = ({ onSelect, label, style, size, value, onKeyPress
     }, [value, dataSource])
 
     const resultSupplierDropDownList = (reqInfoMap, message ) => {
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)

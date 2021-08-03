@@ -55,7 +55,7 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
     }, [value, dataSource])
 
     const handleResultProductGroupDropDownList = (reqInfoMap, message) => {
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
@@ -100,7 +100,7 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
 
     const handleResultCreateProductGroup = (reqInfoMap, message) => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        if (message['PROC_CODE'] !== 'SYS000') {
+        if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
