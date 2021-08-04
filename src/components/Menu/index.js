@@ -297,12 +297,12 @@ const menuAdmin = [
                 link: 'management/lock-order',
                 key: 'settingLockOrder'
             },
-            {
-                title: 'menu.setting-lock-product',
-                icon: <IC_SETTING_LOCK_PRODUCT />,
-                link: 'management/lock-product',
-                key: 'settingLockProduct'
-            },
+            // {
+            //     title: 'menu.setting-lock-product',
+            //     icon: <IC_SETTING_LOCK_PRODUCT />,
+            //     link: 'management/lock-product',
+            //     key: 'settingLockProduct'
+            // },
         ],
     },
 ]

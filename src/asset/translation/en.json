@@ -814,5 +814,27 @@
         "payment_type": "Payment type",
         "cash": "Cash",
         "bank_transfer": "Transfer"
+    },
+    "permission": {
+        "query": "Query",
+        "del": "Delete",
+        "ins": "Add",
+        "upd": "Update"
+    },
+    "lockOrder": {
+        "titleList": "Lock order list",
+        "updateTitle": "Update status lock order",
+        "invoice_tp": "Invoice type code",
+        "invoice_tp_nm": "Invoice type",
+        "lock_tp": "Lock type code",
+        "lock_tp_nm": "Lock type",
+        "inv_auto": "Auto invoice",
+        "imp": "Import",
+        "imp_inventory": "Imp inventory",
+        "exp": "Export",
+        "exp_repay": "Exp repay",
+        "exp_destroy": "Exp destroy",
+        "locked": "Locked",
+        "unlocked": "Unlocked"
     }
 }

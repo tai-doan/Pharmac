@@ -98,6 +98,7 @@ const UserList = () => {
 
     const handleResultGetList = (reqInfoMap, message) => {
         setSearchProcess(false)
+        console.log('msg: ', message)
         // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
@@ -364,7 +365,7 @@ const UserList = () => {
                                                                             <IC_UPDATE_PASSWORD />
                                                                         </IconButton>
                                                                     </Tooltip>
-                                                                    <Tooltip title={t('menu.setting-permission')}>
+                                                                    {item['o_11'] === '1' && <Tooltip title={t('menu.setting-permission')}>
                                                                         <IconButton
                                                                             onClick={e => {
                                                                                 history.push('/page/management/permission', { userID: item.o_5 })
@@ -372,7 +373,7 @@ const UserList = () => {
                                                                         >
                                                                             <IC_PERMISSION />
                                                                         </IconButton>
-                                                                    </Tooltip>
+                                                                    </Tooltip>}
                                                                 </TableCell>
                                                             )
                                                         default:

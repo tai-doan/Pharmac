@@ -831,5 +831,21 @@
         "del": "Xóa",
         "ins": "Thêm mới",
         "upd": "Chỉnh sửa"
+    },
+    "lockOrder": {
+        "titleList": "Danh sách đơn khóa",
+        "updateTitle": "Cập nhật trạng thái khóa đơn hàng",
+        "invoice_tp": "Mã loại đơn hàng",
+        "invoice_tp_nm": "Loại đơn hàng",
+        "lock_tp": "Mã trạng thái đơn hàng",
+        "lock_tp_nm": "Trạng thái đơn hàng",
+        "inv_auto": "Tạo HĐ tự động",
+        "imp": "Nhập mua",
+        "imp_inventory": "Nhập tồn",
+        "exp": "Xuất bán",
+        "exp_repay": "Xuất trả",
+        "exp_destroy": "Xuất hủy",
+        "locked": "Khóa",
+        "unlocked": "Mở khóa"
     }
 }
