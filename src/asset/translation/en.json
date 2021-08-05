@@ -119,6 +119,12 @@
         "userEmail": "Email",
         "userPass": "Password",
         "userPhone": "Phone",
+        "userLevel": "User level",
+        "userAdmin": "Adminstrator",
+        "userNormal": "User",
+        "changePassword": "Change password",
+        "oldPassword": "Old password",
+        "newPassword": "New password",
         "lastLogin": "Last login",
         "lock_login": "Lock login",
         "addUser": "Add user",
@@ -128,7 +134,7 @@
         "status": "Status",
         "locked": "Locked user",
         "unlocked": "Unlock user",
-        "profile": "Profile",
+        "profile": "Profile info",
         "logout": "Logout"
     },
     "btn": {

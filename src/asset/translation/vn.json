@@ -120,6 +120,12 @@
         "userEmail": "Email",
         "userPass": "Mật khẩu",
         "userPhone": "SĐT",
+        "userLevel": "Phân loại người dùng",
+        "userAdmin": "Admin toàn hệ thống",
+        "userNormal": "Người dùng thường",
+        "changePassword": "Đổi mật khẩu",
+        "oldPassword": "Mật khẩu cũ",
+        "newPassword": "Mật khẩu mới",
         "lastLogin": "Đăng nhập lần cuối",
         "lock_login": "Khóa đăng nhập",
         "addUser": "Thêm người dùng",
@@ -129,7 +135,7 @@
         "status": "Trạng thái quyền",
         "locked": "Khóa quyền người dùng",
         "unlocked": "Mở quyền",
-        "profile": "Thông tin",
+        "profile": "Thông tin người dùng",
         "logout": "Đăng Xuất"
     },
     "btn": {
