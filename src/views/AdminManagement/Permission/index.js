@@ -77,9 +77,7 @@ const Permission = ({ }) => {
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-            setTimeout(() => {
-                history.push('/page/management/user')
-            }, 500);
+            setListPermission({})
         } else if (message['PROC_DATA']) {
             // xử lý thành công
             let newData = message['PROC_DATA']
@@ -130,7 +128,8 @@ const Permission = ({ }) => {
     const handleChange = (item, name, checked) => {
         setProcess(true)
         const inputParam = [
-            glb_sv.branchId || 0, userID,
+            glb_sv.branchId || 0,
+            IDUser,
             item.scrn_cd,
             name === 'rgt_ins' ? (checked ? 'Y' : 'N') : (item.rgt_ins ? 'Y' : 'N'),
             name === 'rgt_upd' ? (checked ? 'Y' : 'N') : (item.rgt_upd ? 'Y' : 'N'),
@@ -152,7 +151,7 @@ const Permission = ({ }) => {
         } else if (message['PROC_DATA']) {
             // xử lý thành công
             let newData = message['PROC_DATA']
-            const inputParam = [glb_sv.branchId || 0, userID];
+            const inputParam = [glb_sv.branchId || 0, IDUser];
             sendRequest(serviceInfo.GET_PERMISSION, inputParam, handleResultGetPermission, true, handleTimeOut)
         }
     }

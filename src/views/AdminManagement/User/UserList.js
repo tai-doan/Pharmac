@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import {
     Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog,
-    Button, Chip, IconButton, Grid, TextField, FormControl, MenuItem, Select, InputLabel, Tooltip
+    Button, Chip, IconButton, Grid, TextField, FormControl, MenuItem, Select, InputLabel, Tooltip, InputAdornment
 } from '@material-ui/core'
 
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import EditIcon from '@material-ui/icons/Edit'
 import LoopIcon from '@material-ui/icons/Loop';
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 import ExportExcel from '../../../components/ExportExcel'
@@ -66,6 +68,7 @@ const UserList = () => {
     const [shouldOpenLockModal, setShouldOpenLockModal] = useState(false)
     const [shouldOpenUpdatePasswordModal, setShouldOpenUpdatePasswordModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
+    const [showPass, setShowPass] = useState(false)
     const [newPassword, setNewPassword] = useState('')
     const [modalUpdatePassword, setModalUpdatePassword] = useState({})
     const [modalLockLogin, setModalLockLogin] = useState({})
@@ -98,7 +101,6 @@ const UserList = () => {
 
     const handleResultGetList = (reqInfoMap, message) => {
         setSearchProcess(false)
-        console.log('msg: ', message)
         // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
@@ -447,6 +449,19 @@ const UserList = () => {
                                             handleUpdatePassword()
                                         }
                                     }}
+                                    type={showPass ? 'text' : 'password'}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() => setShowPass(!showPass)}
+                                                    onMouseDown={e => e.preventDefault()}
+                                                >
+                                                    {showPass ? <Visibility /> : <VisibilityOff />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                 />
                             </Grid>
                         </Grid>
@@ -454,6 +469,10 @@ const UserList = () => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
+                                setNewPassword('')
                                 setShouldOpenUpdatePasswordModal(false)
                                 setModalUpdatePassword({})
                             }}
@@ -483,9 +502,6 @@ const UserList = () => {
 
                 }}
                 open={shouldOpenLockModal}
-                onClose={e => {
-                    setShouldOpenLockModal(false)
-                }}
             >
                 <Card>
                     <CardHeader title={t('user.lock_login')} />
@@ -494,8 +510,6 @@ const UserList = () => {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     fullWidth={true}
-                                    required
-                                    autoFocus
                                     autoComplete="off"
                                     margin="dense"
                                     label={t('user.userID')}
@@ -527,6 +541,9 @@ const UserList = () => {
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
                             onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
                                 setShouldOpenLockModal(false)
                             }}
                             variant="contained"

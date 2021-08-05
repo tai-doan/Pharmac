@@ -500,6 +500,9 @@ const ProductList = () => {
                                     return
                                 }
                                 setShouldOpenLockModal(false)
+                                setLockModal({})
+                                setLockType('Y')
+                                setLockNote('')
                             }}
                             variant='contained'
                             disableElevation

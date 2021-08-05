@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog,
-    Button, IconButton, Grid, FormControl, MenuItem, Select, InputLabel
+    Button, IconButton, Grid, FormControl, MenuItem, Select, InputLabel, TextField
 } from '@material-ui/core'
 
 import EditIcon from '@material-ui/icons/Edit'
@@ -45,7 +45,7 @@ const LockOrderList = () => {
     const [lockType, setLockType] = useState('N')
 
     useEffect(() => {
-        const inputParam = []
+        const inputParam = [glb_sv.branchId || 0]
         sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }, [])
 
@@ -138,7 +138,7 @@ const LockOrderList = () => {
             setLockType('N')
             setEditModal({})
             setShouldOpenEditModal(false)
-            const inputParam = []
+            const inputParam = [glb_sv.branchId || 0]
             sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
         }
     }
@@ -194,6 +194,12 @@ const LockOrderList = () => {
                                                                     </IconButton>
                                                                 </TableCell>
                                                             )
+                                                        case 'o_5':
+                                                            return (
+                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                    {value === '0' ? t('no') : t('yes')}
+                                                                </TableCell>
+                                                            )
                                                         default:
                                                             return (
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>
@@ -232,23 +238,15 @@ const LockOrderList = () => {
                     <CardContent>
                         <Grid container spacing={1}>
                             <Grid item xs={12} sm={6}>
-                                <FormControl margin="dense" variant="outlined" className='w-100'>
-                                    <InputLabel id="invoice-type">{t('lockOrder.status')}</InputLabel>
-                                    <Select
-                                        disabled
-                                        labelId="invoice-type"
-                                        id="invoice-type-select"
-                                        value={editModal.o_1 || '0'}
-                                        label={t('lockOrder.invoice_tp_nm')}
-                                        name='invoiceType'
-                                    >
-                                        <MenuItem value="0">{t('lockOrder.imp')}</MenuItem>
-                                        <MenuItem value="1">{t('lockOrder.imp_inventory')}</MenuItem>
-                                        <MenuItem value="2">{t('lockOrder.exp')}</MenuItem>
-                                        <MenuItem value="3">{t('lockOrder.exp_repay')}</MenuItem>
-                                        <MenuItem value="4">{t('lockOrder.exp_destroy')}</MenuItem>
-                                    </Select>
-                                </FormControl>
+                                <TextField
+                                    fullWidth={true}
+                                    margin="dense"
+                                    disabled={true}
+                                    autoComplete="off"
+                                    label={t('lockOrder.invoice_tp_nm')}
+                                    value={editModal.o_2}
+                                    variant="outlined"
+                                />
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <FormControl margin="dense" variant="outlined" className='w-100'>
