@@ -138,7 +138,7 @@ const Permission = ({ }) => {
             name === 'rgt_qry' ? (checked ? 'Y' : 'N') : (item.rgt_qry ? 'Y' : 'N')
         ];
         sendRequest(serviceInfo.UPDATE_PERMISSION, inputParam, handleResultUpdatePermission, true, handleTimeOut)
-        setListPermission({})
+        // setListPermission({})
     }
 
     const handleResultUpdatePermission = (reqInfoMap, message) => {

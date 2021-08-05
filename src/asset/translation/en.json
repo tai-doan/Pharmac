@@ -768,6 +768,8 @@
             "titleEdit": "Update product",
             "titleRemove": "Confirm delete product?",
             "titleList": "Product list",
+            "lock": "Lock",
+            "lockType": "Lock status",
             "code": "Product code",
             "name": "Product name",
             "barcode": "Bar code",

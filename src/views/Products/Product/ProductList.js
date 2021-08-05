@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Button, Dialog, Table, TableBody, TableCell, TableRow, TableContainer, TableHead
+    Card, CardHeader, CardContent, CardActions, IconButton, Chip, Button, Dialog, Table, TableBody, TableCell, TableRow, TableContainer,
+    TableHead, Tooltip, FormControl, MenuItem, Grid, TextField, InputLabel, Select
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
@@ -14,6 +15,7 @@ import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
 import SnackBarService from '../../../utils/service/snackbar_service'
 import sendRequest from '../../../utils/service/sendReq'
+import reqFunction from '../../../utils/constan/functions';
 
 import { tableColumn, config } from './Modal/Product.modal'
 import ProductAdd from './ProductAdd';
@@ -21,6 +23,8 @@ import ProductEdit from './ProductEdit'
 import SearchOne from '../../../components/SearchOne'
 import ExportExcel from '../../../components/ExportExcel'
 import DisplayColumn from '../../../components/DisplayColumn';
+
+import { ReactComponent as IC_LOCK_PERMISSION } from '../../../asset/images/lock-login.svg'
 
 const serviceInfo = {
     GET_ALL: {
@@ -34,6 +38,12 @@ const serviceInfo = {
         reqFunct: config['delete'].reqFunct,
         biz: config.biz,
         object: config.object
+    },
+    LOCK: {
+        functionName: 'blocking',
+        reqFunct: reqFunction.LOCK_PRODUCT_UPDATE,
+        biz: 'admin',
+        object: 'products'
     }
 }
 
@@ -47,6 +57,11 @@ const ProductList = () => {
 
     const [shouldOpenRemoveModal, setShouldOpenRemoveModal] = useState(false)
     const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
+    const [shouldOpenLockModal, setShouldOpenLockModal] = useState(false)
+    const [lockModal, setLockModal] = useState({})
+    const [lockType, setLockType] = useState('Y')
+    const [lockNote, setLockNote] = useState('')
+    const [controlTimeOutKey, setControlTimeOutKey] = useState('')
     const [processing, setProcessing] = useState(false)
     const [searchProcess, setSearchProcess] = useState(false)
     const [id, setId] = useState(0)
@@ -71,6 +86,7 @@ const ProductList = () => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
         setSearchProcess(false)
+        setControlTimeOutKey('')
     }
 
     const handleResultGetAll = (reqInfoMap, message) => {
@@ -102,6 +118,7 @@ const ProductList = () => {
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setShouldOpenRemoveModal(false)
         setProcessing(false)
+        setControlTimeOutKey('')
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -159,6 +176,7 @@ const ProductList = () => {
         // e.preventDefault();
         idRef.current = id;
         setProcessing(true)
+        setControlTimeOutKey(serviceInfo.DELETE.reqFunct + '|' + JSON.stringify([id]))
         sendRequest(serviceInfo.DELETE, [id], handleResultRemove, true, handleTimeOut)
     }
 
@@ -226,6 +244,36 @@ const ProductList = () => {
         getList(glb_sv.defaultValueSearch, searchValue)
     }
 
+    const onLock = item => {
+        setLockModal(item)
+        setShouldOpenLockModal(true)
+    }
+
+    const handleLock = () => {
+        if (!lockModal.o_1 || !lockType) return
+        setProcessing(true)
+        const inputParam = [lockModal.o_1, lockType, lockNote]
+        setControlTimeOutKey(serviceInfo.LOCK.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.LOCK, inputParam, handleResultLockProduct, true, handleTimeOut)
+    }
+
+    const handleResultLockProduct = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcessing(false)
+        setControlTimeOutKey('')
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            setShouldOpenLockModal(false)
+            setLockModal({})
+            setLockType('Y')
+            setLockNote('')
+        }
+    }
+
     return (
         <>
             <Card className='mb-2'>
@@ -260,15 +308,15 @@ const ProductList = () => {
                     }
                     action={
                         <div className='d-flex align-items-center'>
-                            <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
+                            <Chip size='small' variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
+                            <Chip size='small' className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color='primary' label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='product' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <ProductAdd onRefresh={handleRefresh} />
                         </div>
                     }
                 />
                 <CardContent>
-                    <TableContainer className="tableContainer">
+                    <TableContainer className='tableContainer'>
                         <Table stickyHeader>
                             <caption
                                 className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
@@ -281,7 +329,7 @@ const ProductList = () => {
                                 <TableRow>
                                     {column?.map(col => (
                                         <TableCell
-                                            nowrap="true"
+                                            nowrap='true'
                                             className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
                                             key={col.field}
                                         >
@@ -293,33 +341,42 @@ const ProductList = () => {
                             <TableBody>
                                 {dataSource?.length > 0 && dataSource?.map((item, index) => {
                                     return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                        <TableRow hover role='checkbox' tabIndex={-1} key={index}>
                                             {column?.map((col, indexRow) => {
                                                 let value = item[col.field]
                                                 if (col.show) {
                                                     switch (col.field) {
                                                         case 'action':
                                                             return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                <TableCell nowrap='true' key={indexRow} align={col.align}>
+                                                                    {glb_sv.userLev === '0' && <Tooltip title={t('products.product.lock')}>
+                                                                        <IconButton
+                                                                            onClick={e => {
+                                                                                onLock(item)
+                                                                            }}
+                                                                        >
+                                                                            <IC_LOCK_PERMISSION style={{ color: 'red' }} fontSize='small' />
+                                                                        </IconButton>
+                                                                    </Tooltip>}
                                                                     <IconButton
                                                                         onClick={e => {
                                                                             onRemove(item)
                                                                         }}
                                                                     >
-                                                                        <DeleteIcon style={{ color: 'red' }} fontSize="small" />
+                                                                        <DeleteIcon style={{ color: 'red' }} fontSize='small' />
                                                                     </IconButton>
                                                                     <IconButton
                                                                         onClick={e => {
                                                                             onEdit(item)
                                                                         }}
                                                                     >
-                                                                        <EditIcon fontSize="small" />
+                                                                        <EditIcon fontSize='small' />
                                                                     </IconButton>
                                                                 </TableCell>
                                                             )
                                                         default:
                                                             return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
+                                                                <TableCell nowrap='true' key={indexRow} align={col.align}>
                                                                     {glb_sv.formatValue(value, col['type'])}
                                                                 </TableCell>
                                                             )
@@ -364,12 +421,92 @@ const ProductList = () => {
                             onClick={e => {
                                 setShouldOpenRemoveModal(false)
                             }}
-                            variant="contained"
+                            variant='contained'
                             disableElevation
                         >
                             {t('btn.close')}
                         </Button>
-                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant="contained" color="secondary">
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleDelete} variant='contained' color='secondary'>
+                            {t('btn.agree')}
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Dialog>
+
+            {/* modal lock product */}
+            <Dialog maxWidth='sm' fullWidth={true}
+                TransitionProps={{
+                    addEndListener: (node, done) => {
+                        // use the css transitionend event to mark the finish of a transition
+                        node.addEventListener('keypress', function (e) {
+                            if (e.key === 'Enter') {
+                                handleLock()
+                            }
+                        });
+                    }
+
+                }}
+                open={shouldOpenLockModal}
+            >
+                <Card>
+                    <CardHeader title={t('products.product.lock')} />
+                    <CardContent>
+                        <Grid container className={''} spacing={1}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth={true}
+                                    margin='dense'
+                                    disabled={true}
+                                    label={t('products.product.designate')}
+                                    value={lockModal.o_5}
+                                    variant='outlined'
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl margin='dense' variant='outlined' className='w-100'>
+                                    <InputLabel id='lock-type'>{t('products.product.lockType')}</InputLabel>
+                                    <Select
+                                        labelId='lock-type'
+                                        id='lock-type-select'
+                                        value={lockType}
+                                        onChange={e => setLockType(e.target.value)}
+                                        label={t('products.product.lockType')}
+                                        name='lockType'
+                                    >
+                                        <MenuItem value='N'>{t('lockOrder.locked')}</MenuItem>
+                                        <MenuItem value='Y'>{t('lockOrder.unlocked')}</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth={true}
+                                    margin='dense'
+                                    autoComplete='off'
+                                    autoFocus={true}
+                                    label={t('note')}
+                                    onChange={e => setLockNote(e.target.value)}
+                                    value={lockNote}
+                                    variant='outlined'
+                                />
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button
+                            size='small'
+                            onClick={e => {
+                                if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
+                                    return
+                                }
+                                setShouldOpenLockModal(false)
+                            }}
+                            variant='contained'
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button className={processing ? 'button-loading' : ''} endIcon={processing && <LoopIcon />} size='small' onClick={handleLock} variant='contained' color='secondary'>
                             {t('btn.agree')}
                         </Button>
                     </CardActions>

@@ -342,6 +342,7 @@ const UserList = () => {
                                                                 <TableCell nowrap="true" key={indexRow} align={col.align}>
                                                                     <Tooltip title={t('user.lock_login')}>
                                                                         <IconButton
+                                                                            disabled={item['o_11'] === '0' ? true : false}
                                                                             onClick={e => {
                                                                                 onLock(item)
                                                                             }}
@@ -365,15 +366,16 @@ const UserList = () => {
                                                                             <IC_UPDATE_PASSWORD />
                                                                         </IconButton>
                                                                     </Tooltip>
-                                                                    {item['o_11'] === '1' && <Tooltip title={t('menu.setting-permission')}>
+                                                                    <Tooltip title={t('menu.setting-permission')}>
                                                                         <IconButton
+                                                                            disabled={item['o_11'] === '0' ? true : false}
                                                                             onClick={e => {
                                                                                 history.push('/page/management/permission', { userID: item.o_5 })
                                                                             }}
                                                                         >
                                                                             <IC_PERMISSION />
                                                                         </IconButton>
-                                                                    </Tooltip>}
+                                                                    </Tooltip>
                                                                 </TableCell>
                                                             )
                                                         default:
@@ -486,7 +488,7 @@ const UserList = () => {
                 }}
             >
                 <Card>
-                    <CardHeader title={t('lock_login')} />
+                    <CardHeader title={t('user.lock_login')} />
                     <CardContent>
                         <Grid container spacing={1}>
                             <Grid item xs={12} sm={6}>

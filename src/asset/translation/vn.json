@@ -779,6 +779,8 @@
             "titleEdit": "Cập nhật sản phẩm",
             "titleRemove": "Xác nhận xóa sản phẩm?",
             "titleList": "Danh sách sản phẩm",
+            "lock": "Khóa sản phẩm",
+            "lockType": "Trạng thái khóa",
             "code": "Mã sản phẩm",
             "name": "Tên sản phẩm",
             "barcode": "Mã vạch",
