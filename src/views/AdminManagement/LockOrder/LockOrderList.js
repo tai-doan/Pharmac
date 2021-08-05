@@ -17,6 +17,8 @@ import sendRequest from '../../../utils/service/sendReq'
 import DisplayColumn from '../../../components/DisplayColumn';
 import { tableColumn } from './Modal/LockOrder.Modal'
 
+import { ReactComponent as IC_REFRESH } from '../../../asset/images/refresh.svg'
+
 const serviceInfo = {
     GET_ALL: {
         functionName: 'get_lock_ord',
@@ -57,7 +59,6 @@ const LockOrderList = () => {
     }
 
     const handleResultGetList = (reqInfoMap, message) => {
-        console.log('handleResultGetList LockOrder: ', reqInfoMap, message)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -138,9 +139,14 @@ const LockOrderList = () => {
             setLockType('N')
             setEditModal({})
             setShouldOpenEditModal(false)
-            const inputParam = [glb_sv.branchId || 0]
-            sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
+            handleRefresh()
         }
+    }
+
+    const handleRefresh = () => {
+        setDataSource([])
+        const inputParam = [glb_sv.branchId || 0]
+        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
     }
 
     return (
@@ -149,6 +155,9 @@ const LockOrderList = () => {
                 <CardHeader
                     title={<>
                         {t('lockOrder.titleList')}
+                        <IconButton className='ml-2' style={{ padding: 2, backgroundColor: '#fff' }} onClick={handleRefresh}>
+                            <IC_REFRESH />
+                        </IconButton>
                         <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
                     </>} />
                 <CardContent>

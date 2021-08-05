@@ -4,6 +4,7 @@ import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 const User = lazy(() => import('./User'))
 const Permission = lazy(() => import('./Permission'))
 const LockOrder = lazy(() => import('./LockOrder'))
+const Pharmacy = lazy(() => import('./Pharmacy'))
 
 const AdminManagementLayout = () => {
     return (
@@ -21,15 +22,13 @@ function Child() {
 
     switch (link) {
         case 'pharmacy':
-            return null
+            return <Pharmacy />
         case 'user':
             return <User />
         case 'permission':
             return <Permission />
         case 'lock-order':
             return <LockOrder />
-        case 'lock-product':
-            return null
         default:
             break
     }

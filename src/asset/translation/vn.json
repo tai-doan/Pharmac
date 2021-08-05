@@ -849,5 +849,21 @@
         "exp_destroy": "Xuất hủy",
         "locked": "Khóa",
         "unlocked": "Mở khóa"
+    },
+    "pharmacy": {
+        "titleList": "Danh sách nhà thuốc đăng ký",
+        "updateTitle": "Cập nhật nhà thuốc",
+        "approve_status": "Trạng thái duyệt",
+        "approve": "Đã duyệt",
+        "reject": "Từ chối",
+        "waiting": "Chờ duyệt",
+        "pharmacyName": "Tên nhà thuốc",
+        "address": "Địa chỉ nhà thuốc",
+        "licence": "GP kinh doanh",
+        "licence_dt": "Ngày cấp phép",
+        "licence_pl": "Nơi cấp",
+        "boss_name": "Tên chủ nhà thuốc",
+        "boss_phone": "Điện thoại liên lạc",
+        "boss_email": "Email"
     }
 }

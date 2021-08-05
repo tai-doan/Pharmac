@@ -838,5 +838,21 @@
         "exp_destroy": "Exp destroy",
         "locked": "Locked",
         "unlocked": "Unlocked"
+    },
+    "pharmacy": {
+        "titleList": "Pharmacy register list",
+        "updateTitle": "Update pharmacy info",
+        "approve_status": "Approve status",
+        "approve": "Approved",
+        "reject": "Reject",
+        "waiting": "Waiting",
+        "pharmacyName": "Pharmacy name",
+        "address": "Address",
+        "licence": "Licence",
+        "licence_dt": "Licence date",
+        "licence_pl": "Lincece place",
+        "boss_name": "Boss name",
+        "boss_phone": "Boss phone",
+        "boss_email": "Email"
     }
 }
