@@ -361,6 +361,7 @@ const UserList = () => {
                                                                     </IconButton>
                                                                     <Tooltip title={t('user.update_password')}>
                                                                         <IconButton
+                                                                            disabled={item['o_11'] === '0' ? true : false}
                                                                             onClick={e => {
                                                                                 onUpdatePassword(item)
                                                                             }}
