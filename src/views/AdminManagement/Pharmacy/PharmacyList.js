@@ -1,74 +1,115 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-    Card, CardHeader, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, IconButton
+    Card, CardHeader, CardContent, Grid, TextField, Backdrop, makeStyles, CircularProgress, Button, InputAdornment, IconButton
 } from '@material-ui/core'
-
-import FastForwardIcon from '@material-ui/icons/FastForward';
-import EditIcon from '@material-ui/icons/Edit'
-
-import ColumnCtrComp from '../../../components/_ColumnCtr'
-import ExportExcel from '../../../components/ExportExcel'
-import DisplayColumn from '../../../components/DisplayColumn';
+import DateFnsUtils from '@date-io/date-fns'
+import {
+    MuiPickersUtilsProvider,
+    KeyboardDatePicker
+} from '@material-ui/pickers'
+import moment from 'moment'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import reqFunction from '../../../utils/constan/functions';
+import reqFunction from '../../../utils/constan/functions'
 import sendRequest from '../../../utils/service/sendReq'
 
-import { tableColumn } from './Modal/Pharmacy.modal'
-import PharmacySearch from './PharmacySearch';
-import PharmacyEdit from './PharmacyEdit';
+import LoopIcon from '@material-ui/icons/Loop'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
 
 const serviceInfo = {
-    GET_ALL: {
-        functionName: 'get_all',
-        reqFunct: reqFunction.PHARMACY_LIST,
+    UPDATE: {
+        functionName: 'update',
+        reqFunct: reqFunction.PHARMACY_UPDATE,
         biz: 'admin',
         object: 'pharmacy'
+    },
+    UPDATE_USER_INFO: {
+        functionName: 'update',
+        reqFunct: reqFunction.USER_UPDATE,
+        biz: 'admin',
+        object: 'users'
+    },
+    GET_PHARMACY_BY_ID: {
+        functionName: 'get_by_id',
+        reqFunct: reqFunction.PHARMACY_BY_ID,
+        biz: 'admin',
+        object: 'pharmacy'
+    },
+    GET_USER_BY_ID: {
+        functionName: 'get_by_id',
+        reqFunct: reqFunction.USER_BY_ID,
+        biz: 'admin',
+        object: 'users'
+    },
+    UPDATE_PASSWORD: {
+        functionName: 'change_pass_user',
+        reqFunct: reqFunction.USER_UPDATE_PASSWORD,
+        biz: 'admin',
+        object: 'users'
     }
 }
 
+const useStyles = makeStyles((theme) => ({
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    }
+}))
+
 const PharmacyList = () => {
     const { t } = useTranslation()
-    const [anChorEl, setAnChorEl] = useState(null)
-    const [column, setColumn] = useState(tableColumn)
-    const [searchValue, setSearchValue] = useState({
-        status: '%'
+    const classes = useStyles()
+    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
+    const [process, setProcess] = useState(false)
+    const [userInfo, setUserInfo] = useState({
+        o_4: '',
+        o_8: '',
+        o_9: ''
     })
-    const [totalRecords, setTotalRecords] = useState(0)
-    const [dataSource, setDataSource] = useState([])
+    const [pharmacyInfo, setPharmacyInfo] = useState({
+        o_1: '',
+        o_2: '',
+        o_3: null,
+        o_4: '',
+        o_5: '',
+        o_6: '',
+        o_7: '',
+        o_8: ''
+    })
+    const [changePassword, setChangePassword] = useState({
+        oldPassword: '',
+        newPassword: ''
+    })
+    const [showOldPass, setShowOldPass] = useState(false)
+    const [showNewPass, setShowNewPass] = useState(false)
 
-    const [shouldOpenEditModal, setShouldOpenEditModal] = useState(false)
+    const step1Ref = useRef(null)
+    const step2Ref = useRef(null)
+    const step3Ref = useRef(null)
+    const step4Ref = useRef(null)
+    const step5Ref = useRef(null)
+    const step6Ref = useRef(null)
+    const step7Ref = useRef(null)
+    const step8Ref = useRef(null)
 
-    const [id, setId] = useState(0)
-    const [searchProcess, setSearchProcess] = useState(false)
+    const step9Ref = useRef(null)
+    const step10Ref = useRef(null)
+    const step11Ref = useRef(null)
 
-    const dataSourceRef = useRef([])
-    const searchRef = useRef('')
-    const idRef = useRef(0)
+    const step12Ref = useRef(null)
+    const step13Ref = useRef(null)
 
     useEffect(() => {
-        getList(searchValue.status, glb_sv.defaultValueSearch);
+        handleRefresh()
     }, [])
 
-    const getList = (status, lastID) => {
-        const inputParam = [status || '%', lastID || glb_sv.defaultValueSearch]
-        setSearchProcess(true)
-        sendRequest(serviceInfo.GET_ALL, inputParam, handleResultGetList, true, handleTimeOut)
-    }
-
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-        setSearchProcess(false)
-    }
-
-    const handleResultGetList = (reqInfoMap, message) => {
-        setSearchProcess(false)
-        // SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+    const handleResultGetPharmarcyByID = (reqInfoMap, message) => {
+        setProcess(false)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -77,200 +118,583 @@ const PharmacyList = () => {
         } else if (message['PROC_DATA']) {
             // xử lý thành công
             let newData = message['PROC_DATA']
-            if (newData.rows.length > 0) {
-                if (reqInfoMap.inputParam[1] === glb_sv.defaultValueSearch) {
-                    setTotalRecords(newData.rowTotal)
-                } else {
-                    setTotalRecords(dataSourceRef.current.length - newData.rows.length + newData.rowTotal)
-                }
-                dataSourceRef.current = dataSourceRef.current.concat(newData.rows)
-                setDataSource(dataSourceRef.current)
-            } else {
-                dataSourceRef.current = [];
-                setDataSource([])
-                setTotalRecords(0)
-            }
+            let data = newData.rows[0]
+            data.o_7 = moment(data.o_7, 'YYYYMMDD').toString()
+            setPharmacyInfo(data)
         }
     }
 
-    const onCloseColumn = () => {
-        setAnChorEl(null);
-    }
-
-    const onChangeColumnView = item => {
-        const newColumn = [...column]
-        const index = newColumn.findIndex(obj => obj.field === item.field)
-        if (index >= 0) {
-            newColumn[index]['show'] = !column[index]['show']
-            setColumn(newColumn)
+    const handleResultGetUserByID = (reqInfoMap, message) => {
+        setProcess(false)
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            let newData = message['PROC_DATA']
+            let data = newData.rows[0]
+            data.o_1 = !!data.o_1 ? data.o_1 : null
+            data.o_2 = !!data.o_2 ? data.o_2 : null
+            data.o_3 = !!data.o_3 ? data.o_3 : ''
+            data.o_4 = !!data.o_4 ? data.o_4 : ''
+            data.o_5 = !!data.o_5 ? data.o_5 : ''
+            data.o_6 = !!data.o_6 ? data.o_6 : ''
+            data.o_7 = !!data.o_7 ? data.o_7 : ''
+            data.o_8 = !!data.o_8 ? data.o_8 : ''
+            data.o_9 = !!data.o_9 ? data.o_9 : ''
+            data.o_10 = !!data.o_10 ? data.o_10 : ''
+            data.o_11 = !!data.o_11 ? data.o_11 : ''
+            data.o_12 = !!data.o_12 ? data.o_12 : ''
+            data.o_13 = !!data.o_13 ? data.o_13 : ''
+            setUserInfo(data)
         }
     }
 
-    const searchSubmit = obj => {
-        // if (value === searchRef.current) return
-        searchRef.current = obj
-        dataSourceRef.current = []
-        setSearchValue(obj)
-        setTotalRecords(0)
-        getList(obj.status, glb_sv.defaultValueSearch)
+    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
+    const handleTimeOut = (e) => {
+        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 
-    const onEdit = item => {
-        setId(item ? item.o_1 : 0)
-        setShouldOpenEditModal(true)
-        idRef.current = item && item.o_1 > 0 ? item.o_1 : 0
+    const handleChangeUser = e => {
+        const newUser = { ...userInfo }
+        newUser[e.target.name] = e.target.value
+        setUserInfo(newUser)
     }
 
-    const getNextData = () => {
-        if (dataSourceRef.current.length > 0) {
-            const lastIndex = dataSourceRef.current.length - 1;
-            const lastID = dataSourceRef.current[lastIndex].o_1
-            getList(searchValue.status, lastID)
+    const handleChangePassword = e => {
+        let newData = { ...changePassword }
+        newData[e.target.name] = e.target.value
+        setChangePassword(newData)
+    }
+
+    const handleChange = e => {
+        const newPharmacy = { ...pharmacyInfo }
+        newPharmacy[e.target.name] = e.target.value
+        setPharmacyInfo(newPharmacy)
+    }
+
+    const handleDateChange = date => {
+        const newPharmacy = { ...pharmacyInfo };
+        newPharmacy['o_7'] = date;
+        setPharmacyInfo(newPharmacy)
+    }
+
+    const checkValidate = () => {
+        if (!!pharmacyInfo?.o_1 && !!pharmacyInfo?.o_2.trim() && !!pharmacyInfo?.o_5.trim() && !!pharmacyInfo?.o_6.trim() && !!pharmacyInfo?.o_7 &&
+            !!pharmacyInfo?.o_8.trim() && !!pharmacyInfo.o_9.trim() && !!pharmacyInfo.o_10.trim() && !!pharmacyInfo.o_11.trim()) {
+            return false
+        }
+        return true
+    }
+
+    const handleUpdate = () => {
+        if (checkValidate()) return
+        setProcess(true)
+        const inputParam = [
+            pharmacyInfo.o_2,
+            pharmacyInfo.o_6,
+            moment(pharmacyInfo.o_7).format('YYYYMMDD'),
+            pharmacyInfo.o_8,
+            pharmacyInfo.o_5,
+            pharmacyInfo.o_9,
+            pharmacyInfo.o_10,
+            pharmacyInfo.o_11
+        ];
+        setControlTimeOutKey(serviceInfo.UPDATE_USER_INFO.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.UPDATE_USER_INFO, inputParam, handleResultUpdateUser, true, handleTimeOut)
+    }
+
+    const handleResultUpdate = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        setControlTimeOutKey(null)
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setPharmacyInfo({})
+            sendRequest(serviceInfo.GET_PHARMACY_BY_ID, [glb_sv.pharId], handleResultGetPharmarcyByID, true, handleTimeOut)
         }
     }
 
-    const headersCSV = [
-        { label: t('stt'), key: 'stt' },
-        { label: t('pharmacy.pharmacyName'), key: 'pharmacyName' },
-        { label: t('pharmacy.approve_status'), key: 'approve_status' },
-        { label: t('pharmacy.address'), key: 'address' },
-        { label: t('pharmacy.licence'), key: 'licence' },
-        { label: t('pharmacy.licence_dt'), key: 'licence_dt' },
-        { label: t('pharmacy.licence_pl'), key: 'licence_pl' },
-        { label: t('pharmacy.boss_name'), key: 'boss_name' },
-        { label: t('pharmacy.boss_phone'), key: 'boss_phone' },
-        { label: t('pharmacy.boss_email'), key: 'boss_email' },
-    ]
+    const checkValidateUser = () => {
+        if (!!userInfo.o_4.trim() && !!userInfo.o_8.trim() && !!userInfo.o_9.trim()) {
+            return false
+        }
+        return true
+    }
 
-    const dataCSV = () => {
-        const result = dataSource.map((item, index) => {
-            const data = item
-            item = {}
-            item['stt'] = index + 1
-            item['pharmacyName'] = data.o_2
-            item['approve_status'] = data.o_4
-            item['address'] = data.o_5
-            item['licence'] = data.o_6
-            item['licence_dt'] = glb_sv.formatValue(data.o_7, 'dated')
-            item['licence_pl'] = data.o_8
-            item['boss_name'] = data.o_9
-            item['boss_phone'] = data.o_10
-            item['boss_email'] = data.o_11
-            return item
-        })
-        return result
+    const handleUpdateUser = () => {
+        if (checkValidateUser()) return
+        setProcess(true)
+        const inputParam = [
+            userInfo.o_2,
+            userInfo.o_5,
+            userInfo.o_4,
+            userInfo.o_8,
+            userInfo.o_9
+        ];
+        setControlTimeOutKey(serviceInfo.UPDATE.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdate, true, handleTimeOut)
+    }
+
+    const handleResultUpdateUser = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        setControlTimeOutKey(null)
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+            setTimeout(() => {
+                if (step1Ref.current) step1Ref.current.focus()
+            }, 100)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setUserInfo({})
+            sendRequest(serviceInfo.GET_USER_BY_ID, [glb_sv.userId], handleResultGetUserByID, true, handleTimeOut)
+        }
+    }
+
+    const checkValidateUpdatePassword = () => {
+        if (!!changePassword?.oldPassword.trim() && !!changePassword?.newPassword.trim()) {
+            return false
+        }
+        return true
+    }
+
+    const handleUpdatePassword = () => {
+        if (checkValidateUpdatePassword()) return
+        setProcess(true)
+        const inputParam = [glb_sv.branchId, glb_sv.userId, changePassword.oldPassword, changePassword.newPassword];
+        setControlTimeOutKey(serviceInfo.UPDATE_PASSWORD.reqFunct + '|' + JSON.stringify(inputParam))
+        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdatePassword, true, handleTimeOut)
+    }
+
+    const handleResultUpdatePassword = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        setControlTimeOutKey('')
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            setChangePassword({ oldPassword: '', newPassword: '' })
+        }
     }
 
     const handleRefresh = () => {
-        dataSourceRef.current = []
-        setTotalRecords(0)
-        getList(searchValue.status, glb_sv.defaultValueSearch);
+        sendRequest(serviceInfo.GET_PHARMACY_BY_ID, [glb_sv.pharId], handleResultGetPharmarcyByID, true, handleTimeOut)
+        sendRequest(serviceInfo.GET_USER_BY_ID, [glb_sv.userId], handleResultGetUserByID, true, handleTimeOut)
     }
 
     return (
         <>
-            <Card className='mb-2'>
-                <CardHeader
-                    title={t('lbl.search')}
-                />
-                <CardContent>
-                    <PharmacySearch
-                        process={searchProcess}
-                        handleSearch={searchSubmit}
-                    />
-                </CardContent>
-            </Card>
+            <Backdrop className={classes.backdrop} open={process}>
+                <CircularProgress color='inherit' />
+            </Backdrop>
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={8}>
+                    <Card className='mb-2'>
+                        <CardHeader
+                            title={t('menu.setting-pharmacy')}
+                            action={
+                                <Button size='small'
+                                    onClick={() => {
+                                        handleUpdate();
+                                    }}
+                                    variant="contained"
+                                    disabled={checkValidate()}
+                                    className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                                    endIcon={process && <LoopIcon />}
+                                >
+                                    {t('btn.update')}
+                                </Button>
+                            }
+                        />
+                        <CardContent>
+                            <Grid container spacing={1}>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.pharmacyName')}
+                                        name='o_2'
+                                        value={pharmacyInfo.o_2 || ''}
+                                        variant="outlined"
+                                        onChange={handleChange}
+                                        inputRef={step1Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step2Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.approve_status')}
+                                        name='o_4'
+                                        value={pharmacyInfo.o_4 || ''}
+                                        variant="outlined"
+                                        disabled={true}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.licence')}
+                                        onChange={handleChange}
+                                        name='o_6'
+                                        value={pharmacyInfo.o_6 || ''}
+                                        variant="outlined"
+                                        inputRef={step2Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step3Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
 
-            <ColumnCtrComp
-                anchorEl={anChorEl}
-                columns={tableColumn}
-                handleClose={onCloseColumn}
-                checkColumnChange={onChangeColumnView}
-            />
-            <Card>
-                <CardHeader
-                    title={<>{t('pharmacy.titleList')}
-                        {/* <IconButton className='ml-2' style={{ padding: 0, backgroundColor: '#fff' }} onClick={onClickColumn}>
-                            <MoreVertIcon />
-                        </IconButton> */}
-                        <DisplayColumn columns={tableColumn} handleCheckChange={onChangeColumnView} />
-                    </>}
-                    action={
-                        <div className='d-flex align-items-center'>
-                            <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
-                            <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
-                            <ExportExcel filename='user' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                        </div>
-                    }
-                />
-                <CardContent>
-                    {/* table */}
-                    <TableContainer className="tableContainer">
-                        <Table stickyHeader>
-                            <caption
-                                className={['text-center text-danger border-bottom', dataSource.length > 0 ? 'd-none' : ''].join(
-                                    ' '
-                                )}
-                            >
-                                {t('lbl.emptyData')}
-                            </caption>
-                            <TableHead>
-                                <TableRow>
-                                    {column.map(col => (
-                                        <TableCell nowrap="true"
-                                            className={['p-2 border-0', col.show ? 'd-table-cell' : 'd-none'].join(' ')}
-                                            key={col.field}
-                                        >
-                                            {t(col.title)}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {dataSource.map((item, index) => {
-                                    return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                                            {column.map((col, indexRow) => {
-                                                let value = item[col.field]
-                                                if (col.show) {
-                                                    switch (col.field) {
-                                                        case 'action':
-                                                            return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                    <IconButton
-                                                                        onClick={e => {
-                                                                            onEdit(item)
-                                                                        }}
-                                                                    >
-                                                                        <EditIcon fontSize="small" />
-                                                                    </IconButton>
-                                                                </TableCell>
-                                                            )
-                                                        default:
-                                                            return (
-                                                                <TableCell nowrap="true" key={indexRow} align={col.align}>
-                                                                    {glb_sv.formatValue(value, col['type'])}
-                                                                </TableCell>
-                                                            )
-                                                    }
+                                <Grid item xs={6} sm={4}>
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                        <KeyboardDatePicker
+                                            disableToolbar
+                                            margin="dense"
+                                            variant="outlined"
+                                            style={{ width: '100%' }}
+                                            inputVariant="outlined"
+                                            format="dd/MM/yyyy"
+                                            id="licence_dt-picker-inline"
+                                            label={t('pharmacy.licence_dt')}
+                                            value={pharmacyInfo.o_7 || null}
+                                            onChange={handleDateChange}
+                                            KeyboardButtonProps={{
+                                                'aria-label': 'change date',
+                                            }}
+                                            inputRef={step3Ref}
+                                            onKeyPress={event => {
+                                                if (event.key === 'Enter') {
+                                                    step4Ref.current.focus()
                                                 }
-                                            })}
-                                        </TableRow>
-                                    )
-                                })}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </CardContent>
-            </Card>
+                                            }}
+                                        />
+                                    </MuiPickersUtilsProvider>
+                                </Grid>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.licence_pl')}
+                                        onChange={handleChange}
+                                        name='o_8'
+                                        value={pharmacyInfo.o_8 || ''}
+                                        variant="outlined"
+                                        inputRef={step4Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step5Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.address')}
+                                        onChange={handleChange}
+                                        name='o_5'
+                                        value={pharmacyInfo.o_5 || ''}
+                                        variant="outlined"
+                                        inputRef={step5Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step6Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
 
-            {/* modal edit */}
-            <PharmacyEdit
-                id={id}
-                shouldOpenModal={shouldOpenEditModal}
-                setShouldOpenModal={setShouldOpenEditModal}
-                onRefresh={handleRefresh}
-            />
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.boss_name')}
+                                        onChange={handleChange}
+                                        name='o_9'
+                                        value={pharmacyInfo.o_9 || ''}
+                                        variant="outlined"
+                                        inputRef={step6Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step7Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.boss_phone')}
+                                        onChange={handleChange}
+                                        name='o_10'
+                                        value={pharmacyInfo.o_10 || ''}
+                                        variant="outlined"
+                                        inputRef={step7Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step8Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={4}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('pharmacy.boss_email')}
+                                        onChange={handleChange}
+                                        name='o_11'
+                                        value={pharmacyInfo.o_11 || ''}
+                                        variant="outlined"
+                                        inputRef={step8Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdate()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                    <Card className='mb-2'>
+                        <CardHeader
+                            title={t('menu.setting-user')}
+                            action={
+                                <Button size='small'
+                                    onClick={() => {
+                                        handleUpdateUser()
+                                    }}
+                                    variant="contained"
+                                    disabled={checkValidateUser()}
+                                    className={checkValidateUser() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                                    endIcon={process && <LoopIcon />}
+                                >
+                                    {t('btn.update')}
+                                </Button>
+                            }
+                        />
+                        <CardContent>
+                            <Grid container spacing={1}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.userID')}
+                                        name='o_5'
+                                        value={userInfo.o_5 || ''}
+                                        variant="outlined"
+                                        disabled={true}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.userActiveStatus')}
+                                        name='o_7'
+                                        value={userInfo.o_7 || ''}
+                                        variant="outlined"
+                                        disabled={true}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        disabled={true}
+                                        autoComplete="off"
+                                        label={t('user.userLevel')}
+                                        value={userInfo.o_11 === '0' ? t('user.userAdmin') : t('user.userNormal')}
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.userName')}
+                                        name='o_4'
+                                        value={userInfo.o_4 || ''}
+                                        variant="outlined"
+                                        onChange={handleChangeUser}
+                                        inputRef={step9Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step10Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.userEmail')}
+                                        name='o_8'
+                                        value={userInfo.o_8 || ''}
+                                        variant="outlined"
+                                        onChange={handleChangeUser}
+                                        inputRef={step10Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step11Ref.current.focus()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.userPhone')}
+                                        name='o_9'
+                                        value={userInfo.o_9 || ''}
+                                        variant="outlined"
+                                        onChange={handleChangeUser}
+                                        inputRef={step11Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdateUser()
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                    <Card className='mb-2'>
+                        <CardHeader
+                            title={t('user.changePassword')}
+                            action={
+                                <Button size='small'
+                                    onClick={() => {
+                                        handleUpdatePassword()
+                                    }}
+                                    variant="contained"
+                                    disabled={checkValidateUpdatePassword()}
+                                    className={checkValidateUpdatePassword() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
+                                    endIcon={process && <LoopIcon />}
+                                >
+                                    {t('btn.update')}
+                                </Button>
+                            }
+                        />
+                        <CardContent>
+                            <Grid container spacing={1}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.oldPassword')}
+                                        name='oldPassword'
+                                        value={changePassword.oldPassword}
+                                        variant="outlined"
+                                        onChange={handleChangePassword}
+                                        type={showOldPass ? 'text' : 'password'}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                step12Ref.current.focus()
+                                            }
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        onClick={() => setShowOldPass(!showOldPass)}
+                                                        onMouseDown={e => e.preventDefault()}
+                                                    >
+                                                        {showOldPass ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth={true}
+                                        margin="dense"
+                                        autoComplete="off"
+                                        label={t('user.newPassword')}
+                                        name='newPassword'
+                                        value={changePassword.newPassword}
+                                        variant="outlined"
+                                        onChange={handleChangePassword}
+                                        type={showNewPass ? 'text' : 'password'}
+                                        inputRef={step12Ref}
+                                        onKeyPress={event => {
+                                            if (event.key === 'Enter') {
+                                                handleUpdatePassword()
+                                            }
+                                        }}
+                                        InputProps={{
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        onClick={() => setShowNewPass(!showNewPass)}
+                                                        onMouseDown={e => e.preventDefault()}
+                                                    >
+                                                        {showNewPass ? <Visibility /> : <VisibilityOff />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
         </>
     )
 }

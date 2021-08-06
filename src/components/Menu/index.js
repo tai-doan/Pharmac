@@ -4,16 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from "react-router-dom";
 import { Link } from 'react-router-dom'
 
-import { Tooltip, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, Dialog, Grid, TextField, Card, CardHeader, CardContent, CardActions, Button } from '@material-ui/core'
+import { Tooltip, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
-import LoopIcon from '@material-ui/icons/Loop'
 
 import glb_sv from '../../utils/service/global_service'
-import control_sv from '../../utils/service/control_services'
-import SnackBarService from '../../utils/service/snackbar_service'
-import reqFunction from '../../utils/constan/functions';
-import sendRequest from '../../utils/service/sendReq'
 
 import { ReactComponent as IC_DASHBOARD } from '../../asset/images/dashboard.svg'
 import { ReactComponent as IC_PRODUCT } from '../../asset/images/product.svg'
@@ -50,17 +45,6 @@ import { ReactComponent as IC_SETTING_PHARMACY } from '../../asset/images/settin
 import { ReactComponent as IC_SETTING_USER } from '../../asset/images/setting-user.svg'
 import { ReactComponent as IC_SETTING_PERMISSION } from '../../asset/images/setting-permission.svg'
 import { ReactComponent as IC_SETTING_LOCK_ORDER } from '../../asset/images/setting-lock-order.svg'
-import { ReactComponent as IC_SETTING_LOCK_PRODUCT } from '../../asset/images/setting-lock-product.svg'
-import { ReactComponent as IC_KEY } from '../../asset/images/key.svg'
-
-const serviceInfo = {
-    UPDATE_PASSWORD: {
-        functionName: 'change_pass_user',
-        reqFunct: reqFunction.USER_UPDATE_PASSWORD,
-        biz: 'admin',
-        object: 'users'
-    }
-}
 
 const menuList = [
     {
@@ -327,15 +311,6 @@ const MenuView = ({ baseLink }) => {
     const { t } = useTranslation()
     let history = useHistory();
 
-    const [process, setProcess] = useState(false)
-    const [controlTimeOutKey, setControlTimeOutKey] = useState(null)
-    const [shouldOpenInfoModal, setShouldOpenInfoModal] = useState(false)
-    const [shouldOpenChangePasswordModal, setShouldOpenChangePasswordModal] = useState(false)
-    const [changePasswordModal, setChangePasswordModal] = useState({
-        oldPassword: '',
-        newPassword: ''
-    })
-
     let menu = menuList.reduce((n, o, i) => {
         n[o.key] = o
         return n
@@ -370,50 +345,6 @@ const MenuView = ({ baseLink }) => {
 
     const changeMenu = (item) => {
         setItemActive(item)
-    }
-
-    const checkValidate = () => {
-        if (!!changePasswordModal.oldPassword.trim() && !!changePasswordModal.newPassword.trim()) {
-            return false
-        }
-        return true
-    }
-
-    const handleChange = e => {
-        let newData = { ...changePasswordModal }
-        newData[e.target.name] = e.target
-        setChangePasswordModal(newData)
-    }
-
-    const handleUpdate = () => {
-        if (checkValidate()) return
-        setProcess(true)
-        const inputParam = [glb_sv.branchId, glb_sv.userId, changePasswordModal.oldPassword, changePasswordModal.newPassword];
-        setControlTimeOutKey(serviceInfo.UPDATE_PASSWORD.reqFunct + '|' + JSON.stringify(inputParam))
-        sendRequest(serviceInfo.UPDATE, inputParam, handleResultUpdatePassword, true, handleTimeOut)
-    }
-
-    const handleResultUpdatePassword = (reqInfoMap, message) => {
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
-        setProcess(false)
-        setControlTimeOutKey('')
-        if (message['PROC_STATUS'] !== 1) {
-            // xử lý thất bại
-            const cltSeqResult = message['REQUEST_SEQ']
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
-        } else if (message['PROC_DATA']) {
-            // xử lý thành công
-            setShouldOpenChangePasswordModal(false)
-            setChangePasswordModal({ oldPassword: '', newPassword: '' })
-        }
-    }
-
-    //-- xử lý khi timeout -> ko nhận được phản hồi từ server
-    const handleTimeOut = (e) => {
-        SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
-        setProcess(false)
-        setControlTimeOutKey(null)
     }
 
     return (
@@ -509,12 +440,9 @@ const MenuView = ({ baseLink }) => {
                         <div className={style.userName}>{glb_sv.userNm ? glb_sv.userNm : ''}</div>
                     </div>
                     <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-                        <MenuItem onClick={() => setShouldOpenInfoModal(true)}>
+                        <MenuItem onClick={() => history.push('/page/management/pharmacy')}>
                             <AccountCircleIcon className="mr-2" /> {t('user.profile')}
                         </MenuItem>
-                        {glb_sv.userLev === '1' && <MenuItem onClick={() => setShouldOpenChangePasswordModal(true)}>
-                            <IC_KEY className="mr-2" /> {t('user.changePassword')}
-                        </MenuItem>}
                         <MenuItem
                             onClick={() => {
                                 glb_sv.authFlag = false
@@ -528,159 +456,6 @@ const MenuView = ({ baseLink }) => {
                         </MenuItem>
                     </Menu>
                 </div>
-
-                {/* Modal cập nhật mật khẩu*/}
-                <Dialog maxWidth='sm' fullWidth={true}
-                    open={shouldOpenChangePasswordModal}
-                >
-                    <Card>
-                        <CardHeader title={t('user.changePassword')} />
-                        <CardContent>
-                            <Grid container spacing={1}>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        autoComplete="off"
-                                        label={t('user.oldPassword')}
-                                        name='oldPassword'
-                                        value={changePasswordModal.oldPassword}
-                                        variant="outlined"
-                                        onChange={handleChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        autoComplete="off"
-                                        label={t('user.newPassword')}
-                                        name='newPassword'
-                                        value={changePasswordModal.newPassword}
-                                        variant="outlined"
-                                        onChange={handleChange}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                        <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                            <Button size='small'
-                                onClick={e => {
-                                    if (controlTimeOutKey && control_sv.ControlTimeOutObj[controlTimeOutKey]) {
-                                        return
-                                    }
-                                    setShouldOpenChangePasswordModal(false);
-                                    setChangePasswordModal({ oldPassword: '', newPassword: '' })
-                                }}
-                                variant="contained"
-                                disableElevation
-                            >
-                                {t('btn.close')}
-                            </Button>
-                            <Button size='small'
-                                onClick={() => {
-                                    handleUpdate();
-                                }}
-                                variant="contained"
-                                disabled={checkValidate()}
-                                className={checkValidate() === false ? process ? 'button-loading bg-success text-white' : 'bg-success text-white' : ''}
-                                endIcon={process && <LoopIcon />}
-                            >
-                                {t('btn.update')}
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Dialog>
-
-                {/* Modal thông tin người dùng*/}
-                <Dialog maxWidth='sm' fullWidth={true}
-                    open={shouldOpenInfoModal}
-                >
-                    <Card>
-                        <CardHeader title={t('user.profile')} />
-                        <CardContent>
-                            <Grid container spacing={1}>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        disabled={true}
-                                        autoComplete="off"
-                                        label={t('user.userID')}
-                                        value={glb_sv.userId}
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        disabled={true}
-                                        autoComplete="off"
-                                        label={t('user.userName')}
-                                        value={glb_sv.userNm}
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        disabled={true}
-                                        autoComplete="off"
-                                        label={t('user.userEmail')}
-                                        value={glb_sv.userEmail}
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        disabled={true}
-                                        autoComplete="off"
-                                        label={t('user.userLevel')}
-                                        value={glb_sv.userLev === '0' ? t('user.userAdmin') : t('user.userNormal')}
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        disabled={true}
-                                        autoComplete="off"
-                                        label={t('pharmacy.pharmacyName')}
-                                        value={glb_sv.pharNm}
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth={true}
-                                        margin="dense"
-                                        disabled={true}
-                                        autoComplete="off"
-                                        label={t('regist.phone')}
-                                        value={glb_sv.pharTele}
-                                        variant="outlined"
-                                    />
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                        <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
-                            <Button size='small'
-                                onClick={e => {
-                                    setShouldOpenInfoModal(false)
-                                }}
-                                variant="contained"
-                                disableElevation
-                            >
-                                {t('btn.close')}
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Dialog>
             </div>
         </div>
     )
