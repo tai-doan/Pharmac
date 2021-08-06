@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import {
-    Card, CardHeader, CardContent, CircularProgress, Backdrop, makeStyles, Grid, FormGroup, FormLabel, FormControl, FormControlLabel, Checkbox, Divider
+    Card, CardHeader, CardContent, CircularProgress, Backdrop, makeStyles, Grid, FormGroup, FormLabel, FormControl, FormControlLabel, Checkbox, Divider,
+    Accordion, AccordionDetails, AccordionSummary, Typography
 } from '@material-ui/core'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -33,6 +35,15 @@ const useStyles = makeStyles((theme) => ({
         zIndex: theme.zIndex.drawer + 1,
         color: '#fff',
     },
+    heading: {
+        // fontSize: theme.typography.pxToRem(15),
+        flexBasis: '33.33%',
+        flexShrink: 0,
+    },
+    secondaryHeading: {
+        // fontSize: theme.typography.pxToRem(15),
+        color: theme.palette.text.secondary,
+    },
 }));
 
 const Permission = ({ }) => {
@@ -44,6 +55,7 @@ const Permission = ({ }) => {
     const [listPermission, setListPermission] = useState({})
     const [IDUser, setIDUser] = useState(userID)
     const [process, setProcess] = useState(false)
+    const [expanded, setExpanded] = useState('10') // id thằng sản phẩm
 
     useEffect(() => {
         setIDUser(userID)
@@ -164,6 +176,10 @@ const Permission = ({ }) => {
         }
     }
 
+    const handleChangeAccordion = (panel) => (event, isExpanded) => {
+        setExpanded(isExpanded ? panel : false);
+    }
+
     return (
         <div className='d-flex'>
             <Backdrop className={classes.backdrop} open={process}>
@@ -177,6 +193,7 @@ const Permission = ({ }) => {
                             label={t('user.userID')}
                             onSelect={handleSelectUser}
                             value={IDUser}
+                            autoSelectOnce={true}
                         />
                     </Grid>
                 </Grid>
@@ -184,61 +201,69 @@ const Permission = ({ }) => {
                     <FormGroup className='w-100'>
                         {Object.keys(listPermission).length > 0 ?
                             Object.values(listPermission)?.map((item, index) => (
-                                <Card className='mb-2' key={item.parent_cd + index}>
-                                    <CardHeader title={item.parent_nm} />
-                                    <CardContent key={item.parent_cd}>
-                                        {item?.result?.map((control, indexControl) => (
-                                            <>
-                                                <FormControl className='d-flex' key={control.scrn_cd + indexControl} component='fieldset'>
-                                                    <FormLabel component='div'>{control.scrn_nm}</FormLabel>
-                                                    <FormGroup row>
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox disabled={control.ins_yn}
-                                                                    checked={control.rgt_ins}
-                                                                    onChange={(event, checked) => handleChange(control, event.target.name, checked)}
-                                                                    name='rgt_ins'
-                                                                />
-                                                            }
-                                                            label={t('permission.ins')}
-                                                        />
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox disabled={control.upd_yn}
-                                                                    checked={control.rgt_upd}
-                                                                    onChange={(event, checked) => handleChange(control, event.target.name, checked)}
-                                                                    name='rgt_upd'
-                                                                />
-                                                            }
-                                                            label={t('permission.upd')}
-                                                        />
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox disabled={control.del_yn}
-                                                                    checked={control.rgt_del}
-                                                                    onChange={(event, checked) => handleChange(control, event.target.name, checked)}
-                                                                    name='rgt_del'
-                                                                />
-                                                            }
-                                                            label={t('permission.del')}
-                                                        />
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Checkbox disabled={control.qry_yn}
-                                                                    checked={control.rgt_qry}
-                                                                    onChange={(event, checked) => handleChange(control, event.target.name, checked)}
-                                                                    name='rgt_qry'
-                                                                />
-                                                            }
-                                                            label={t('permission.query')}
-                                                        />
-                                                    </FormGroup>
-                                                </FormControl>
-                                                {item?.result.length > indexControl + 1 && <Divider key={control.scrn_cd + indexControl} orientation="horizontal" flexItem />}
-                                            </>
-                                        ))}
-                                    </CardContent>
-                                </Card>
+                                <Accordion expanded={expanded === item.parent_cd} onChange={handleChangeAccordion(item.parent_cd)}>
+                                    <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls={`${item.parent_cd}-content`}
+                                        id={`${item.parent_cd}-header`}
+                                    >
+                                        <Typography className={classes.heading}>{item.parent_nm}</Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <Typography>
+                                            {item?.result?.map((control, indexControl) => (
+                                                <>
+                                                    <FormControl className='d-flex' key={control.scrn_cd + indexControl} component='fieldset'>
+                                                        <FormGroup row>
+                                                            <FormControlLabel className='ml-2' control={<span />} label={control.scrn_nm} />
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox disabled={control.ins_yn}
+                                                                        checked={control.rgt_ins}
+                                                                        onChange={(event, checked) => handleChange(control, event.target.name, checked)}
+                                                                        name='rgt_ins'
+                                                                    />
+                                                                }
+                                                                label={t('permission.ins')}
+                                                            />
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox disabled={control.upd_yn}
+                                                                        checked={control.rgt_upd}
+                                                                        onChange={(event, checked) => handleChange(control, event.target.name, checked)}
+                                                                        name='rgt_upd'
+                                                                    />
+                                                                }
+                                                                label={t('permission.upd')}
+                                                            />
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox disabled={control.del_yn}
+                                                                        checked={control.rgt_del}
+                                                                        onChange={(event, checked) => handleChange(control, event.target.name, checked)}
+                                                                        name='rgt_del'
+                                                                    />
+                                                                }
+                                                                label={t('permission.del')}
+                                                            />
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox disabled={control.qry_yn}
+                                                                        checked={control.rgt_qry}
+                                                                        onChange={(event, checked) => handleChange(control, event.target.name, checked)}
+                                                                        name='rgt_qry'
+                                                                    />
+                                                                }
+                                                                label={t('permission.query')}
+                                                            />
+                                                        </FormGroup>
+                                                    </FormControl>
+                                                    {item?.result.length > indexControl + 1 && <Divider key={control.scrn_cd + indexControl} orientation="horizontal" flexItem />}
+                                                </>
+                                            ))}
+                                        </Typography>
+                                    </AccordionDetails>
+                                </Accordion>
                             ))
                             : null}
                     </FormGroup>

@@ -17,7 +17,7 @@ const serviceInfo = {
     }
 }
 
-const User_Autocomplete = ({ onSelect = () => null, label = '', style = {}, size = 'small', value = '', userID = null, disabled = false, onKeyPress = () => null, inputRef = null }) => {
+const User_Autocomplete = ({ onSelect = () => null, label = '', style = {}, size = 'small', value = '', userID = null, disabled = false, onKeyPress = () => null, inputRef = null, autoSelectOnce = false }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -53,6 +53,10 @@ const User_Autocomplete = ({ onSelect = () => null, label = '', style = {}, size
             let newData = message['PROC_DATA']
             const userValidated = newData.rows.filter(x => x.o_2 !== glb_sv.userId)
             setDataSource(userValidated)
+            if (autoSelectOnce && userValidated.length > 0) {
+                setValueSelect(userValidated[0])
+                onSelect(userValidated[0])
+            }
         }
     }
 
