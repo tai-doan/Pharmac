@@ -53,7 +53,7 @@ const User_Autocomplete = ({ onSelect = () => null, label = '', style = {}, size
             let newData = message['PROC_DATA']
             const userValidated = newData.rows.filter(x => x.o_2 !== glb_sv.userId)
             setDataSource(userValidated)
-            if (autoSelectOnce && userValidated.length > 0) {
+            if (autoSelectOnce && userValidated.length > 0 && !userID && !value) {
                 setValueSelect(userValidated[0])
                 onSelect(userValidated[0])
             }
