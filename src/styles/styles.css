@@ -350,6 +350,26 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     background-color: #e32047
 }
 
+.permission-group .MuiAccordionSummary-content.Mui-expanded {
+    margin: 10px 0
+}
+
+.permission-group .MuiAccordionSummary-root.Mui-expanded {
+    min-height: 50px;
+}
+
+.permission-group .MuiAccordionSummary-root {
+    background-color: #e1e3e4;
+}
+
+.permission label.MuiFormControlLabel-root {
+    margin-bottom: 0;
+}
+
+.permission .title-screen {
+    min-width: 200px;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);

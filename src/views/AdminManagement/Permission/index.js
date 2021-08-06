@@ -198,7 +198,7 @@ const Permission = ({ }) => {
                     </Grid>
                 </Grid>
                 <Grid xs={12}>
-                    <FormGroup className='w-100'>
+                    <FormGroup className='w-100 permission-group'>
                         {Object.keys(listPermission).length > 0 ?
                             Object.values(listPermission)?.map((item, index) => (
                                 <Accordion expanded={expanded === item.parent_cd} onChange={handleChangeAccordion(item.parent_cd)}>
@@ -210,12 +210,12 @@ const Permission = ({ }) => {
                                         <Typography className={classes.heading}>{item.parent_nm}</Typography>
                                     </AccordionSummary>
                                     <AccordionDetails>
-                                        <Typography>
+                                        <Typography className='w-100'>
                                             {item?.result?.map((control, indexControl) => (
                                                 <>
-                                                    <FormControl className='d-flex' key={control.scrn_cd + indexControl} component='fieldset'>
+                                                    <FormControl className='d-flex permission' key={control.scrn_cd + indexControl} component='fieldset'>
                                                         <FormGroup row>
-                                                            <FormControlLabel className='ml-2' control={<span />} label={control.scrn_nm} />
+                                                            <FormControlLabel className='title-screen ml-2' control={<span />} label={control.scrn_nm} />
                                                             <FormControlLabel
                                                                 control={
                                                                     <Checkbox disabled={control.ins_yn}
