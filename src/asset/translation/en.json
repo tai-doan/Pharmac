@@ -124,6 +124,7 @@
         "userNormal": "User",
         "changePassword": "Change password",
         "oldPassword": "Old password",
+        "confirmPassword": "Confirm password",
         "newPassword": "New password",
         "lastLogin": "Last login",
         "lock_login": "Lock login",
@@ -190,6 +191,8 @@
         "btn": "Send request"
     },
     "message": {
+        "image_long_size": "Image size very long, maximum size 5MB",
+        "type_image_wrong": "Type of image is not support, only upload file .png or .jpg/.jpeg",
         "required": "Required",
         "network": "The system is currently unable to connect to the server, please check your internet connection",
         "noReceiveFeedback": "No response from server",

@@ -126,6 +126,7 @@
         "changePassword": "Đổi mật khẩu",
         "oldPassword": "Mật khẩu cũ",
         "newPassword": "Mật khẩu mới",
+        "confirmPassword": "Nhập lại mật khẩu mới",
         "lastLogin": "Đăng nhập lần cuối",
         "lock_login": "Khóa đăng nhập",
         "addUser": "Thêm người dùng",
@@ -191,6 +192,8 @@
         "btn": "Gửi yêu cầu"
     },
     "message": {
+        "image_long_size": "File hình ảnh không được quá 5MB",
+        "type_image_wrong": "Loại hình ảnh không đúng, chỉ có thể tải file .png hoặc jpg/jpeg",
         "required": "Đây là thông tin bắt buộc nhập",
         "network": "Hệ thống hiện tại không kết nối được tới server, hãy kiểm tra đường truyền internet của bạn",
         "noReceiveFeedback": "Không nhận được phản hồi từ máy chủ",

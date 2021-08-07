@@ -440,7 +440,7 @@ const MenuView = ({ baseLink }) => {
                         <div className={style.userName}>{glb_sv.userNm ? glb_sv.userNm : ''}</div>
                     </div>
                     <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-                        <MenuItem onClick={() => history.push('/page/management/pharmacy')}>
+                        <MenuItem onClick={() => history.push('/page/management/user-info')}>
                             <AccountCircleIcon className="mr-2" /> {t('user.profile')}
                         </MenuItem>
                         <MenuItem

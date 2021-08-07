@@ -5,6 +5,7 @@ const User = lazy(() => import('./User'))
 const Permission = lazy(() => import('./Permission'))
 const LockOrder = lazy(() => import('./LockOrder'))
 const Pharmacy = lazy(() => import('./Pharmacy'))
+const UserInfo = lazy(() => import('./User/UserInfo'))
 
 const AdminManagementLayout = () => {
     return (
@@ -25,6 +26,8 @@ function Child() {
             return <Pharmacy />
         case 'user':
             return <User />
+            case 'user-info':
+            return <UserInfo />
         case 'permission':
             return <Permission />
         case 'lock-order':
