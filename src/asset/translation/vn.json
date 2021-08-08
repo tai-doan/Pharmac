@@ -9,6 +9,12 @@
         "profile": "Thông tin",
         "emptyData": "Không có dữ liệu cần tra cứu!"
     },
+    "invoice": "HÓA ĐƠN",
+    "invoice_code": "Mã hóa đơn",
+    "date": "Ngày",
+    "currency": "VNĐ",
+    "qty": "Số lượng",
+    "unit": "Đơn vị tính",
     "branch": "Chi nhánh",
     "scan_barcode": "Quét mã vạch",
     "edit_base": "Nhập cơ bản",

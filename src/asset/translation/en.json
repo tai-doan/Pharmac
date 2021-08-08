@@ -9,6 +9,12 @@
         "profile": "Profile",
         "emptyData": "Empty data!"
     },
+    "invoice": "INVOICE",
+    "invoice_code": "Invoice code",
+    "date": "Date",
+    "currency": "USD",
+    "qty": "Quantity",
+    "unit": "Unit",
     "branch": "Branch",
     "scan_barcode": "Scan barcode",
     "edit_base": "Edit base",
