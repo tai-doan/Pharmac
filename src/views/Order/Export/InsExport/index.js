@@ -26,6 +26,9 @@ import { tableListAddColumn, invoiceExportModal } from '../Modal/Export.modal'
 import AddProduct from '../AddProductClone'
 import EditProductRows from '../EditExport/EditProductRows'
 import CustomerAdd_Autocomplete from '../../../Partner/Customer/Control/CustomerAdd.Autocomplete'
+import { useReactToPrint } from 'react-to-print';
+import Export_Bill from '../../../../components/Bill/Export_Bill'
+import ExportExcel from '../../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -89,6 +92,7 @@ const InsExport = ({ }) => {
     const [invoiceFlag, setInvoiceFlag] = useState(false)
     const [invoiceType, setInvoiceType] = useState(true)
 
+    const componentPrint = useRef(null)
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
     const step1Ref = useRef(null)
@@ -367,6 +371,68 @@ const InsExport = ({ }) => {
         setProductEditID(rowData.o_1)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.export.prod_nm'), key: 'prod_nm' },
+        { label: t('order.export.lot_no'), key: 'lot_no' },
+        { label: t('order.export.exp_tp_nm'), key: 'exp_tp_nm' },
+        { label: t('order.export.qty'), key: 'qty' },
+        { label: t('order.export.unit_nm'), key: 'unit_nm' },
+        { label: t('order.export.price'), key: 'price' },
+        { label: t('order.export.discount_per'), key: 'discount_per' },
+        { label: t('order.export.vat_per'), key: 'vat_per' },
+        { label: t(''), key: 'space_01' },
+        { label: t('order.export.invoice_no'), key: 'invoice_no' },
+        { label: t('order.export.customer_nm'), key: 'customer_nm' },
+        { label: t('order.export.order_dt'), key: 'order_dt' },
+        { label: t('order.export.note'), key: 'note' },
+        { label: t('order.export.invoice_val'), key: 'invoice_val' },
+        { label: t('order.export.invoice_discount'), key: 'invoice_discount' },
+        { label: t('order.export.invoice_vat'), key: 'invoice_vat' }
+    ]
+
+    const dataCSV = () => {
+        let result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['prod_nm'] = data.o_5
+            item['lot_no'] = data.o_6
+            item['exp_tp_nm'] = data.o_3
+            item['qty'] = data.o_7
+            item['unit_nm'] = data.o_9
+            item['price'] = data.o_10
+            item['discount_per'] = data.o_12
+            item['vat_per'] = data.o_11
+
+            item['space_01'] = ''
+            item['invoice_no'] = ''
+            item['customer_nm'] = ''
+            item['order_dt'] = ''
+            item['invoice_val'] = ''
+            item['invoice_discount'] = ''
+            item['invoice_vat'] = ''
+            item['note'] = ''
+            return item
+        })
+
+        if (result.length > 0) {
+            result[0].space_01 = ''
+            result[0].invoice_no = Export.invoice_no
+            result[0].customer_nm = Export.customer
+            result[0].order_dt = Export.order_dt ? moment(Export.order_dt).format('DD/MM/YYYY') : ''
+            result[0].invoice_val = Export.invoice_val
+            result[0].invoice_discount = Export.invoice_discount
+            result[0].invoice_vat = Export.invoice_vat
+            result[0].note = Export.note
+        }
+        return result
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentPrint.current,
+    });
+
     return (
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
@@ -375,6 +441,7 @@ const InsExport = ({ }) => {
                 <Card>
                     <CardHeader
                         title={t('order.export.productExportList')}
+                        action={<ExportExcel filename={`export_${Export.invoice_no}`} data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />}
                     />
                     <CardContent>
                         <TableContainer className="tableContainer tableOrder">
@@ -638,7 +705,7 @@ const InsExport = ({ }) => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
-                                fullWidth={true}
+                                style={{ width: 'calc(60% - 0.25rem)', marginRight: '0.5rem' }}
                                 onClick={() => {
                                     handleUpdateInvoice()
                                 }}
@@ -649,10 +716,29 @@ const InsExport = ({ }) => {
                             >
                                 {t('btn.payment')}
                             </Button>
+                            <Button
+                                onClick={handlePrint}
+                                disabled={!invoiceFlag}
+                                className={invoiceFlag ? 'bg-print text-white' : ''}
+                                id='buttonPrint'
+                                size='smail'
+                                variant="contained"
+                                style={{ width: 'calc(40% - 0.25rem)' }}
+                            >
+                                {t('print')}
+                            </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            <div className='' style={{ display: 'none' }}>
+                <Export_Bill
+                    headerModal={Export}
+                    detailModal={dataSource}
+                    componentRef={componentPrint}
+                />
+            </div>
 
             {/* modal delete */}
             <Dialog maxWidth='sm' fullWidth={true}

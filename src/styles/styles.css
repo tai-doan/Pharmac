@@ -201,6 +201,9 @@ thead.MuiTableHead-root {
 .bg-success, a.bg-success:focus, a.bg-success:hover, button.bg-success:focus, button.bg-success:hover {
     background-color: var(--primary) !important;
 }
+.bg-print, a.bg-print:focus, a.bg-print:hover, button.bg-print:focus, button.bg-print:hover {
+    background-color: var(--green) !important;
+}
 .MuiChip-deleteIconSmall{
     color: #fff !important;
 }

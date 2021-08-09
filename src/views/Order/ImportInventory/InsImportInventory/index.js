@@ -20,6 +20,9 @@ import { tableListAddColumn, invoiceImportInventoryModal } from '../Modal/Import
 
 import AddProductClone from '../AddProductClone'
 import EditProductRows from '../EditImportInventory/EditProductRows'
+import { useReactToPrint } from 'react-to-print';
+import Import_Inventory_Bill from '../../../../components/Bill/Import_Inventory_Bill'
+import ExportExcel from '../../../../components/ExportExcel'
 
 const serviceInfo = {
     CREATE_INVOICE: {
@@ -73,6 +76,7 @@ const ProductImportInventory = ({ }) => {
     const [deleteProcess, setDeleteProcess] = useState(false)
     const [resetFormAddFlag, setResetFormAddFlag] = useState(false)
 
+    const componentPrint = useRef(null)
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
@@ -222,6 +226,52 @@ const ProductImportInventory = ({ }) => {
         }
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.import.prod_nm'), key: 'prod_nm' },
+        { label: t('order.import.lot_no'), key: 'lot_no' },
+        { label: t('order.import.exp_dt'), key: 'exp_dt' },
+        { label: t('order.import.qty'), key: 'qty' },
+        { label: t('order.import.unit_nm'), key: 'unit_nm' },
+        { label: t('order.import.price'), key: 'price' },
+        { label: t(''), key: 'space_01' },
+        { label: t('order.import.invoice_no'), key: 'invoice_no' },
+        { label: t('order.import.note'), key: 'note' },
+        { label: t('order.import.invoice_val'), key: 'invoice_val' }
+    ]
+
+    const dataCSV = () => {
+        let result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['prod_nm'] = data.o_5
+            item['lot_no'] = data.o_6
+            item['exp_dt'] = data.o_7 ? moment(data.o_7, 'YYYYMMDD').format('DD/MM/YYYY') : ''
+            item['qty'] = data.o_8
+            item['unit_nm'] = data.o_10
+            item['price'] = data.o_11
+
+            item['space_01'] = ''
+            item['invoice_no'] = ''
+            item['invoice_val'] = ''
+            item['note'] = ''
+            return item
+        })
+
+        if (result.length > 0) {
+            result[0].space_01 = ''
+            result[0].invoice_no = importInventory.invoice_no
+            result[0].invoice_val = importInventory.total_val
+            result[0].note = importInventory.note
+        }
+        return result
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentPrint.current,
+    });
+
     return (
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
@@ -230,6 +280,7 @@ const ProductImportInventory = ({ }) => {
                 <Card>
                     <CardHeader
                         title={t('order.importInventory.productImportList')}
+                        action={<ExportExcel filename={`import_inventory_${importInventory.invoice_no}`} data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />}
                     />
                     <CardContent>
                         <TableContainer className="tableContainer tableOrder">
@@ -355,9 +406,28 @@ const ProductImportInventory = ({ }) => {
                                 variant="outlined"
                             />
                         </Grid>
+                        <Grid container spacing={1} className='mt-2'>
+                            <Button fullWidth={true}
+                                onClick={handlePrint}
+                                className={invoiceFlag ? 'bg-print text-white' : ''}
+                                id='buttonPrint'
+                                size='smail'
+                                variant="contained"
+                            >
+                                {t('print')}
+                            </Button>
+                        </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            <div className='' style={{ display: 'none' }}>
+                <Import_Inventory_Bill
+                    headerModal={importInventory}
+                    detailModal={dataSource}
+                    componentRef={componentPrint}
+                />
+            </div>
 
             {/* modal delete */}
             <Dialog maxWidth='sm' fullWidth={true}
@@ -380,7 +450,7 @@ const ProductImportInventory = ({ }) => {
                 <Card>
                     <CardHeader title={t('order.import.productDelete')} />
                     <CardContent>
-                    <Grid container>{productDeleteModal.o_4 + ' - ' + t('order.import.qty') + ': ' + productDeleteModal.o_8 + ' ' + productDeleteModal.o_10 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
+                        <Grid container>{productDeleteModal.o_4 + ' - ' + t('order.import.qty') + ': ' + productDeleteModal.o_8 + ' ' + productDeleteModal.o_10 + ' (' + t('stt') + ' ' + productDeleteIndex + ')'}</Grid>
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'

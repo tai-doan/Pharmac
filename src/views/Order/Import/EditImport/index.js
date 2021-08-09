@@ -29,6 +29,9 @@ import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useReactToPrint } from 'react-to-print';
+import Import_Bill from '../../../../components/Bill/Import_Bill'
+import ExportExcel from '../../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -92,6 +95,7 @@ const EditImport = ({ }) => {
     const [deleteProcess, setDeleteProcess] = useState(false)
     const [updateProcess, setUpdateProcess] = useState(false)
 
+    const componentPrint = useRef(null)
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
     const step1Ref = useRef(null)
@@ -324,6 +328,7 @@ const EditImport = ({ }) => {
                 invoice_no: newData.rows[0].o_2,
                 invoice_stat: newData.rows[0].o_3,
                 supplier: newData.rows[0].o_4,
+                supplier_nm: newData.rows[0].o_5,
                 order_dt: moment(newData.rows[0].o_6, 'YYYYMMDD').toString(),
                 person_s: newData.rows[0].o_8,
                 person_r: newData.rows[0].o_9,
@@ -365,6 +370,70 @@ const EditImport = ({ }) => {
         sendRequest(serviceInfo.GET_ALL_PRODUCT_BY_INVOICE_ID, [newInvoiceId.current], handleGetAllProductByInvoiceID, true, handleTimeOut)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.import.prod_nm'), key: 'prod_nm' },
+        { label: t('order.import.imp_tp_nm'), key: 'imp_tp_nm' },
+        { label: t('order.import.lot_no'), key: 'lot_no' },
+        { label: t('order.import.exp_dt'), key: 'exp_dt' },
+        { label: t('order.import.qty'), key: 'qty' },
+        { label: t('order.import.unit_nm'), key: 'unit_nm' },
+        { label: t('order.import.price'), key: 'price' },
+        { label: t('order.import.discount_per'), key: 'discount_per' },
+        { label: t('order.import.vat_per'), key: 'vat_per' },
+        { label: t(''), key: 'space_01' },
+        { label: t('order.import.invoice_no'), key: 'invoice_no' },
+        { label: t('order.import.vender_nm'), key: 'supplier_nm' },
+        { label: t('order.import.order_dt'), key: 'order_dt' },
+        { label: t('order.import.note'), key: 'note' },
+        { label: t('order.import.invoice_val'), key: 'invoice_val' },
+        { label: t('order.import.invoice_discount'), key: 'invoice_discount' },
+        { label: t('order.import.invoice_vat'), key: 'invoice_vat' }
+    ]
+
+    const dataCSV = () => {
+        let result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['imp_tp_nm'] = data.o_4
+            item['prod_nm'] = data.o_6
+            item['lot_no'] = data.o_7
+            item['exp_dt'] = data.o_9 ? moment(data.o_9, 'YYYYMMDD').format('DD/MM/YYYY') : ''
+            item['qty'] = data.o_10
+            item['unit_nm'] = data.o_12
+            item['price'] = data.o_13
+            item['discount_per'] = data.o_14
+            item['vat_per'] = data.o_15
+
+            item['space_01'] = ''
+            item['invoice_no'] = ''
+            item['supplier_nm'] = ''
+            item['order_dt'] = ''
+            item['invoice_val'] = ''
+            item['invoice_discount'] = ''
+            item['invoice_vat'] = ''
+            item['note'] = ''
+            return item
+        })
+
+        if (result.length > 0) {
+            result[0].space_01 = ''
+            result[0].invoice_no = Import.invoice_no
+            result[0].supplier_nm = Import.supplier
+            result[0].order_dt = Import.order_dt ? moment(Import.order_dt).format('DD/MM/YYYY') : ''
+            result[0].invoice_val = Import.invoice_val
+            result[0].invoice_discount = Import.invoice_discount
+            result[0].invoice_vat = Import.invoice_vat
+            result[0].note = Import.note
+        }
+        return result
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentPrint.current,
+    });
+
     return (
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
@@ -381,6 +450,7 @@ const EditImport = ({ }) => {
                     </div> */}
                     <CardHeader
                         title={t('order.import.productImportList')}
+                        action={<ExportExcel filename={`import_${Import.invoice_no}`} data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />}
                     />
                     <CardContent>
                         <TableContainer className="tableContainer tableOrder">
@@ -612,7 +682,7 @@ const EditImport = ({ }) => {
                             <Divider orientation="horizontal" flexItem />
                             <NumberFormat className='inputNumber'
                                 style={{ width: '100%' }}
-                                value={Import.payment_amount - paymentInfo.invoice_needpay > 0 ? Import.payment_amount - paymentInfo.invoice_needpay: 0}
+                                value={Import.payment_amount - paymentInfo.invoice_needpay > 0 ? Import.payment_amount - paymentInfo.invoice_needpay : 0}
                                 label={t('settlement.excess_cash')}
                                 customInput={TextField}
                                 autoComplete="off"
@@ -625,7 +695,7 @@ const EditImport = ({ }) => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
-                                fullWidth={true}
+                                style={{ width: 'calc(60% - 0.25rem)', marginRight: '0.5rem' }}
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
@@ -636,10 +706,28 @@ const EditImport = ({ }) => {
                             >
                                 {t('btn.payment')}
                             </Button>
+                            <Button
+                                onClick={handlePrint}
+                                className={'bg-print text-white'}
+                                id='buttonPrint'
+                                size='smail'
+                                variant="contained"
+                                style={{ width: 'calc(40% - 0.25rem)' }}
+                            >
+                                {t('print')}
+                            </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            <div className='' style={{ display: 'none' }}>
+                <Import_Bill
+                    headerModal={Import}
+                    detailModal={dataSource}
+                    componentRef={componentPrint}
+                />
+            </div>
 
             {/* modal delete */}
             <Dialog maxWidth='sm' fullWidth={true}

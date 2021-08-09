@@ -25,6 +25,9 @@ import AddProduct from '../AddProductClone'
 
 import EditProductRows from './EditProductRows'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useReactToPrint } from 'react-to-print';
+import Export_Destroy_Bill from '../../../../components/Bill/Export_Destroy_Bill'
+import ExportExcel from '../../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -75,6 +78,7 @@ const EditExportDestroy = ({ }) => {
     const [deleteProcess, setDeleteProcess] = useState(false)
     const [updateProcess, setUpdateProcess] = useState(false)
 
+    const componentPrint = useRef(null)
     const newInvoiceId = useRef(-1)
     const step1Ref = useRef(null)
     const step2Ref = useRef(null)
@@ -116,8 +120,8 @@ const EditExportDestroy = ({ }) => {
                 input_dt: moment(newData.rows[0].o_5, 'YYYYMMDD').toString(),
                 staff_exp: newData.rows[0].o_6,
                 cancel_reason: newData.rows[0].o_7,
-                note: newData.rows[0].o_8,
-                invoice_val: newData.rows[0].o_10
+                note: newData.rows[0].o_7,
+                invoice_val: newData.rows[0].o_9
             }
             setExportDestroy(dataExportDestroy)
         }
@@ -280,6 +284,55 @@ const EditExportDestroy = ({ }) => {
         setProductEditID(rowData.o_1)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.export.prod_nm'), key: 'prod_nm' },
+        { label: t('order.export.lot_no'), key: 'lot_no' },
+        { label: t('order.export.qty'), key: 'qty' },
+        { label: t('order.export.unit_nm'), key: 'unit_nm' },
+        { label: t('order.export.price'), key: 'price' },
+        { label: t('order.export.cancel_reason'), key: 'cancel_reason' },
+        { label: t(''), key: 'space_01' },
+        { label: t('order.export.invoice_no'), key: 'invoice_no' },
+        { label: t('order.export.exp_dt'), key: 'exp_dt' },
+        { label: t('order.export.note'), key: 'note' },
+        { label: t('order.export.invoice_val'), key: 'invoice_val' },
+    ]
+
+    const dataCSV = () => {
+        let result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['prod_nm'] = data.o_5
+            item['lot_no'] = data.o_6
+            item['qty'] = data.o_7
+            item['unit_nm'] = data.o_9
+            item['price'] = data.o_10
+            item['cancel_reason'] = data.o_12
+
+            item['space_01'] = ''
+            item['invoice_no'] = ''
+            item['exp_dt'] = ''
+            item['invoice_val'] = ''
+            item['note'] = ''
+            return item
+        })
+
+        if (result.length > 0) {
+            result[0].space_01 = ''
+            result[0].invoice_no = ExportDestroy.invoice_no
+            result[0].exp_dt = ExportDestroy.exp_dt ? moment(ExportDestroy.exp_dt).format('DD/MM/YYYY') : ''
+            result[0].invoice_val = ExportDestroy.invoice_val
+            result[0].note = ExportDestroy.note
+        }
+        return result
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentPrint.current,
+    });
+
     return (
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
@@ -288,6 +341,7 @@ const EditExportDestroy = ({ }) => {
                 <Card>
                     <CardHeader
                         title={t('order.exportDestroy.productExportDestroyList')}
+                        action={<ExportExcel filename={`export_destroy_${ExportDestroy.invoice_no}`} data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />}
                     />
                     <CardContent>
                         <TableContainer className="tableContainer tableOrder">
@@ -483,7 +537,7 @@ const EditExportDestroy = ({ }) => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
-                                fullWidth={true}
+                                style={{ width: 'calc(60% - 0.25rem)', marginRight: '0.5rem' }}
                                 onClick={() => {
                                     handleUpdateInvoice();
                                 }}
@@ -494,10 +548,28 @@ const EditExportDestroy = ({ }) => {
                             >
                                 {t('btn.payment')}
                             </Button>
+                            <Button
+                                onClick={handlePrint}
+                                className={'bg-print text-white'}
+                                id='buttonPrint'
+                                size='smail'
+                                variant="contained"
+                                style={{ width: 'calc(40% - 0.25rem)' }}
+                            >
+                                {t('print')}
+                            </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            <div className='' style={{ display: 'none' }}>
+                <Export_Destroy_Bill
+                    headerModal={ExportDestroy}
+                    detailModal={dataSource}
+                    componentRef={componentPrint}
+                />
+            </div>
 
             {/* modal delete */}
             <Dialog maxWidth='sm' fullWidth={true}

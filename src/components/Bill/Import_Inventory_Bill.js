@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 
-import glb_sv from '../../../utils/service/global_service'
-import control_sv from '../../../utils/service/control_services'
-import SnackBarService from '../../../utils/service/snackbar_service'
-import reqFunction from '../../../utils/constan/functions'
-import sendRequest from '../../../utils/service/sendReq'
+import glb_sv from '../../utils/service/global_service'
+import control_sv from '../../utils/service/control_services'
+import SnackBarService from '../../utils/service/snackbar_service'
+import reqFunction from '../../utils/constan/functions'
+import sendRequest from '../../utils/service/sendReq'
 
 import { initPharmacyInfo, formatCurrency } from './initPharmacyInfo.modal'
 import moment from 'moment';
@@ -19,7 +19,7 @@ const serviceInfo = {
     }
 }
 
-const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
+const Import_Inventory_Bill = ({ headerModal, detailModal, className, componentRef }) => {
     const { t } = useTranslation()
     const [pharmacyInfo, setPharmacyInfo] = useState(initPharmacyInfo)
 
@@ -32,7 +32,6 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
     }
 
     const handleResultGetPharmarcyByID = (reqInfoMap, message) => {
-        setProcess(false)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
@@ -59,7 +58,7 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
     }
 
     return (
-        <div className={className}>
+        <div className={className} ref={componentRef}>
             <div className='print-container'>
                 <div className='page-break'>
                     <style>
@@ -71,17 +70,18 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
                     </style>
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'row', marginTop: '20px' }}>
                         <div style={{ textAlign: 'center', margin: 'auto' }} >
-                            <h2 style={{ fontSize: '20pt' }} >
+                            <img height={100} width={100} src={'http://171.244.133.198:5555/upload/comp_logo/' + pharmacyInfo.logo_name} />
+                            <h2 style={{ fontSize: '15pt' }} >
                                 <b>
                                     {pharmacyInfo.name}
                                 </b>
                             </h2>
-                            <h4 style={{ fontSize: '18pt' }}>
+                            <h4 style={{ fontSize: '13pt' }}>
                                 {
                                     `${pharmacyInfo.address}`
                                 }
                             </h4>
-                            <h4 style={{ fontSize: '18pt' }}>
+                            <h4 style={{ fontSize: '12pt' }}>
                                 <b>
                                     {`${t('pharmacy.boss_name')}: +${pharmacyInfo.boss_name} | 
                                         ${t('pharmacy.boss_phone')}: +${pharmacyInfo.boss_phone} | 
@@ -91,15 +91,15 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
                         </div>
                     </div>
                     <div>
-                        <h2 style={{ marginTop: '20px', fontSize: '30pt', textAlign: 'center' }}><b>{T('invoice')}</b></h2>
+                        <h2 style={{ marginTop: '20px', fontSize: '30pt', textAlign: 'center' }}><b>{t('invoice')}</b></h2>
                     </div>
-                    <div style={{ fontSize: '16pt', marginLeft: '10px' }}>
-                        <span style={{ marginTop: '20px' }}><b>{t('invoice_code')}: </b>{headerModal.o_2}</span>
+                    <div style={{ fontSize: '12pt', marginLeft: '10px' }}>
+                        <span style={{ marginTop: '20px' }}><b>{t('invoice_code')}: </b>{headerModal.invoice_no}</span>
                         <br />
                     </div>
                     <div>
-                        <table className='invoice-fixed-print' style={{ fontSize: '10pt', width: '66mm' }}>
-                            <tbody style={{ fontSize: '11pt', textAlign: 'center' }}>
+                        <table className='invoice-fixed-print' style={{ fontSize: '10pt' }}>
+                            <thead style={{ fontSize: '11pt', textAlign: 'center' }}>
                                 <tr>
                                     <th style={{ width: '8%' }}>#</th>
                                     <th style={{ width: '28%' }} >{t('product.name')}</th>
@@ -109,13 +109,13 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
                                     <th style={{ width: '10%' }} >{t('unit')}</th>
                                     <th style={{ width: '10%' }} >{t('report.import_order.price')}</th>
                                 </tr>
-                            </tbody>
+                            </thead>
                             <tbody>
                                 {detailModal.length > 0 ? detailModal.map((details, index) => {
                                     return (
                                         <React.Fragment key={index}>
-                                            <tr key={index + 1}>
-                                                <td className='number' rowSpan="2" style={{ textAlign: 'center', verticalAlign: 'top' }}>
+                                            <tr key={index + 1} style={{ borderBottom: '1px solid #dfdfdf', padding: '5px 0px' }}>
+                                                <td className='number' style={{ textAlign: 'center', verticalAlign: 'top' }}>
                                                     {index + 1}
                                                 </td>
                                                 <td style={{ border: 0 }}>
@@ -143,14 +143,14 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className }) => {
                             </tbody>
                         </table>
                     </div>
-                    <div style={{ position: 'absolute', right: 30, display: 'flex', flexDirection: 'row', marginLeft: '10px' }}>
-                        <span style={{ fontSize: '16pt' }}>
-                            <span><b>{t('export.invoice_val')}</b></span><br />
-                            <span><b>{t('export.invoice_needpay')}</b></span><br />
+                    <div style={{ position: 'absolute', right: 30, display: 'flex', flexDirection: 'row', marginLeft: '10px', marginTop: 15 }}>
+                        <span style={{ fontSize: '12pt' }}>
+                            <span><b>{t('order.export.invoice_val')}</b></span><br />
+                            <span><b>{t('order.export.invoice_needpay')}</b></span><br />
                         </span>
-                        <span style={{ textAlign: 'right', marginLeft: '2px', fontSize: '16pt' }}>
-                            <span>{headerModal.o_5 ? headerModal.o_5 : 0}</span><br />
-                            <span>{headerModal.o_5 ? formatCurrency(headerModal.o_5) + t('currency') : ''}</span><br />
+                        <span style={{ textAlign: 'right', marginLeft: '2px', fontSize: '12pt' }}>
+                            <span>{headerModal.total_val ? formatCurrency(headerModal.total_val) : 0}</span><br />
+                            <span>{headerModal.total_val ? formatCurrency(headerModal.total_val) + t('currency') : ''}</span><br />
                         </span>
                     </div>
                 </div>

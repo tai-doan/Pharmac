@@ -25,6 +25,9 @@ import AddProduct from '../AddProductClone'
 import EditProductRows from '../EditExportRepay/EditProductRows'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useReactToPrint } from 'react-to-print';
+import Export_Repay_Bill from '../../../../components/Bill/Export_Repay_Bill'
+import ExportExcel from '../../../../components/ExportExcel'
 
 const serviceInfo = {
     GET_INVOICE_BY_ID: {
@@ -81,6 +84,7 @@ const InsExportRepay = ({ }) => {
     const [updateProcess, setUpdateProcess] = useState(false)
     const [invoiceFlag, setInvoiceFlag] = useState(false)
 
+    const componentPrint = useRef(null)
     const dataWaitAdd = useRef([])
     const newInvoiceId = useRef(-1)
     const dataSourceRef = useRef([])
@@ -374,6 +378,66 @@ const InsExportRepay = ({ }) => {
         setProductEditID(rowData.o_1)
     }
 
+    const headersCSV = [
+        { label: t('stt'), key: 'stt' },
+        { label: t('order.export.prod_nm'), key: 'prod_nm' },
+        { label: t('order.export.lot_no'), key: 'lot_no' },
+        { label: t('order.export.qty'), key: 'qty' },
+        { label: t('order.export.unit_nm'), key: 'unit_nm' },
+        { label: t('order.export.price'), key: 'price' },
+        { label: t('order.export.discount_per'), key: 'discount_per' },
+        { label: t('order.export.vat_per'), key: 'vat_per' },
+        { label: t(''), key: 'space_01' },
+        { label: t('order.export.invoice_no'), key: 'invoice_no' },
+        { label: t('order.exportRepay.supplier_nm'), key: 'supplier_nm' },
+        { label: t('order.export.order_dt'), key: 'order_dt' },
+        { label: t('order.export.note'), key: 'note' },
+        { label: t('order.export.invoice_val'), key: 'invoice_val' },
+        { label: t('order.export.invoice_discount'), key: 'invoice_discount' },
+        { label: t('order.export.invoice_vat'), key: 'invoice_vat' }
+    ]
+
+    const dataCSV = () => {
+        let result = dataSource.map((item, index) => {
+            const data = item
+            item = {}
+            item['stt'] = index + 1
+            item['prod_nm'] = data.o_3
+            item['lot_no'] = data.o_4
+            item['qty'] = data.o_5
+            item['unit_nm'] = data.o_7
+            item['price'] = data.o_18
+            item['discount_per'] = data.o_9
+            item['vat_per'] = data.o_10
+
+            item['space_01'] = ''
+            item['invoice_no'] = ''
+            item['supplier_nm'] = ''
+            item['order_dt'] = ''
+            item['invoice_val'] = ''
+            item['invoice_discount'] = ''
+            item['invoice_vat'] = ''
+            item['note'] = ''
+            return item
+        })
+
+        if (result.length > 0) {
+            result[0].space_01 = ''
+            result[0].invoice_no = ExportRepay.invoice_no
+            result[0].supplier_nm = ExportRepay.supplier
+            result[0].order_dt = ExportRepay.order_dt ? moment(ExportRepay.order_dt).format('DD/MM/YYYY') : ''
+            result[0].invoice_val = ExportRepay.invoice_val
+            result[0].invoice_discount = ExportRepay.invoice_discount
+            result[0].invoice_vat = ExportRepay.invoice_vat
+            result[0].note = ExportRepay.note
+        }
+        return result
+    }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentPrint.current,
+    });
+
     return (
         <Grid container spacing={1}>
             <EditProductRows productEditID={productEditID} invoiceID={newInvoiceId.current} onRefresh={handleRefresh} setProductEditID={setProductEditID} />
@@ -382,6 +446,7 @@ const InsExportRepay = ({ }) => {
                 <Card>
                     <CardHeader
                         title={t('order.exportRepay.productExportRepayList')}
+                        action={<ExportExcel filename={`export_repay_${ExportRepay.invoice_no}`}  data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />}
                     />
                     <CardContent>
                         <TableContainer className="tableContainer tableOrder">
@@ -634,7 +699,7 @@ const InsExportRepay = ({ }) => {
                         </Grid>
                         <Grid container spacing={1} className='mt-2'>
                             <Button size='small'
-                                fullWidth={true}
+                                style={{ width: 'calc(60% - 0.25rem)', marginRight: '0.5rem' }}
                                 onClick={() => {
                                     handleUpdateInvoice()
                                 }}
@@ -645,10 +710,29 @@ const InsExportRepay = ({ }) => {
                             >
                                 {t('btn.payment')}
                             </Button>
+                            <Button
+                                onClick={handlePrint}
+                                disabled={!invoiceFlag}
+                                className={invoiceFlag ? 'bg-print text-white' : ''}
+                                id='buttonPrint'
+                                size='smail'
+                                variant="contained"
+                                style={{ width: 'calc(40% - 0.25rem)' }}
+                            >
+                                {t('print')}
+                            </Button>
                         </Grid>
                     </CardContent>
                 </Card>
             </Grid>
+
+            <div className='' style={{ display: 'none' }}>
+                <Export_Repay_Bill
+                    headerModal={ExportRepay}
+                    detailModal={dataSource}
+                    componentRef={componentPrint}
+                />
+            </div>
 
             {/* modal delete */}
             <Dialog maxWidth='sm' fullWidth={true}

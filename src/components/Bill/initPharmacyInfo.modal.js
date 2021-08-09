@@ -7,6 +7,8 @@ const initPharmacyInfo = {
     logo_name: ''
 }
 
+const displayCurrencyFormat = /(\d)(?=(\d{3})+(?!\d))/g;
+
 const formatCurrency = (value, delimiter, currency) => {
     let amount = !!value ? value.toString().replace(displayCurrencyFormat, (!!delimiter ? `$1${delimiter}` : "$1,")) : 0;
     return !!currency ? `${amount} ${currency}` : amount;

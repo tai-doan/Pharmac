@@ -87,6 +87,7 @@ const invoiceImportModal = {
     invoice_id: null,
     order_dt: moment().toString(),
     supplier: null,
+    supplier_nm: '',
     invoice_no: '',
     person_s: '',
     person_r: '',

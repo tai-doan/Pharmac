@@ -9,6 +9,7 @@
         "profile": "Profile",
         "emptyData": "Empty data!"
     },
+    "print": "Print invoice",
     "invoice": "INVOICE",
     "invoice_code": "Invoice code",
     "date": "Date",
