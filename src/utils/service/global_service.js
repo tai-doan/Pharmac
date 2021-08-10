@@ -15,6 +15,7 @@ class globalService {
         this.checkFullScreen = false
         // this.developeFlag = false // -- prod
         this.developeFlag = true // -- dev
+        this.urlPublic = 'http://localhost:4100/'
         this.urlMobile = 'http://171.244.133.198:8081' // -- prod8081
         this.isMobile = false
         this.mobileTp = ''

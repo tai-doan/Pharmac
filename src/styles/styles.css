@@ -373,6 +373,10 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     min-width: 200px;
 }
 
+.breadcrumb-layout a {
+    text-transform: capitalize;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);

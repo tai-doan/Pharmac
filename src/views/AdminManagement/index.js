@@ -12,7 +12,7 @@ const AdminManagementLayout = () => {
         <>
             <Switch>
                 <Route path="/page/management/:link" children={<Child />} />
-                <Redirect to={{ pathname: './user', state: { from: '/' } }} />
+                <Redirect to={{ pathname: './management/user', state: { from: '/' } }} />
             </Switch>
         </>
     )
@@ -26,7 +26,7 @@ function Child() {
             return <Pharmacy />
         case 'user':
             return <User />
-            case 'user-info':
+        case 'user-info':
             return <UserInfo />
         case 'permission':
             return <Permission />

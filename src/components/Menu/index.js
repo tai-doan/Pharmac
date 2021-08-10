@@ -83,6 +83,76 @@ const menuList = [
             {
                 title: 'menu.importOrder',
                 icon: <IC_IMPORT />,
+                link: 'order/ins-import',
+                key: 'ins-importOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.importOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/edit-import',
+                key: 'edit-importOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.importInventoryOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/ins-importInventory',
+                key: 'ins-importInventoryOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.importInventoryOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/edit-importInventory',
+                key: 'edit-importInventoryOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.exportOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/ins-export',
+                key: 'ins-exportInventoryOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.exportOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/edit-export',
+                key: 'edit-exportOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.exportRepay',
+                icon: <IC_IMPORT />,
+                link: 'order/ins-exportRepay',
+                key: 'ins-exportRepayInventoryOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.exportRepay',
+                icon: <IC_IMPORT />,
+                link: 'order/edit-exportRepay',
+                key: 'edit-exportRepayOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.exportDestroyOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/ins-exportDestroy',
+                key: 'ins-exportDestroyInventoryOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.exportDestroyOrder',
+                icon: <IC_IMPORT />,
+                link: 'order/edit-exportDestroy',
+                key: 'edit-exportDestroyOrder',
+                hidden: true
+            },
+            {
+                title: 'menu.importOrder',
+                icon: <IC_IMPORT />,
                 link: 'order/import',
                 key: 'importOrder'
             },
@@ -365,7 +435,7 @@ const MenuView = ({ baseLink }) => {
                                 >
                                     <Tooltip arrow interactive key={item.key} className='menu-item' placement='right' title={
                                         item.children.length > 0 ? (<List component="nav" aria-label="main mailbox folders" style={{ padding: 0 }}>
-                                            {item?.children?.map((row, index) => (
+                                            {item?.children?.filter(x => x.hidden !== true).map((row, index) => (
                                                 <React.Fragment key={index}>
                                                     <Link to={baseLink + row.link} key={row.link + index} className="text-decoration-none text-light" >
                                                         <ListItem style={{ padding: '5px 12px', margin: '4px auto' }} button className={activeLink === row.link ? 'sub-active submenu-link' : 'submenu-link'}>
@@ -461,4 +531,8 @@ const MenuView = ({ baseLink }) => {
     )
 }
 
-export default MenuView
+export {
+    MenuView,
+    menuList,
+    menuAdmin
+}

@@ -12,7 +12,7 @@ const configLayout = () => {
         <>
             <Switch>
                 <Route path="/page/config/:link" children={<Child />} />
-                <Redirect to={{ pathname: './unit', state: { from: '/' } }} />
+                <Redirect to={{ pathname: './config/unit', state: { from: '/' } }} />
             </Switch>
         </>
     )

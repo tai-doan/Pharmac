@@ -33,7 +33,7 @@ const Products = () => {
         <>
             <Switch>
                 <Route path="/page/products/:link" children={<Child />} />
-                <Redirect to={{ pathname: './product-group', state: { from: '/' } }} />
+                <Redirect to={{ pathname: './products/product-group', state: { from: '/' } }} />
             </Switch>
         </>
     )
