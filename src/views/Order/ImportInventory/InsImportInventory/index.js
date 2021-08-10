@@ -1,7 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { useHotkeys } from 'react-hotkeys-hook'
 import moment from 'moment'
 import NumberFormat from 'react-number-format'
 import { Grid, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, TextField, Card, CardHeader, CardContent, CardActions, Button, Dialog } from '@material-ui/core'

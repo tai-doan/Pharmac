@@ -1,9 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-    Button, Chip, IconButton, Grid, TextField, FormControl, MenuItem, Select, InputLabel, Tooltip, InputAdornment, makeStyles, Fab, Avatar
-} from '@material-ui/core'
-import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
+import { Grid, makeStyles, Avatar } from '@material-ui/core'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
@@ -75,7 +72,7 @@ const UploadLogo = ({ }) => {
             }
 
             reader2.onloadend = e => {
-                logoInfo.current.file = reader2.result
+                logoInfo.current.file = e.target.result
                 logoInfo.current.name = fileUpload?.name
                 logoInfo.current.type = fileUpload?.type.substr(6)
                 logoInfo.current.size = fileUpload?.size
@@ -92,6 +89,8 @@ const UploadLogo = ({ }) => {
     }
 
     const handleResultUpdateLogo = (reqInfoMap, message) => {
+        console.log('handleResultUpdateLogo: ', reqInfoMap, message)
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại

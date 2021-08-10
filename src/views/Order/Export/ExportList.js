@@ -3,18 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit'
 import LoopIcon from '@material-ui/icons/Loop';
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/Export.modal'
@@ -24,7 +19,6 @@ import {
     Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
 } from '@material-ui/core'
 import moment from 'moment'
-import { Link } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook';
 import AddIcon from '@material-ui/icons/Add';
 import ExportExcel from '../../../components/ExportExcel'
@@ -272,9 +266,7 @@ const ExportList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='export' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Link to="/page/order/ins-export" className="normalLink">
-                                <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
-                            </Link>
+                            <Chip onClick={() => history.push('/page/order/ins-export')} size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => history.push('/page/order/ins-export')} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                         </div>
                     }
                 />

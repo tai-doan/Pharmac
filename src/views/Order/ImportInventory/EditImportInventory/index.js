@@ -17,7 +17,6 @@ import sendRequest from '../../../../utils/service/sendReq'
 import { tableListEditColumn, invoiceImportInventoryModal } from '../Modal/ImportInventory.modal'
 import moment from 'moment'
 
-import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import AddProductClone from '../AddProductClone'
 import { useReactToPrint } from 'react-to-print';

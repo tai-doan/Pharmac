@@ -25,7 +25,6 @@ import { tableListEditColumn, invoiceImportModal } from '../Modal/Import.modal'
 import moment from 'moment'
 import AddProduct from '../AddProductClone'
 
-import { Link } from 'react-router-dom'
 import EditProductRows from './EditProductRows'
 import SupplierAdd_Autocomplete from '../../../Partner/Supplier/Control/SupplierAdd.Autocomplete'
 import { useHotkeys } from 'react-hotkeys-hook'

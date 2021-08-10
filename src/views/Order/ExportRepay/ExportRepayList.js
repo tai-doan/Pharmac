@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 import moment from 'moment'
-import { Link } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
@@ -269,9 +268,7 @@ const ExportRepayList = () => {
                             <Chip size="small" variant='outlined' className='mr-1' label={dataSourceRef.current.length + '/' + totalRecords + ' ' + t('rowData')} />
                             <Chip size="small" className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color="primary" label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='export-repay' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
-                            <Link to="/page/order/ins-exportRepay" className="normalLink">
-                                <Chip size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => null} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
-                            </Link>
+                            <Chip onClick={() => history.push('/page/order/ins-exportRepay')} size="small" className='mr-1' deleteIcon={<AddIcon />} onDelete={() => history.push('/page/order/ins-exportRepay')} label={t('btn.add')} style={{ backgroundColor: 'var(--primary)', color: '#fff' }} />
                         </div>
                     }
                 />
