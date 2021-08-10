@@ -73,21 +73,21 @@ const Export_Repay_Bill = ({ headerModal, detailModal, className, componentRef }
                             <img height={100} width={100} src={'http://171.244.133.198:5555/upload/comp_logo/' + pharmacyInfo.logo_name} />
                             <h2 style={{ fontSize: '15pt' }} >
                                 <b>
-                                    {pharmacyInfo.name}
+                                    {t('pharma')} : {pharmacyInfo.name}
                                 </b>
                             </h2>
                             <h4 style={{ fontSize: '13pt' }}>
                                 {
-                                    `${pharmacyInfo.address}`
+                                    `${pharmacyInfo.address} - ${pharmacyInfo.boss_phone}`
                                 }
                             </h4>
-                            <h4 style={{ fontSize: '12pt' }}>
+                            {/* <h4 style={{ fontSize: '12pt' }}>
                                 <b>
                                     {`${t('pharmacy.boss_name')}: +${pharmacyInfo.boss_name} | 
                                         ${t('pharmacy.boss_phone')}: +${pharmacyInfo.boss_phone} | 
                                             ${t('pharmacy.boss_email')}: +${pharmacyInfo.boss_email}`}
                                 </b>
-                            </h4>
+                            </h4> */}
                         </div>
                     </div>
                     <div>

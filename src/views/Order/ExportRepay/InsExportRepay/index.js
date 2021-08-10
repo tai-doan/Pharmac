@@ -411,26 +411,15 @@ const InsExportRepay = ({ }) => {
             item['vat_per'] = data.o_10
 
             item['space_01'] = ''
-            item['invoice_no'] = ''
-            item['supplier_nm'] = ''
-            item['order_dt'] = ''
-            item['invoice_val'] = ''
-            item['invoice_discount'] = ''
-            item['invoice_vat'] = ''
-            item['note'] = ''
+            item['invoice_no'] = ExportRepay.invoice_no
+            item['supplier_nm'] = ExportRepay.supplier
+            item['order_dt'] = ExportRepay.order_dt ? moment(ExportRepay.order_dt).format('DD/MM/YYYY') : ''
+            item['invoice_val'] = ExportRepay.invoice_val
+            item['invoice_discount'] = ExportRepay.invoice_discount
+            item['invoice_vat'] = ExportRepay.invoice_vat
+            item['note'] = ExportRepay.note
             return item
         })
-
-        if (result.length > 0) {
-            result[0].space_01 = ''
-            result[0].invoice_no = ExportRepay.invoice_no
-            result[0].supplier_nm = ExportRepay.supplier
-            result[0].order_dt = ExportRepay.order_dt ? moment(ExportRepay.order_dt).format('DD/MM/YYYY') : ''
-            result[0].invoice_val = ExportRepay.invoice_val
-            result[0].invoice_discount = ExportRepay.invoice_discount
-            result[0].invoice_vat = ExportRepay.invoice_vat
-            result[0].note = ExportRepay.note
-        }
         return result
     }
 

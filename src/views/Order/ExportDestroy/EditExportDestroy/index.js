@@ -312,20 +312,12 @@ const EditExportDestroy = ({ }) => {
             item['cancel_reason'] = data.o_12
 
             item['space_01'] = ''
-            item['invoice_no'] = ''
-            item['exp_dt'] = ''
-            item['invoice_val'] = ''
-            item['note'] = ''
+            item['invoice_no'] = ExportDestroy.invoice_no
+            item['exp_dt'] = ExportDestroy.exp_dt ? moment(ExportDestroy.exp_dt).format('DD/MM/YYYY') : ''
+            item['invoice_val'] = ExportDestroy.invoice_val
+            item['note'] = ExportDestroy.note
             return item
         })
-
-        if (result.length > 0) {
-            result[0].space_01 = ''
-            result[0].invoice_no = ExportDestroy.invoice_no
-            result[0].exp_dt = ExportDestroy.exp_dt ? moment(ExportDestroy.exp_dt).format('DD/MM/YYYY') : ''
-            result[0].invoice_val = ExportDestroy.invoice_val
-            result[0].note = ExportDestroy.note
-        }
         return result
     }
 

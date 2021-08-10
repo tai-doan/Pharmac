@@ -191,7 +191,6 @@ const EditImportInventory = ({ }) => {
     }
 
     const checkValidate = () => {
-        console.log(dataSource, ImportInventory)
         if (dataSource.length > 0 && !!ImportInventory.supplier && !!ImportInventory.order_dt) {
             return false
         }
@@ -238,18 +237,11 @@ const EditImportInventory = ({ }) => {
             item['price'] = data.o_11
 
             item['space_01'] = ''
-            item['invoice_no'] = ''
-            item['invoice_val'] = ''
-            item['note'] = ''
+            item['invoice_no'] = ImportInventory.invoice_no
+            item['invoice_val'] = ImportInventory.total_val
+            item['note'] = ImportInventory.note
             return item
         })
-
-        if (result.length > 0) {
-            result[0].space_01 = ''
-            result[0].invoice_no = ImportInventory.invoice_no
-            result[0].invoice_val = ImportInventory.total_val
-            result[0].note = ImportInventory.note
-        }
         return result
     }
 

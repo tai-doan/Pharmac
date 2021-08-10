@@ -406,26 +406,16 @@ const InsExport = ({ }) => {
             item['vat_per'] = data.o_11
 
             item['space_01'] = ''
-            item['invoice_no'] = ''
-            item['customer_nm'] = ''
-            item['order_dt'] = ''
-            item['invoice_val'] = ''
-            item['invoice_discount'] = ''
-            item['invoice_vat'] = ''
-            item['note'] = ''
+            item['invoice_no'] = Export.invoice_no
+            item['customer_nm'] = Export.customer
+            item['order_dt'] = Export.order_dt ? moment(Export.order_dt).format('DD/MM/YYYY') : ''
+            item['invoice_val'] = Export.invoice_val
+            item['invoice_discount'] = Export.invoice_discount
+            item['invoice_vat'] = Export.invoice_vat
+            item['note'] = Export.note
             return item
         })
 
-        if (result.length > 0) {
-            result[0].space_01 = ''
-            result[0].invoice_no = Export.invoice_no
-            result[0].customer_nm = Export.customer
-            result[0].order_dt = Export.order_dt ? moment(Export.order_dt).format('DD/MM/YYYY') : ''
-            result[0].invoice_val = Export.invoice_val
-            result[0].invoice_discount = Export.invoice_discount
-            result[0].invoice_vat = Export.invoice_vat
-            result[0].note = Export.note
-        }
         return result
     }
 

@@ -534,26 +534,16 @@ const ProductImport = () => {
             item['vat_per'] = data.o_15
 
             item['space_01'] = ''
-            item['invoice_no'] = ''
-            item['supplier_nm'] = ''
-            item['order_dt'] = ''
-            item['invoice_val'] = ''
-            item['invoice_discount'] = ''
-            item['invoice_vat'] = ''
-            item['note'] = ''
+            item['invoice_no'] = Import.invoice_no
+            item['supplier_nm'] = Import.supplier_nm
+            item['order_dt'] = Import.order_dt ? moment(Import.order_dt).format('DD/MM/YYYY') : ''
+            item['invoice_val'] = Import.invoice_val
+            item['invoice_discount'] = Import.invoice_discount
+            item['invoice_vat'] = Import.invoice_vat
+            item['note'] = Import.note
             return item
         })
 
-        if (result.length > 0) {
-            result[0].space_01 = ''
-            result[0].invoice_no = Import.invoice_no
-            result[0].supplier_nm = Import.supplier_nm
-            result[0].order_dt = Import.order_dt ? moment(Import.order_dt).format('DD/MM/YYYY') : ''
-            result[0].invoice_val = Import.invoice_val
-            result[0].invoice_discount = Import.invoice_discount
-            result[0].invoice_vat = Import.invoice_vat
-            result[0].note = Import.note
-        }
         return result
     }
 

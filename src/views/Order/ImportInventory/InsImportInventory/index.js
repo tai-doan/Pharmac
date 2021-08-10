@@ -251,18 +251,11 @@ const ProductImportInventory = ({ }) => {
             item['price'] = data.o_11
 
             item['space_01'] = ''
-            item['invoice_no'] = ''
-            item['invoice_val'] = ''
-            item['note'] = ''
+            item['invoice_no'] = importInventory.invoice_no
+            item['invoice_val'] = importInventory.total_val
+            item['note'] = importInventory.note
             return item
         })
-
-        if (result.length > 0) {
-            result[0].space_01 = ''
-            result[0].invoice_no = importInventory.invoice_no
-            result[0].invoice_val = importInventory.total_val
-            result[0].note = importInventory.note
-        }
         return result
     }
 
