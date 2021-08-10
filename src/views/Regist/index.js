@@ -1,6 +1,7 @@
 import moment from 'moment';
 import React, { useState, useEffect, useRef, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router'
 
 import DateFnsUtils from '@date-io/date-fns'
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
@@ -27,6 +28,7 @@ const serviceInfo = {
 
 const RegistLayout = () => {
     const { t } = useTranslation()
+    const history = useHistory()
 
     const [pharmacy, setPharmacy] = useState({
         name: '',
@@ -99,7 +101,6 @@ const RegistLayout = () => {
     }
 
     const handleResultRegister = (reqInfoMap, message) => {
-        console.log('handleResultRegister: ', reqInfoMap, message)
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_STATUS'] !== 1) {
@@ -109,7 +110,6 @@ const RegistLayout = () => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // đăng ký thành công
-            console.log('message')
             setPharmacy({
                 name: '',
                 liscence: '',
@@ -122,6 +122,7 @@ const RegistLayout = () => {
                 conditionText: 'Đây là phần mềm miễn phí. Chúng tôi không chịu trách nhiệm và có quyền miễn trừ trách nhiệm trong các trường hợp bất khả kháng bao gồm cả các nguyên nhân khách quan và chủ quan như: chiến tranh, hỏa hoạn..., bị virus, hacker tấn công... hoặc sự cố về cơ sở hạ tầng (server, đường truyền,...) cũng như khả năng kinh phí và nhân lực để duy trì sự hoạt động của dịch vụ.',
                 calResult: null
             })
+            history.push('/login')
         }
     }
 
