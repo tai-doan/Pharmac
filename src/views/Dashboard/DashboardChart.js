@@ -24,7 +24,7 @@ const DashboardChart = ({ data }) => {
                         },
                         credits: { enabled: false },
                         xAxis: {
-                            categories: data.map(x => `${moment(x.o_1, 'YYYYMMDD').format('DD/MM')}`),
+                            categories: data.reverse().map(x => `${moment(x.o_1, 'YYYYMMDD').format('DD/MM')}`),
                             crosshair: true,
                             lineColor: 'var(--GRID_CHART)',
                         },
@@ -53,7 +53,7 @@ const DashboardChart = ({ data }) => {
                             {
                                 name: t('dashboard.main_branch'),
                                 color: '#007bff',
-                                data: data.map(x => Number(x.o_2)),
+                                data: data.reverse().map(x => Number(x.o_2)),
                             }
                         ]
                     }}

@@ -10,10 +10,7 @@ import sendRequest from '../../../utils/service/sendReq'
 import SnackBarService from '../../../utils/service/snackbar_service'
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
-import reqFunction from '../../../utils/constan/functions';
 import { config, productDefaulModal } from './Modal/Product.modal'
-import { requestInfo } from '../../../utils/models/requestInfo'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import LoopIcon from '@material-ui/icons/Loop';
@@ -279,7 +276,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
                                 autoComplete="off"
                                 label={t('products.product.packing')}
                                 onChange={handleChange}
@@ -304,7 +300,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                             <TextField
                                 fullWidth={true}
                                 margin="dense"
-                                multiline
                                 autoComplete="off"
                                 label={t('products.product.content')}
                                 onChange={handleChange}
@@ -336,7 +331,7 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                             id="panel1bh-header"
                             height="50px"
                         >
-                            <Typography className={''}>{t('product.infoExpand')}</Typography>
+                            <Typography className=''>{t('product.infoExpand')}</Typography>
                         </AccordionSummary>
                         <AccordionDetails className="pt-0 pb-0">
                             <Grid container className={''} spacing={1}>
@@ -344,7 +339,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.designate')}
                                         onChange={handleChange}
@@ -363,7 +357,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.contraind')}
                                         onChange={handleChange}
@@ -378,15 +371,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         }}
                                     />
                                 </Grid>
-                            </Grid>
-                        </AccordionDetails>
-                        <AccordionDetails className="pt-0 pb-0">
-                            <Grid container className="{}" spacing={1}>
                                 <Grid item xs={12} sm={6} md={6}>
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.dosage')}
                                         onChange={handleChange}
@@ -405,7 +393,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.manufact')}
                                         onChange={handleChange}
@@ -420,15 +407,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         }}
                                     />
                                 </Grid>
-                            </Grid>
-                        </AccordionDetails>
-                        <AccordionDetails className="pt-0 pb-0">
-                            <Grid container className={''} spacing={1}>
                                 <Grid item xs={12} sm={6} md={6}>
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.interact')}
                                         onChange={handleChange}
@@ -447,7 +429,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.storages')}
                                         onChange={handleChange}
@@ -462,15 +443,10 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                         }}
                                     />
                                 </Grid>
-                            </Grid>
-                        </AccordionDetails>
-                        <AccordionDetails className="pt-0">
-                            <Grid container className="{}" spacing={1}>
                                 <Grid item xs={12} sm={6} md={6}>
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.effect')}
                                         onChange={handleChange}
@@ -489,7 +465,6 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                                     <TextField
                                         fullWidth={true}
                                         margin="dense"
-                                        multiline
                                         autoComplete="off"
                                         label={t('products.product.overdose')}
                                         onChange={handleChange}
