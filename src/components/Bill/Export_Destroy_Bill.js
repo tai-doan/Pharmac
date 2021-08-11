@@ -165,9 +165,7 @@ const Export_Destroy_Bill = ({ headerModal, detailModal, className, componentRef
                             <span><b>{t('order.export.invoice_needpay')}</b></span><br />
                         </span>
                         <span style={{ textAlign: 'right', marginLeft: '2px', fontSize: '12pt' }}>
-                            <span>{formatCurrency(detailModal.reduce(function (acc, obj) {
-                                return acc + Math.round(obj.o_6 * obj.o_9)
-                            }, 0) || 0) + t('currency')}</span><br />
+                            <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val) + t('currency') : ''}</span><br />
                             <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val) + t('currency') : ''}</span><br />
                         </span>
                     </div>

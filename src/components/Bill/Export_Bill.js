@@ -176,12 +176,10 @@ const Export_Bill = ({ headerModal, detailModal, className, componentRef }) => {
                             <span><b>{t('order.export.invoice_needpay')}</b></span><br />
                         </span>
                         <span style={{ textAlign: 'right', marginLeft: '2px', fontSize: '12pt' }}>
-                            <span>{formatCurrency(detailModal.reduce(function (acc, obj) {
-                                return acc + Math.round(obj.o_7 * obj.o_10)
-                            }, 0) || 0) + t('currency')}</span><br />
+                            <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val) + t('currency') : ''}</span><br />
                             <span>{headerModal.invoice_discount ? formatCurrency(headerModal.invoice_discount) + t('currency') : ''}</span><br />
                             <span>{headerModal.invoice_vat ? formatCurrency(headerModal.invoice_vat) + t('currency') : ''}</span><br />
-                            <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val) + t('currency') : ''}</span><br />
+                            <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val - headerModal.invoice_discount + headerModal.invoice_vat) + t('currency') : ''}</span><br />
                         </span>
                     </div>
                 </div>
