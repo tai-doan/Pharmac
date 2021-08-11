@@ -236,6 +236,7 @@
         "packing": "Packing",
         "infoMain": "Main info",
         "infoExpand": "More info",
+        "orderInfoExpand": "Other info",
         "unitTime": "Unit time",
         "unit": "Unit",
         "config_info": "Config",

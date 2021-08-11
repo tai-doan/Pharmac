@@ -26,7 +26,7 @@ const serviceInfo = {
     }
 }
 
-const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, disabled = false, autoFocus = false, onKeyPress = () => null, inputRef = null }) => {
+const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, value, productGroupID, disabled = false, autoFocus = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -45,14 +45,29 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
     }, [])
 
     useEffect(() => {
-        if (value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
+        if (!!productGroupID && productGroupID !== 0) {
+            let item = dataSource.find(x => x.o_1 === productGroupID)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
+        } else if (value !== null || value !== undefined) {
+            let item = dataSource.find(x => x.o_2 === value)
+            setValueSelect(item)
+            setInputValue(value)
+        } else {
+            setValueSelect({})
+            setInputValue('')
         }
-        if (idCreated.current !== -1) {
-            setValueSelect(dataSource.find(x => x.o_1 === idCreated.current))
-            idCreated.current = -1
-        }
-    }, [value, dataSource])
+    }, [productGroupID, value, dataSource])
+
+    // useEffect(() => {
+    //     if (value !== null || value !== undefined) {
+    //         setValueSelect(dataSource.find(x => x.o_2 === value))
+    //     }
+    //     if (idCreated.current !== -1) {
+    //         setValueSelect(dataSource.find(x => x.o_1 === idCreated.current))
+    //         idCreated.current = -1
+    //     }
+    // }, [value, productGroupID, dataSource])
 
     const handleResultProductGroupDropDownList = (reqInfoMap, message) => {
         if (message['PROC_STATUS'] !== 1) {

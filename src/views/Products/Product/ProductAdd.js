@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
-    Card, CardHeader, CardContent, CardActions, Tooltip, TextField, Grid, Button, Dialog, Accordion, AccordionDetails, AccordionSummary, Typography, Chip
+    Card, CardHeader, CardContent, CardActions, Tooltip, TextField, Grid, Button, Dialog, Accordion, AccordionDetails, AccordionSummary, Typography, Chip, Divider
 } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import UnitAdd_Autocomplete from '../../Config/Unit/Control/UnitAdd.Autocomplete'
@@ -71,6 +71,7 @@ const ProductAdd = ({ onRefresh }) => {
 
     const [product, setProduct] = useState(productDefaulModal)
     const [isExpanded, setIsExpanded] = useState(false)
+    const [isExpandedInfo, setIsExpandedInfo] = useState(false)
     const [shouldOpenModal, setShouldOpenModal] = useState(false)
     const [process, setProcess] = useState(false)
     const saveContinue = useRef(false)
@@ -758,10 +759,14 @@ const ProductAdd = ({ onRefresh }) => {
         setIsExpanded(e => !e)
     }
 
+    const handleChangeExpandInfo = () => {
+        setIsExpandedInfo(e => !e)
+    }
+
     const handleSelectProductGroup = obj => {
         const newProduct = { ...product };
         newProduct['productGroup'] = !!obj ? obj?.o_1 : null
-        setRequireExpDate(glb_sv.defaultProductGroupId.includes(obj.o_1))
+        setRequireExpDate(!!obj ? glb_sv.defaultProductGroupId.includes(obj.o_1) : false)
         setProduct(newProduct)
     }
 
@@ -906,6 +911,7 @@ const ProductAdd = ({ onRefresh }) => {
                                     onSelect={handleSelectProductGroup}
                                     onCreate={id => setProduct({ ...product, ...{ productGroup: id } })}
                                     inputRef={prodGroupRef}
+                                    productGroupID={product.productGroup}
                                     onKeyPress={event => {
                                         if (event.key === 'Enter') {
                                             prodUnitRef.current.focus()
@@ -994,7 +1000,7 @@ const ProductAdd = ({ onRefresh }) => {
                             </Grid>
                         </Grid>
 
-                        <Accordion expanded={isExpanded} onChange={handleChangeExpand}>
+                        <Accordion className='mb-2' expanded={isExpanded} onChange={handleChangeExpand}>
                             <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
                                 aria-controls="panel1bh-content"
@@ -1144,56 +1150,48 @@ const ProductAdd = ({ onRefresh }) => {
                                             inputRef={overdoseRef}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
-                                                    rateParentRef.current.focus()
+                                                    storeCurrentRef.current.focus()
                                                 }
                                             }}
                                         />
                                     </Grid>
                                 </Grid>
                             </AccordionDetails>
+                        </Accordion>
+                        <Accordion expanded={isExpandedInfo} onChange={handleChangeExpandInfo}>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1bh-content"
+                                id="panel1bh-header"
+                                height="50px"
+                            >
+                                <Typography className=''>{t('product.orderInfoExpand')}</Typography>
+                            </AccordionSummary>
                             <AccordionDetails className="pt-0">
                                 <Grid container spacing={1}>
-                                    <Grid item xs={12} sm={4} md={4}>
-                                        <Unit_Autocomplete
-                                            unitID={unitRate.unit || null}
-                                            style={{ marginTop: 8, marginBottom: 4 }}
-                                            size={'small'}
-                                            label={t('config.unitRate.unitParent')}
-                                            onSelect={handleSelectUnitRate}
-                                            inputRef={rateParentRef}
-                                            onKeyPress={event => {
-                                                if (event.key === 'Enter') {
-                                                    rateRef.current.focus()
-                                                }
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={4} md={4}>
+                                    <Grid item xs={12} sm={3} md={3}>
                                         <NumberFormat className='inputNumber'
                                             style={{ width: '100%' }}
                                             required
-                                            value={unitRate.rate || 0}
-                                            label={t('config.unitRate.rate')}
+                                            value={product.store_current}
+                                            label={t('product.store_current')}
                                             customInput={TextField}
                                             autoComplete="off"
                                             margin="dense"
                                             type="text"
                                             variant="outlined"
                                             thousandSeparator={true}
-                                            onValueChange={handleChangeRate}
+                                            onValueChange={handleStoreCurrentChange}
                                             onFocus={e => e.target.select()}
-                                            inputRef={rateRef}
+                                            inputRef={storeCurrentRef}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
                                                     LotNoRef.current.focus()
                                                 }
                                             }}
-                                            inputProps={{
-                                                min: 0,
-                                            }}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={4} md={4}>
+                                    <Grid item xs={12} sm={3} md={3}>
                                         <Unit_Autocomplete
                                             disabled={true}
                                             unitID={product.unit || null}
@@ -1202,8 +1200,7 @@ const ProductAdd = ({ onRefresh }) => {
                                             label={t('min_unit')}
                                         />
                                     </Grid>
-
-                                    <Grid item xs={12} sm={4} md={4}>
+                                    <Grid item xs={12} sm={3} md={3}>
                                         <TextField
                                             fullWidth={true}
                                             margin="dense"
@@ -1222,7 +1219,7 @@ const ProductAdd = ({ onRefresh }) => {
                                             }}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={4} md={4}>
+                                    <Grid item xs={12} sm={3} md={3}>
                                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                             <KeyboardDatePicker
                                                 required={requireExpDate}
@@ -1242,34 +1239,13 @@ const ProductAdd = ({ onRefresh }) => {
                                                 inputRef={ExpDateRef}
                                                 onKeyPress={event => {
                                                     if (event.key === 'Enter') {
-                                                        storeCurrentRef.current.focus()
+                                                        minQtyRef.current.focus()
                                                     }
                                                 }}
                                             />
                                         </MuiPickersUtilsProvider>
                                     </Grid>
-                                    <Grid item xs={12} sm={4} md={4}>
-                                        <NumberFormat className='inputNumber'
-                                            style={{ width: '100%' }}
-                                            required
-                                            value={product.store_current}
-                                            label={t('product.store_current')}
-                                            customInput={TextField}
-                                            autoComplete="off"
-                                            margin="dense"
-                                            type="text"
-                                            variant="outlined"
-                                            thousandSeparator={true}
-                                            onValueChange={handleStoreCurrentChange}
-                                            onFocus={e => e.target.select()}
-                                            inputRef={storeCurrentRef}
-                                            onKeyPress={event => {
-                                                if (event.key === 'Enter') {
-                                                    minQtyRef.current.focus()
-                                                }
-                                            }}
-                                        />
-                                    </Grid>
+
                                     <Grid item xs={12} sm={3} md={3}>
                                         <NumberFormat className='inputNumber'
                                             style={{ width: '100%' }}
@@ -1422,9 +1398,59 @@ const ProductAdd = ({ onRefresh }) => {
                                             onFocus={e => e.target.select()}
                                             onKeyPress={event => {
                                                 if (event.key === 'Enter') {
+                                                    rateParentRef.current.focus()
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Divider orientation="horizontal" />
+                                    <Grid item xs={12} sm={4} md={4}>
+                                        <Unit_Autocomplete
+                                            unitID={unitRate.unit || null}
+                                            style={{ marginTop: 8, marginBottom: 4 }}
+                                            size={'small'}
+                                            label={t('config.unitRate.unitParent')}
+                                            onSelect={handleSelectUnitRate}
+                                            inputRef={rateParentRef}
+                                            onKeyPress={event => {
+                                                if (event.key === 'Enter') {
+                                                    rateRef.current.focus()
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4}>
+                                        <NumberFormat className='inputNumber'
+                                            style={{ width: '100%' }}
+                                            required
+                                            value={unitRate.rate || 0}
+                                            label={t('config.unitRate.rate')}
+                                            customInput={TextField}
+                                            autoComplete="off"
+                                            margin="dense"
+                                            type="text"
+                                            variant="outlined"
+                                            thousandSeparator={true}
+                                            onValueChange={handleChangeRate}
+                                            onFocus={e => e.target.select()}
+                                            inputRef={rateRef}
+                                            onKeyPress={event => {
+                                                if (event.key === 'Enter') {
                                                     handleCreate()
                                                 }
                                             }}
+                                            inputProps={{
+                                                min: 0,
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4} md={4}>
+                                        <Unit_Autocomplete
+                                            disabled={true}
+                                            unitID={product.unit || null}
+                                            style={{ marginTop: 8, marginBottom: 4 }}
+                                            size={'small'}
+                                            label={t('min_unit')}
                                         />
                                     </Grid>
                                 </Grid>
