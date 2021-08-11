@@ -95,14 +95,14 @@ const menuList = [
                 hidden: true
             },
             {
-                title: 'menu.importInventoryOrder',
+                title: 'menu.importinven',
                 icon: <IC_IMPORT />,
                 link: 'order/ins-importInventory',
                 key: 'ins-importInventoryOrder',
                 hidden: true
             },
             {
-                title: 'menu.importInventoryOrder',
+                title: 'menu.importinven',
                 icon: <IC_IMPORT />,
                 link: 'order/edit-importInventory',
                 key: 'edit-importInventoryOrder',
@@ -137,17 +137,17 @@ const menuList = [
                 hidden: true
             },
             {
-                title: 'menu.exportDestroyOrder',
+                title: 'menu.exportDestroy',
                 icon: <IC_IMPORT />,
                 link: 'order/ins-exportDestroy',
                 key: 'ins-exportDestroyInventoryOrder',
                 hidden: true
             },
             {
-                title: 'menu.exportDestroyOrder',
+                title: 'menu.exportDestroy',
                 icon: <IC_IMPORT />,
                 link: 'order/edit-exportDestroy',
-                key: 'edit-exportDestroyOrder',
+                key: 'edit-exportDestroyInventoryOrder',
                 hidden: true
             },
             {
@@ -367,12 +367,13 @@ const menuAdmin = [
                 link: 'management/lock-order',
                 key: 'settingLockOrder'
             },
-            // {
-            //     title: 'menu.setting-lock-product',
-            //     icon: <IC_SETTING_LOCK_PRODUCT />,
-            //     link: 'management/lock-product',
-            //     key: 'settingLockProduct'
-            // },
+            {
+                title: 'menu.setting-user',
+                icon: <IC_SETTING_USER />,
+                link: 'management/user-info',
+                key: 'settingUserInfo',
+                hidden: true
+            }
         ],
     },
 ]
@@ -473,7 +474,7 @@ const MenuView = ({ baseLink }) => {
                             >
                                 <Tooltip arrow interactive key={item.key} className='menu-item' placement='right' title={
                                     item.children.length > 0 ? (<List component="nav" aria-label="main mailbox folders" style={{ padding: 0 }}>
-                                        {item?.children?.map((row, index) => (
+                                        {item?.children?.filter(x => x.hidden !== true).map((row, index) => (
                                             <React.Fragment key={index}>
                                                 <Link to={baseLink + row.link} key={row.link + index} className="text-decoration-none text-light" >
                                                     <ListItem style={{ padding: '5px 12px', margin: '4px auto' }} button className={activeLink === row.link ? 'sub-active submenu-link' : 'submenu-link'}>

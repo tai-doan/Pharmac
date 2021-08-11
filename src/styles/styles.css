@@ -381,9 +381,8 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     position: absolute;
     bottom: 0px;
     right: 0px;
-    padding: 4px;
     border-radius: 50%;
-    height: 35%;
+    height: 34%;
     background-color: rgba(115, 115, 115, 0.92);
 }
 
