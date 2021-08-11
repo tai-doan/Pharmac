@@ -407,6 +407,24 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     cursor: pointer;
 }
 
+.content {
+    margin-left: 1rem;
+}
+
+.content .invoice{
+    font-weight: bold;
+    color: #373e4c;
+}
+
+.content .currency{
+    font-size: 1.5rem;
+}
+
+.content .title-order {
+    color: #888888;
+}
+
+
 @keyframes spin {
     from {
         transform:rotate(0deg);

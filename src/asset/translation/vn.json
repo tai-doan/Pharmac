@@ -883,5 +883,21 @@
         "boss_name": "Tên chủ nhà thuốc",
         "boss_phone": "Điện thoại liên lạc",
         "boss_email": "Email"
+    },
+    "dashboard": {
+        "total_date": "Kết quả bán hàng hôm nay",
+        "total_week": "Kết quả bán hàng tuần này",
+        "total_month": "Kết quả bán hàng tháng này",
+        "invoice": "Hóa đơn",
+        "value": "Giá trị",
+        "import": "Nhập hàng",
+        "export": "Xuất bán",
+        "export_repay": "Xuất trả",
+        "export_destroy": "Xuất hủy",
+        "revenue_chart": "Biểu đồ doanh thu",
+        "main_branch": "Chi nhánh trung tâm",
+        "value_transaction": "Giá trị giao dịch",
+        "current_month": "Tháng này",
+        "last_month": "Tháng trước"
     }
 }

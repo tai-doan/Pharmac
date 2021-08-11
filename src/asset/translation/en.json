@@ -872,5 +872,21 @@
         "boss_name": "Boss name",
         "boss_phone": "Boss phone",
         "boss_email": "Email"
+    },
+    "dashboard": {
+        "total_date": "Today's sales results",
+        "total_week": "This week's sales results",
+        "total_month": "This month's sales results",
+        "invoice": "Invoice",
+        "value": "Value",
+        "import": "Import",
+        "export": "Export",
+        "export_repay": "Export repay",
+        "export_destroy": "Export destroy",
+        "revenue_chart": "Revenue chart",
+        "main_branch": "Main branch",
+        "value_transaction": "Transaction value",
+        "current_month": "Current month",
+        "last_month": "Last month"
     }
 }

@@ -15,6 +15,8 @@
     "bootstrap": "^4.4.1",
     "crypto-js": "^4.0.0",
     "date-fns": "^2.0.0-beta.5",
+    "highcharts": "8.2.2",
+    "highcharts-react-official": "3.0.0",
     "i18next": "^19.3.2",
     "i18next-browser-languagedetector": "^4.0.2",
     "i18next-xhr-backend": "^3.2.2",
