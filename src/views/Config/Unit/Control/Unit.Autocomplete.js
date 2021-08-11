@@ -30,26 +30,41 @@ const Unit_Autocomplete = ({ onSelect, label, style, size, value, unitID = null,
     }, [])
 
     useEffect(() => {
-        if (value !== null || value !== undefined) {
+        if (!!unitID && unitID !== 0) {
+            let item = dataSource.find(x => x.o_1 === unitID)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
+        } else if (value !== null || value !== undefined) {
             let item = dataSource.find(x => x.o_2 === value)
             setValueSelect(item)
             setInputValue(value)
         } else {
             setValueSelect({})
-        }
-    }, [value, dataSource])
-
-    useEffect(() => {
-        if (!!unitID && unitID !== 0) {
-            let item = dataSource.find(x => x.o_1 === unitID)
-            console.log('unitID: ', unitID, dataSource, item)
-            setValueSelect(item)
-            setInputValue(!!item ? item.o_2 : '')
-        } else {
-            setValueSelect({})
             setInputValue('')
         }
-    }, [unitID, dataSource])
+    }, [unitID, value, dataSource])
+
+    // useEffect(() => {
+    //     if (value !== null || value !== undefined) {
+    //         let item = dataSource.find(x => x.o_2 === value)
+    //         setValueSelect(item)
+    //         setInputValue(value)
+    //     } else {
+    //         setValueSelect({})
+    //     }
+    // }, [value, dataSource])
+
+    // useEffect(() => {
+    //     if (!!unitID && unitID !== 0) {
+    //         let item = dataSource.find(x => x.o_1 === unitID)
+    //         console.log('unitID: ', unitID, dataSource, item)
+    //         setValueSelect(item)
+    //         setInputValue(!!item ? item.o_2 : '')
+    //     } else {
+    //         setValueSelect({})
+    //         setInputValue('')
+    //     }
+    // }, [unitID, dataSource])
 
     const resultUnitDropDownList = (reqInfoMap, message = {}) => {
         if (message['PROC_STATUS'] !== 1) {

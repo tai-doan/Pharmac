@@ -6,7 +6,6 @@ import { Card, CardHeader, CardContent, CardActions, Chip, Grid, Button, TextFie
 
 import Product_Autocomplete from '../../Products/Product/Control/Product.Autocomplete';
 import WarnTimeAutocompelte from './Control/WarnTime.Autocomplete'
-import Dictionary from '../../../components/Dictionary/index'
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'

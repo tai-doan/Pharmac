@@ -128,7 +128,7 @@ const ProductImportInventory = ({ }) => {
                         item.qty,
                         item.unit_id,
                         moment(item.made_dt).format('YYYYMMDD'),
-                        moment(item.exp_dt).format('YYYYMMDD'),
+                        item.exp_dt ? moment(item.exp_dt).format('YYYYMMDD') : moment().format('YYYYMMDD'),
                         item.price
                     ]
                     sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)

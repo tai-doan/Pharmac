@@ -377,6 +377,28 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     text-transform: capitalize;
 }
 
+.badge-logo span.MuiBadge-badge {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    padding: 4px;
+    border-radius: 50%;
+    height: 35%;
+    background-color: rgba(115, 115, 115, 0.92);
+}
+
+.badge-logo span.MuiBadge-badge:hover {
+    background-color: darkorange;
+}
+
+.product-card .MuiAccordionSummary-root.Mui-expanded {
+    min-height: auto;
+}
+
+.product-card .MuiAccordionSummary-content.Mui-expanded {
+    margin: 10px 0;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);

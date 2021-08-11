@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-    Card, CardHeader, CardContent, Grid, TextField, Backdrop, makeStyles, CircularProgress, Button, CardActions, Divider
+    Card, CardHeader, CardContent, Grid, TextField, Backdrop, makeStyles, CircularProgress, Button, CardActions, Divider, Avatar, Badge, withStyles, Dialog
 } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns'
 import {
@@ -17,8 +17,7 @@ import reqFunction from '../../../utils/constan/functions'
 import sendRequest from '../../../utils/service/sendReq'
 
 import LoopIcon from '@material-ui/icons/Loop'
-
-import UploadLogo from './UploadLogo'
+import { ReactComponent as IC_CAMERA } from '../../../asset/images/camera.svg'
 
 const serviceInfo = {
     UPDATE: {
@@ -32,6 +31,12 @@ const serviceInfo = {
         reqFunct: reqFunction.PHARMACY_BY_ID,
         biz: 'admin',
         object: 'pharmacy'
+    },
+    UPDATE_LOGO: {
+        functionName: 'update_logo',
+        reqFunct: reqFunction.UPDATE_LOGO,
+        biz: 'admin',
+        object: 'pharmacy'
     }
 }
 
@@ -39,8 +44,32 @@ const useStyles = makeStyles((theme) => ({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
         color: '#fff',
+    },
+    root: {
+        display: 'flex',
+        '& > *': {
+            margin: theme.spacing(1),
+        },
+    },
+    button: {
+        margin: 10
+    },
+    input: {
+        display: 'none'
+    },
+    large: {
+        width: theme.spacing(15),
+        height: theme.spacing(15),
     }
 }))
+
+const SmallAvatar = withStyles((theme) => ({
+    root: {
+        width: 30,
+        height: 30,
+        border: `2px solid ${theme.palette.background.paper}`,
+    },
+}))(Avatar);
 
 const PharmacyList = () => {
     const { t } = useTranslation()
@@ -66,6 +95,14 @@ const PharmacyList = () => {
     const step6Ref = useRef(null)
     const step7Ref = useRef(null)
     const step8Ref = useRef(null)
+    const [modalPreviewImage, setModalPreviewImage] = useState(false)
+    const [previewImage, setPreviewImage] = useState(null)
+    const logoInfo = useRef({
+        file: null,
+        name: '',
+        type: '',
+        size: 0
+    })
 
     useEffect(() => {
         handleRefresh()
@@ -152,6 +189,65 @@ const PharmacyList = () => {
         sendRequest(serviceInfo.GET_PHARMACY_BY_ID, [glb_sv.pharId], handleResultGetPharmarcyByID, true, handleTimeOut)
     }
 
+    const handleUploadClick = event => {
+        if (event.target.files.length) {
+            let fileUpload = event.target.files[0]
+            if (fileUpload?.type.substr(6) !== 'jpeg' && fileUpload?.type.substr(6) !== 'png') {
+                SnackBarService.alert(t('message.type_image_wrong'), true, 4, 3000)
+                return
+            }
+            if (fileUpload?.size > 5242880) {
+                SnackBarService.alert(t('message.image_long_size'), true, 4, 3000)
+                return
+            }
+            const reader = new FileReader()
+            const reader2 = new FileReader()
+
+            reader.readAsDataURL(fileUpload)
+            reader2.readAsBinaryString(fileUpload)
+
+            reader.onloadend = e => {
+                setPreviewImage(e.target.result)
+                setModalPreviewImage(true)
+            }
+
+            reader2.onloadend = e => {
+                logoInfo.current.file = e.target.result
+                logoInfo.current.name = fileUpload?.name
+                logoInfo.current.type = fileUpload?.type.substr(6)
+                logoInfo.current.size = fileUpload?.size
+            }
+        }
+    }
+
+    const uploadFileToServer = () => {
+        if (!logoInfo?.current || !logoInfo?.current.type || !logoInfo?.current.size || !logoInfo?.current.name || !logoInfo?.current.file) return
+        const inputParam = [glb_sv.branchId, logoInfo?.current.type, logoInfo?.current.size, logoInfo?.current.file, logoInfo?.current.name]
+        sendRequest(serviceInfo.UPDATE_LOGO, inputParam, handleResultUpdateLogo, true, handleTimeOut)
+    }
+
+    const handleResultUpdateLogo = (reqInfoMap, message) => {
+        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
+        setProcess(false)
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
+            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            control_sv.clearReqInfoMapRequest(cltSeqResult)
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
+            logoInfo.current = {
+                file: null,
+                name: '',
+                type: '',
+                size: 0
+            }
+            setModalPreviewImage(false)
+            setPreviewImage(null)
+            handleRefresh()
+        }
+    }
+
     return (
         <>
             <Backdrop className={classes.backdrop} open={process}>
@@ -164,7 +260,45 @@ const PharmacyList = () => {
                             title={t('menu.setting-pharmacy')}
                         />
                         <CardContent>
-                            <UploadLogo />
+                            <Grid container spacing={1}>
+                                <Grid item xs={12} className='d-flex' justify='center' alignItems='center'>
+                                    <div className={classes.root}>
+                                        <Badge className='badge-logo'
+                                            overlap="circular"
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right',
+                                            }}
+                                            badgeContent={
+                                                <>
+                                                    <input
+                                                        accept='image/png, image/jpeg'
+                                                        className={classes.input}
+                                                        id='contained-button-file'
+                                                        type='file'
+                                                        onChange={handleUploadClick}
+                                                    />
+                                                    <label htmlFor='contained-button-file' title={t('update_pharmacy_logo')} style={{ margin: 0 }}>
+                                                        <IC_CAMERA />
+                                                    </label>
+                                                </>
+                                                // <SmallAvatar alt="Camera" src="/static/images/avatar/1.jpg" />
+                                            }
+                                        >
+                                            <Avatar alt='Logo' src={`http://171.244.133.198:5555/upload/comp_logo/${pharmacyInfo.o_12}`} className={classes.large} />
+                                        </Badge>
+                                    </div>
+                                    {/* <input
+                                        accept='image/png, image/jpeg'
+                                        className={classes.input}
+                                        id='contained-button-file'
+                                        type='file'
+                                        onChange={handleUploadClick}
+                                    />
+                                    <label htmlFor='contained-button-file'>
+                                    </label> */}
+                                </Grid>
+                            </Grid>
                             <Grid container spacing={1}>
                                 <Grid item xs={6} sm={8}>
                                     <TextField
@@ -340,6 +474,42 @@ const PharmacyList = () => {
                 </Grid>
             </Grid>
 
+            <Dialog
+                fullWidth={true}
+                maxWidth="xs"
+                open={modalPreviewImage}
+            >
+                <Card>
+                    <CardHeader title={t('update_pharmacy_logo')} />
+                    <CardContent>
+                        <div className='d-flex' style={{ alignItems: 'center', justifyContent: 'center' }}>
+                            <Avatar alt='Logo' src={previewImage} className={classes.large} />
+                        </div>
+                    </CardContent>
+                    <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
+                        <Button size='small'
+                            onClick={e => {
+                                setModalPreviewImage(false)
+                                setPreviewImage(null)
+                            }}
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.close')}
+                        </Button>
+                        <Button size='small'
+                            onClick={e => {
+                                uploadFileToServer()
+                            }}
+                            className='bg-success text-white'
+                            variant="contained"
+                            disableElevation
+                        >
+                            {t('btn.update')}
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Dialog>
         </>
     )
 }

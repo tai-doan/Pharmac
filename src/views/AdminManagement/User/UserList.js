@@ -6,7 +6,6 @@ import {
     Button, Chip, IconButton, Grid, TextField, FormControl, MenuItem, Select, InputLabel, Tooltip, InputAdornment
 } from '@material-ui/core'
 
-import FastForwardIcon from '@material-ui/icons/FastForward';
 import EditIcon from '@material-ui/icons/Edit'
 import LoopIcon from '@material-ui/icons/Loop';
 import Visibility from '@material-ui/icons/Visibility'
@@ -144,10 +143,6 @@ const UserList = () => {
         }
     }
 
-    const onClickColumn = e => {
-        setAnChorEl(e.currentTarget);
-    }
-
     const onCloseColumn = () => {
         setAnChorEl(null);
     }
@@ -192,14 +187,6 @@ const UserList = () => {
         const inputParam = [modalLockLogin.o_2, modalLockLogin.o_5, lockStatus || '1']
         setControlTimeOutKey(serviceInfo.LOCK.reqFunct + '|' + JSON.stringify(inputParam))
         sendRequest(serviceInfo.LOCK, inputParam, handleResultLockLogin, true, handleTimeOut)
-    }
-
-    const getNextData = () => {
-        if (dataSourceRef.current.length > 0) {
-            const lastIndex = dataSourceRef.current.length - 1;
-            const lastID = dataSourceRef.current[lastIndex].o_1
-            getList(lastID, searchValue)
-        }
     }
 
     const headersCSV = [

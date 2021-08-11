@@ -69,6 +69,7 @@ const  productDefaulModal = {
     packing: '',
     productGroup: null,
     storages: '',
+    store_current: 0,
     unit: null
 }
 

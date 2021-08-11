@@ -6,7 +6,6 @@ import {
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 
 import glb_sv from '../../../utils/service/global_service'
@@ -115,10 +114,6 @@ const SupplierList = () => {
             setTotalRecords(0)
             getList(glb_sv.defaultValueSearch, searchValue)
         }
-    }
-
-    const onClickColumn = e => {
-        setAnChorEl(e.currentTarget);
     }
 
     const onCloseColumn = () => {

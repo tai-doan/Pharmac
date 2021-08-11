@@ -6,9 +6,7 @@ import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -32,25 +30,40 @@ const Product_Autocomplete = ({ onSelect = () => null, label, style, size, value
     }, [])
 
     useEffect(() => {
-        if (!!value || value !== null || value !== undefined) {
+        if (!!productID && productID !== 0) {
+            let item = dataSource.find(x => x.o_1 === productID)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
+        } else if (value !== null || value !== undefined) {
             let item = dataSource.find(x => x.o_2 === value)
             setValueSelect(item)
             setInputValue(value)
         } else {
             setValueSelect({})
-        }
-    }, [value, dataSource])
-
-    useEffect(() => {
-        if (!!productID && productID !== 0) {
-            let item = dataSource.find(x => x.o_1 === productID)
-            setValueSelect(item)
-            setInputValue(!!item ? item.o_2 : '')
-        } else {
-            setValueSelect({})
             setInputValue('')
         }
-    }, [productID, dataSource])
+    }, [productID, value, dataSource])
+
+    // useEffect(() => {
+    //     if (!!value || value !== null || value !== undefined) {
+    //         let item = dataSource.find(x => x.o_2 === value)
+    //         setValueSelect(item)
+    //         setInputValue(value)
+    //     } else {
+    //         setValueSelect({})
+    //     }
+    // }, [value, dataSource])
+
+    // useEffect(() => {
+    //     if (!!productID && productID !== 0) {
+    //         let item = dataSource.find(x => x.o_1 === productID)
+    //         setValueSelect(item)
+    //         setInputValue(!!item ? item.o_2 : '')
+    //     } else {
+    //         setValueSelect({})
+    //         setInputValue('')
+    //     }
+    // }, [productID, dataSource])
 
     const resultProductDropDownList = (reqInfoMap, message = {}) => {
         if (message['PROC_STATUS'] !== 1) {

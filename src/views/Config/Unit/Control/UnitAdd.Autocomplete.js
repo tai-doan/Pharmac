@@ -6,10 +6,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackBarService from '../../../../utils/service/snackbar_service';
 import sendRequest from '../../../../utils/service/sendReq';
 import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
 
 const serviceInfo = {
     DROPDOWN_LIST: {
@@ -46,21 +44,36 @@ const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, on
 
     useEffect(() => {
         if (!!unitID && unitID !== 0) {
-            setValueSelect(dataSource.find(x => x.o_1 === unitID))
+            let item = dataSource.find(x => x.o_1 === unitID)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
+        } else if (value !== null || value !== undefined) {
+            let item = dataSource.find(x => x.o_2 === value)
+            setValueSelect(item)
+            setInputValue(value)
         } else {
             setValueSelect({})
+            setInputValue('')
         }
-    }, [unitID])
+    }, [unitID, value, dataSource])
 
-    useEffect(() => {
-        if (value !== null || value !== undefined) {
-            setValueSelect(dataSource.find(x => x.o_2 === value))
-        }
-        if (idCreated.current !== -1) {
-            setValueSelect(dataSource.find(x => x.o_1 === idCreated.current))
-            idCreated.current = -1
-        }
-    }, [value, dataSource])
+    // useEffect(() => {
+    //     if (!!unitID && unitID !== 0) {
+    //         setValueSelect(dataSource.find(x => x.o_1 === unitID))
+    //     } else {
+    //         setValueSelect({})
+    //     }
+    // }, [unitID])
+
+    // useEffect(() => {
+    //     if (value !== null || value !== undefined) {
+    //         setValueSelect(dataSource.find(x => x.o_2 === value))
+    //     }
+    //     if (idCreated.current !== -1) {
+    //         setValueSelect(dataSource.find(x => x.o_1 === idCreated.current))
+    //         idCreated.current = -1
+    //     }
+    // }, [value, dataSource])
 
     const handleResultUnitDropDownList = (reqInfoMap, message) => {
         if (message['PROC_STATUS'] !== 1) {
@@ -161,6 +174,7 @@ const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, on
                     }
                     return <TextField
                         {...newParams}
+                        value={inputValue}
                         inputRef={inputRef}
                         autoFocus={autoFocus}
                         label={!!label ? label : ''}
