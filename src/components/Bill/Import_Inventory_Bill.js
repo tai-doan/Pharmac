@@ -112,7 +112,7 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className, componentR
                         <br />
                     </div>
                     <div>
-                        <table className='invoice-fixed-print' style={{ fontSize: '10pt' }}>
+                        <table className='invoice-fixed-print tableOrder' style={{ fontSize: '10pt' }}>
                             <thead style={{ fontSize: '11pt', textAlign: 'center' }}>
                                 <tr>
                                     <th style={{ width: '8%' }}>#</th>
@@ -163,7 +163,7 @@ const Import_Inventory_Bill = ({ headerModal, detailModal, className, componentR
                             <span><b>{t('order.export.invoice_needpay')}</b></span><br />
                         </span>
                         <span style={{ textAlign: 'right', marginLeft: '2px', fontSize: '12pt' }}>
-                            <span>{headerModal.total_val ? formatCurrency(headerModal.total_val) : 0}</span><br />
+                            <span>{headerModal.total_val ? formatCurrency(headerModal.total_val) + t('currency') : ''}</span><br />
                             <span>{headerModal.total_val ? formatCurrency(headerModal.total_val) + t('currency') : ''}</span><br />
                         </span>
                     </div>

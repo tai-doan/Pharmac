@@ -114,7 +114,7 @@ const Export_Destroy_Bill = ({ headerModal, detailModal, className, componentRef
                         <br />
                     </div>
                     <div>
-                        <table className='invoice-fixed-print' style={{ fontSize: '10pt' }}>
+                        <table className='invoice-fixed-print tableOrder' style={{ fontSize: '10pt' }}>
                             <thead style={{ fontSize: '11pt', textAlign: 'center' }}>
                                 <tr>
                                     <th style={{ width: '8%' }}>#</th>
@@ -165,7 +165,9 @@ const Export_Destroy_Bill = ({ headerModal, detailModal, className, componentRef
                             <span><b>{t('order.export.invoice_needpay')}</b></span><br />
                         </span>
                         <span style={{ textAlign: 'right', marginLeft: '2px', fontSize: '12pt' }}>
-                            <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val) : 0}</span><br />
+                            <span>{formatCurrency(detailModal.reduce(function (acc, obj) {
+                                return acc + Math.round(obj.o_6 * obj.o_9)
+                            }, 0) || 0) + t('currency')}</span><br />
                             <span>{headerModal.invoice_val ? formatCurrency(headerModal.invoice_val) + t('currency') : ''}</span><br />
                         </span>
                     </div>

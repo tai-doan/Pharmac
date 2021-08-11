@@ -230,29 +230,29 @@ hr.MuiDivider-root {
     padding: unset;
 }
 
-.tableOrder tr.MuiTableRow-root:nth-child(even) {
+.tableOrder tr:nth-child(even) {
     background-color: #dcdcdc6b;
 }
 
-.tableOrder td.MuiTableCell-root:not(:last-child) {
+.tableOrder td:not(:last-child) {
     border-left: 1px solid #dfdfdf !important;
 }
 
-.tableOrder td.MuiTableCell-root:last-child {
+.tableOrder td:last-child {
     border-left: 1px solid #dfdfdf;
     border-right: 1px solid #dfdfdf;
 }
 
-.tableOrder th.MuiTableCell-root:not(:last-child) {
+.tableOrder th:not(:last-child) {
     border-left: 1px solid #dfdfdf !important;
 }
 
-.tableOrder th.MuiTableCell-root:last-child {
+.tableOrder th:last-child {
     border-left: 1px solid #dfdfdf !important;
     border-right: 1px solid #dfdfdf !important;
 }
 
-.tableOrder td.MuiTableCell-root.MuiTableCell-body button {
+.tableOrder td button {
     padding: 0.6rem;
 }
 
