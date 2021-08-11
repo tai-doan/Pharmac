@@ -9,6 +9,19 @@ import sendRequest from '../../utils/service/sendReq'
 
 import { initPharmacyInfo, formatCurrency } from './initPharmacyInfo.modal'
 import moment from 'moment';
+import { Avatar, makeStyles } from '@material-ui/core'
+
+const useStyles = makeStyles((theme) => ({
+    large: {
+        width: theme.spacing(15),
+        height: theme.spacing(15),
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 'auto'
+    }
+}))
+
 
 const serviceInfo = {
     GET_PHARMACY_BY_ID: {
@@ -21,6 +34,7 @@ const serviceInfo = {
 
 const Export_Destroy_Bill = ({ headerModal, detailModal, className, componentRef }) => {
     const { t } = useTranslation()
+    const classes = useStyles()
     const [pharmacyInfo, setPharmacyInfo] = useState(initPharmacyInfo)
 
     useEffect(() => {
@@ -70,8 +84,8 @@ const Export_Destroy_Bill = ({ headerModal, detailModal, className, componentRef
                     </style>
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'row', marginTop: '20px' }}>
                         <div style={{ textAlign: 'center', margin: 'auto' }} >
-                            <img height={100} width={100} src={'http://171.244.133.198:5555/upload/comp_logo/' + pharmacyInfo.logo_name} />
-                            <h2 style={{ fontSize: '15pt' }} >
+                            <Avatar alt='Logo' src={'http://171.244.133.198:5555/upload/comp_logo/' + pharmacyInfo.logo_name} className={classes.large} />
+                            <h2 style={{ fontSize: '15pt', marginTop: '1rem' }} >
                                 <b>
                                     {t('pharma')} : {pharmacyInfo.name}
                                 </b>
@@ -145,8 +159,8 @@ const Export_Destroy_Bill = ({ headerModal, detailModal, className, componentRef
                             </tbody>
                         </table>
                     </div>
-                    <div style={{ position: 'absolute', right: 30, display: 'flex', flexDirection: 'row', marginLeft: '10px', marginTop: 15 }}>
-                        <span style={{ fontSize: '12pt' }}>
+                    <div style={{ position: 'absolute', right: 0, display: 'flex', flexDirection: 'row', marginLeft: '10px', marginTop: 15 }}>
+                        <span style={{ fontSize: '12pt', marginRight: '1rem' }}>
                             <span><b>{t('order.export.invoice_val')}</b></span><br />
                             <span><b>{t('order.export.invoice_needpay')}</b></span><br />
                         </span>

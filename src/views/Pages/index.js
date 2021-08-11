@@ -59,7 +59,7 @@ const RenderBreadcrumb = () => {
     return (
         <Breadcrumbs aria-label='breadcrumb' className='breadcrumb-layout' style={{ marginBottom: '0.5rem' }}>
             {keyActive.map((item, index) =>
-                <div onClick={() => history.push(`/${keyActive.slice(0, index + 1).join('/')}`)}
+                <div className={index === keyActive.length - 1 ? 'cursor-pointer fw-bold' : 'cursor-pointer'} onClick={() => history.push(`/${keyActive.slice(0, index + 1).join('/')}`)}
                     color='inherit'
                 // href={`/${keyActive.slice(0, index + 1).join('/')}`}
                 >

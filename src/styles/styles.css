@@ -399,6 +399,15 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     margin: 10px 0;
 }
 
+.fw-bold {
+    font-weight: bold;
+    color: #362121;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);
