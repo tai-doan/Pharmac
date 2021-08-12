@@ -200,6 +200,11 @@
         "btn": "Send request"
     },
     "message": {
+        "require_unit_rate": "If you have entered the unit conversion configuration information, you must enter the required information",
+        "require_exp_date": "The expiration date is required if the product is in the Pharmaceutical category",
+        "require_store_limit": "If you have entered the warehouse limit configuration information, you must enter all the necessary information",
+        "require_price": "If you have entered the price list configuration information, you must enter all the necessary information",
+        "require_inventory": "If you have entered inventory information, you must enter all required information",
         "image_long_size": "Image size very long, maximum size 5MB",
         "type_image_wrong": "Type of image is not support, only upload file .png or .jpg/.jpeg",
         "required": "Required",

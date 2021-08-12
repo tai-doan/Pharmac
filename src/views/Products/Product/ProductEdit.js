@@ -214,7 +214,7 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
 
                         <Grid item xs={6} sm={3}>
                             <ProductGroup_Autocomplete
-                                value={product.o_2}
+                                productGroupID={product.o_2}
                                 style={{ marginTop: 8, marginBottom: 4 }}
                                 size={'small'}
                                 label={t('menu.productGroup')}
@@ -324,7 +324,7 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                         </Grid>
                     </Grid>
 
-                    <Accordion expanded={isExpanded} onChange={handleChangeExpand}>
+                    <Accordion className='mt-2' expanded={isExpanded} onChange={handleChangeExpand}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1bh-content"
@@ -333,8 +333,8 @@ const ProductEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh }) => 
                         >
                             <Typography className=''>{t('product.infoExpand')}</Typography>
                         </AccordionSummary>
-                        <AccordionDetails className="pt-0 pb-0">
-                            <Grid container className={''} spacing={1}>
+                        <AccordionDetails className="pt-0">
+                            <Grid container className='' spacing={1}>
                                 <Grid item xs={12} sm={6} md={6}>
                                     <TextField
                                         fullWidth={true}

@@ -201,6 +201,11 @@
         "btn": "Gửi yêu cầu"
     },
     "message": {
+        "require_unit_rate": "Nếu bạn đã nhập thông tin cấu hình chuyển đổi đơn vị, bạn phải nhập đầy đủ thông tin cần thiết",
+        "require_exp_date": "Ngày hết hạn là bắt buộc nhập nếu sản phẩm thuộc nhóm Dược phẩm",
+        "require_store_limit": "Nếu bạn đã nhập thông tin cấu hình hạn mức kho, bạn phải nhập đầy đủ thông tin cần thiết",
+        "require_price": "Nếu bạn đã nhập thông tin cấu hình bảng báo giá, bạn phải nhập đầy đủ thông tin cần thiết",
+        "require_inventory": "Nếu bạn đã nhập thông tin tồn kho, bạn phải nhập đầy đủ thông tin cần thiết",
         "image_long_size": "File hình ảnh không được quá 5MB",
         "type_image_wrong": "Loại hình ảnh không đúng, chỉ có thể tải file .png hoặc jpg/jpeg",
         "required": "Đây là thông tin bắt buộc nhập",

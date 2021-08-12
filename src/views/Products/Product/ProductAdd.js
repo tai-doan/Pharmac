@@ -114,6 +114,11 @@ const ProductAdd = ({ onRefresh }) => {
     const wholePriceRef = useRef(null)
     const expVATRef = useRef(null)
 
+    const sendPriceFlag = useRef(true)
+    const sendInventoryFlag = useRef(true)
+    const sendStoreLimitFlag = useRef(true)
+    const sendUnitRateFlag = useRef(true)
+
     useHotkeys('f2', () => setShouldOpenModal(true), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f3', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
     useHotkeys('f4', () => handleCreate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })
@@ -138,10 +143,10 @@ const ProductAdd = ({ onRefresh }) => {
             const newData = message['PROC_DATA']
             productCreated.current = product
             productIDCreated.current = newData?.rows
-            handleCreateInvoiceInventory()
-            handleCreatePrice()
-            handleCreateUnitRate()
-            handleCreateStoreLimit()
+            if (sendInventoryFlag.current) { handleCreateInvoiceInventory() }
+            if (sendPriceFlag.current) { handleCreatePrice() }
+            if (sendUnitRateFlag.current) { handleCreateUnitRate() }
+            if (sendStoreLimitFlag.current) { handleCreateStoreLimit() }
             setProduct(productDefaulModal)
             onRefresh()
             if (saveContinue.current) {
@@ -226,11 +231,11 @@ const ProductAdd = ({ onRefresh }) => {
     }
 
     const handleResultCreateInvoice = (reqInfoMap, message) => {
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             let newData = message['PROC_DATA']
@@ -253,12 +258,13 @@ const ProductAdd = ({ onRefresh }) => {
     }
 
     const handleResultAddProductToInvoice = (reqInfoMap, message) => {
-        SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         productPriceCreated.current = {}
+        setInvoiceInventory({ lot_no: '', exp_dt: null })
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
+            SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // xử lý thành công
@@ -274,6 +280,77 @@ const ProductAdd = ({ onRefresh }) => {
 
     const handleCreate = () => {
         if (!product.name.trim() || !product.unit || !product.productGroup) return
+        // Chưa chọn đơn vị và giá trị chuyển đổi
+        if (unitRate.unit === null && unitRate.rate === 0) {
+            sendUnitRateFlag.current = true
+        } else {
+            // Đã nhập đúng format của đơn vị chuyển đổi
+            if (!!unitRate?.unit && unitRate?.rate > 0) {
+                sendUnitRateFlag.current = true
+            } else {
+                // Nhập sai/thiếu format của đơn vị chuyển đổi
+                sendUnitRateFlag.current = false
+                SnackBarService.alert(t('message.require_unit_rate'), true, 4, 3000)
+                return
+            }
+        }
+
+        // Chưa nhập thông tin tồn
+        if (product.store_current === 0 && invoiceInventory.lot_no === '' && invoiceInventory.exp_dt === null) {
+            sendInventoryFlag.current = true
+        } else {
+            // Đã nhập đúng format thông tin hàng tồn
+            if (product.store_current > 0 && !!invoiceInventory.lot_no.trim()) {
+                // Nếu nhóm sp thuộc loại cần nhập ngày hết hạn
+                if (requireExpDate) {
+                    // Đã nhập ngày hết hạn
+                    if (!!invoiceInventory.exp_dt) {
+                        sendInventoryFlag.current = true
+                    } else {
+                        // Chưa nhập ngày hết hạn
+                        sendInventoryFlag.current = false
+                        SnackBarService.alert(t('message.require_exp_date'), true, 4, 3000)
+                        return
+                    }
+                } else {
+                    sendInventoryFlag.current = true
+                }
+            } else {
+                // Nhập sai format thông tin tồn kho
+                sendInventoryFlag.current = false
+                SnackBarService.alert(t('message.require_inventory'), true, 4, 3000)
+                return
+            }
+        }
+
+        // Chưa nhập min - max
+        if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
+            sendStoreLimitFlag.current = true
+        } else {
+            // Đã nhập đúng format min - max
+            if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
+                sendStoreLimitFlag.current = true
+            } else {
+                // Nhập sai format min - max
+                sendStoreLimitFlag.current = false
+                SnackBarService.alert(t('message.require_store_limit'), true, 4, 3000)
+                return
+            }
+        }
+
+        // Chưa nhập thông tin giá
+        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
+            sendPriceFlag.current = true
+        } else {
+            // Đã nhập đúng format thông tin giá
+            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
+                sendPriceFlag.current = true
+            } else {
+                sendPriceFlag.current = false
+                SnackBarService.alert(t('message.require_price'), true, 4, 3000)
+                return
+            }
+        }
         setProcess(true)
         const inputParam = [
             product.productGroup,
@@ -298,453 +375,7 @@ const ProductAdd = ({ onRefresh }) => {
 
     const checkValidate = () => {
         if (!!product?.name?.trim() && !!product?.productGroup && !!product?.unit) {
-            // Chưa chọn đơn vị và giá trị chuyển đổi
-            if (unitRate.unit === null && unitRate.rate === 0) {
-                // Chưa nhập thông tin tồn
-                if (product.store_current === 0 && invoiceInventory.lot_no === '' && invoiceInventory.exp_dt === null) {
-                    // Chưa nhập min - max
-                    if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                        // Chưa nhập thông tin giá
-                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                            return false
-                        } else {
-                            // Đã nhập đúng format thông tin giá
-                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                return false
-                            } else {
-                                return true
-                            }
-                        }
-                    } else {
-                        // Đã nhập min/max của kho
-                        if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                            // Chưa nhập thông tin giá
-                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                return false
-                            } else {
-                                // Đã nhập đúng format thông tin giá
-                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                    return false
-                                } else {
-                                    return true
-                                }
-                            }
-                        } else {
-                            // Chưa nhập thông tin giá
-                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                // Đã nhập đúng format kho
-                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                    return false
-                                } else {
-                                    return true
-                                }
-                            } else {
-                                // Đã nhập đúng format thông tin giá
-                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                    // Đã nhập đúng format kho
-                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                        return false
-                                    } else {
-                                        return true
-                                    }
-                                } else {
-                                    return true
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // Đã nhập đúng format thông tin hàng tồn
-                    if (product.store_current > 0 && !!invoiceInventory.lot_no.trim()) {
-                        // Bắt buộc nhập ngày hết hạn
-                        if (requireExpDate) {
-                            if (!!invoiceInventory.exp_dt) {
-                                if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                                    // Chưa nhập thông tin giá
-                                    if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                        return false
-                                    } else {
-                                        // Đã nhập đúng format thông tin giá
-                                        if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                            return false
-                                        } else {
-                                            return true
-                                        }
-                                    }
-                                } else {
-                                    // Đã nhập min/max của kho
-                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            return false
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    } else {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            // Đã nhập đúng format kho
-                                            if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                // Đã nhập đúng format kho
-                                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                                    // Chưa nhập thông tin giá
-                                    if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                        return false
-                                    } else {
-                                        // Đã nhập đúng format thông tin giá
-                                        if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                            return false
-                                        } else {
-                                            return true
-                                        }
-                                    }
-                                } else {
-                                    // Đã nhập min/max của kho
-                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            return false
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    } else {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            // Đã nhập đúng format kho
-                                            if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                // Đã nhập đúng format kho
-                                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                                // Chưa nhập thông tin giá
-                                if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                    return false
-                                } else {
-                                    // Đã nhập đúng format thông tin giá
-                                    if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                        return false
-                                    } else {
-                                        return true
-                                    }
-                                }
-                            } else {
-                                // Đã nhập min/max của kho
-                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                    // Chưa nhập thông tin giá
-                                    if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                        return false
-                                    } else {
-                                        // Đã nhập đúng format thông tin giá
-                                        if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                            return false
-                                        } else {
-                                            return true
-                                        }
-                                    }
-                                } else {
-                                    // Chưa nhập thông tin giá
-                                    if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                        // Đã nhập đúng format kho
-                                        if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                            return false
-                                        } else {
-                                            return true
-                                        }
-                                    } else {
-                                        // Đã nhập đúng format thông tin giá
-                                        if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                            // Đã nhập đúng format kho
-                                            if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        } else {
-                                            return true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        // Không nhập đúng format thông tin hàng tồn
-                        return true
-                    }
-                }
-            } else {
-                // Đã nhập đủ đv chuyển đổi và giá trị chuyển đổi
-                if (!!unitRate?.unit && unitRate?.rate > 0) {
-                    // Chưa nhập thông tin tồn
-                    if (product.store_current === 0 && invoiceInventory.lot_no === '' && invoiceInventory.exp_dt === null) {
-                        // Chưa nhập min - max
-                        if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                            // Chưa nhập thông tin giá
-                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                return false
-                            } else {
-                                // Đã nhập đúng format thông tin giá
-                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                    return false
-                                } else {
-                                    return true
-                                }
-                            }
-                        } else {
-                            // Đã nhập min/max của kho
-                            if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                // Chưa nhập thông tin giá
-                                if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                    return false
-                                } else {
-                                    // Đã nhập đúng format thông tin giá
-                                    if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                        return false
-                                    } else {
-                                        return true
-                                    }
-                                }
-                            } else {
-                                // Chưa nhập thông tin giá
-                                if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                    // Đã nhập đúng format kho
-                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                        return false
-                                    } else {
-                                        return true
-                                    }
-                                } else {
-                                    // Đã nhập đúng format thông tin giá
-                                    if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                        // Đã nhập đúng format kho
-                                        if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                            return false
-                                        } else {
-                                            return true
-                                        }
-                                    } else {
-                                        return true
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        // Đã nhập đúng format thông tin hàng tồn
-                        if (product.store_current > 0 && !!invoiceInventory.lot_no.trim()) {
-                            if (requireExpDate) {
-                                if (!!invoiceInventory.exp_dt) {
-                                    // Chưa nhập min - max
-                                    if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            return false
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    } else {
-                                        // Đã nhập min/max của kho
-                                        if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                            // Chưa nhập thông tin giá
-                                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                                return false
-                                            } else {
-                                                // Đã nhập đúng format thông tin giá
-                                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            }
-                                        } else {
-                                            // Chưa nhập thông tin giá
-                                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                                // Đã nhập đúng format kho
-                                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            } else {
-                                                // Đã nhập đúng format thông tin giá
-                                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                    // Đã nhập đúng format kho
-                                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                        return false
-                                                    } else {
-                                                        return true
-                                                    }
-                                                } else {
-                                                    return true
-                                                }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    // Chưa nhập min - max
-                                    if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            return false
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    } else {
-                                        // Đã nhập min/max của kho
-                                        if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                            // Chưa nhập thông tin giá
-                                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                                return false
-                                            } else {
-                                                // Đã nhập đúng format thông tin giá
-                                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            }
-                                        } else {
-                                            // Chưa nhập thông tin giá
-                                            if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                                // Đã nhập đúng format kho
-                                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            } else {
-                                                // Đã nhập đúng format thông tin giá
-                                                if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                    // Đã nhập đúng format kho
-                                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                        return false
-                                                    } else {
-                                                        return true
-                                                    }
-                                                } else {
-                                                    return true
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Chưa nhập min - max
-                                if (storeLimit.minQuantity === 0 && storeLimit.maxQuantity === 0) {
-                                    // Chưa nhập thông tin giá
-                                    if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                        return false
-                                    } else {
-                                        // Đã nhập đúng format thông tin giá
-                                        if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                            return false
-                                        } else {
-                                            return true
-                                        }
-                                    }
-                                } else {
-                                    // Đã nhập min/max của kho
-                                    if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            return false
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    } else {
-                                        // Chưa nhập thông tin giá
-                                        if (Price.importPrice === 0 && Price.importVAT === 0 && Price.price === 0 && Price.wholePrice === 0 && Price.exportVAT === 0) {
-                                            // Đã nhập đúng format kho
-                                            if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                return false
-                                            } else {
-                                                return true
-                                            }
-                                        } else {
-                                            // Đã nhập đúng format thông tin giá
-                                            if (Price.importVAT <= 100 && Price.importVAT >= 0 && Price.exportVAT <= 100 && Price.exportVAT >= 0 && (Price.importPrice > 0 || Price.price > 0 || Price.wholePrice > 0)) {
-                                                // Đã nhập đúng format kho
-                                                if ((storeLimit.minQuantity <= storeLimit.maxQuantity) && ((storeLimit.minQuantity > 0 && storeLimit.maxQuantity > -1) || (storeLimit.maxQuantity > 0 && storeLimit.minQuantity > -1))) {
-                                                    return false
-                                                } else {
-                                                    return true
-                                                }
-                                            } else {
-                                                return true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            // Chưa nhập đúng format thông tin hàng tồn
-                            return true
-                        }
-                    }
-                } else {
-                    return true
-                }
-            }
+            return false
         }
         return true
     }
@@ -773,6 +404,7 @@ const ProductAdd = ({ onRefresh }) => {
     const handleSelectUnit = obj => {
         const newProduct = { ...product };
         newProduct['unit'] = !!obj ? obj?.o_1 : null
+        newProduct['unit_nm'] = !!obj ? obj?.o_2 : ''
         setProduct(newProduct)
     }
 
@@ -1009,7 +641,7 @@ const ProductAdd = ({ onRefresh }) => {
                             >
                                 <Typography className=''>{t('product.infoExpand')}</Typography>
                             </AccordionSummary>
-                            <AccordionDetails className="pt-0 pb-1">
+                            <AccordionDetails className="pt-0">
                                 <Grid container className='' spacing={1}>
                                     <Grid item xs={12} sm={6} md={6}>
                                         <TextField
@@ -1192,12 +824,15 @@ const ProductAdd = ({ onRefresh }) => {
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={3} md={3}>
-                                        <Unit_Autocomplete
+                                        <TextField
                                             disabled={true}
-                                            unitID={product.unit || null}
-                                            style={{ marginTop: 8, marginBottom: 4 }}
-                                            size={'small'}
+                                            fullWidth={true}
+                                            margin="dense"
+                                            autoComplete="off"
                                             label={t('min_unit')}
+                                            value={product.unit_nm || ''}
+                                            name='unit_nm'
+                                            variant="outlined"
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={3} md={3}>
@@ -1445,12 +1080,15 @@ const ProductAdd = ({ onRefresh }) => {
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={4} md={4}>
-                                        <Unit_Autocomplete
+                                        <TextField
                                             disabled={true}
-                                            unitID={product.unit || null}
-                                            style={{ marginTop: 8, marginBottom: 4 }}
-                                            size={'small'}
+                                            fullWidth={true}
+                                            margin="dense"
+                                            autoComplete="off"
                                             label={t('min_unit')}
+                                            value={product.unit_nm || ''}
+                                            name='unit_nm'
+                                            variant="outlined"
                                         />
                                     </Grid>
                                 </Grid>

@@ -70,7 +70,8 @@ const  productDefaulModal = {
     productGroup: null,
     storages: '',
     store_current: 0,
-    unit: null
+    unit: null,
+    unit_nm: ''
 }
 
 export {

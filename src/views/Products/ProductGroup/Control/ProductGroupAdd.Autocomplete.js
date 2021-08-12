@@ -79,6 +79,10 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
             // xử lý thành công
             let newData = message['PROC_DATA']
             setDataSource(newData.rows)
+            let productGroupRequireEnterExp = newData.rows.filter(x => x.o_2 === 'DƯỢC PHẨM')
+            if (productGroupRequireEnterExp.length > 0) {
+                glb_sv.defaultProductGroupId = [productGroupRequireEnterExp[0]?.o_1]
+            }
         }
     }
 
@@ -171,6 +175,7 @@ const ProductGroupAdd_Autocomplete = ({ onSelect, onCreate, label, style, size, 
                     }
                     return <TextField
                         {...newParams}
+                        value={inputValue}
                         inputRef={inputRef}
                         autoFocus={autoFocus}
                         label={!!label ? label : ''}

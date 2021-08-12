@@ -1,38 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import SnackBarService from '../../../../utils/service/snackbar_service';
-import sendRequest from '../../../../utils/service/sendReq';
-import reqFunction from '../../../../utils/constan/functions';
-import { requestInfo } from '../../../../utils/models/requestInfo';
+import TextField from '@material-ui/core/TextField'
+import Autocomplete from '@material-ui/lab/Autocomplete'
+import SnackBarService from '../../../../utils/service/snackbar_service'
+import sendRequest from '../../../../utils/service/sendReq'
+import reqFunction from '../../../../utils/constan/functions'
 import glb_sv from '../../../../utils/service/global_service'
 import control_sv from '../../../../utils/service/control_services'
-import socket_sv from '../../../../utils/service/socket_service'
-import { config } from '../Modal/ProductGroup.modal'
 
 const serviceInfo = {
-    GET_ALL: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
-        functionName: config['list'].functionName,
-        reqFunct: config['list'].reqFunct,
-        operation: config['list'].operation,
-        biz: config.biz,
-        object: config.object
+    DROPDOWN_LIST: {
+        functionName: 'drop_list',
+        reqFunct: reqFunction.PRODUCT_GROUP_DROPDOWN_LIST,
+        biz: 'common',
+        object: 'dropdown_list'
     },
-    GET_PRODUCT_GROUP_BY_ID: {
-        moduleName: config.moduleName,
-        screenName: config.screenName,
-        functionName: config['byId'].functionName,
-        reqFunct: config['byId'].reqFunct,
-        operation: config['byId'].operation,
-        biz: config.biz,
-        object: config.object
-    }
 }
 
-const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabled = false, onKeyPress = () => null, inputRef = null }) => {
+const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, productGroupID, disabled = false, autoFocus = false, onKeyPress = () => null, inputRef = null }) => {
     const { t } = useTranslation()
 
     const [dataSource, setDataSource] = useState([])
@@ -40,30 +25,8 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabl
     const [inputValue, setInputValue] = useState('')
 
     useEffect(() => {
-        const inputParam = [glb_sv.defaultValueSearch, '%']
-        sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
-
-        const productGroupSub = socket_sv.event_ClientReqRcv.subscribe(msg => {
-            if (msg) {
-                const cltSeqResult = msg['REQUEST_SEQ']
-                if (cltSeqResult == null || cltSeqResult === undefined || isNaN(cltSeqResult)) {
-                    return
-                }
-                const reqInfoMap = glb_sv.getReqInfoMapValue(cltSeqResult)
-                if (reqInfoMap == null || reqInfoMap === undefined) {
-                    return
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_GROUP_LIST) {
-                    resultGetList(msg, cltSeqResult, reqInfoMap)
-                }
-                if (reqInfoMap.reqFunct === reqFunction.PRODUCT_GROUP_BY_ID) {
-                    resultGetProductGroupByID(msg, cltSeqResult, reqInfoMap)
-                }
-            }
-        })
-        return () => {
-            productGroupSub.unsubscribe()
-        }
+        const inputParam = ['groups', '%']
+        sendRequest(serviceInfo.DROPDOWN_LIST, inputParam, handleResultProductGroupDropDownList, true, handleTimeOut)
     }, [])
 
     useEffect(() => {
@@ -72,39 +35,35 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabl
         }
     }, [value])
 
-    const resultGetList = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
-            glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
-            control_sv.clearReqInfoMapRequest(cltSeqResult)
+    useEffect(() => {
+        if (!!productGroupID && productGroupID !== 0) {
+            let item = dataSource.find(x => x.o_1 === productGroupID)
+            setValueSelect(item)
+            setInputValue(!!item ? item.o_2 : '')
+        } else if (value !== null || value !== undefined) {
+            let item = dataSource.find(x => x.o_2 === value)
+            setValueSelect(item)
+            setInputValue(value)
+        } else {
+            setValueSelect({})
+            setInputValue('')
         }
-        if (message['PROC_DATA']) {
-            let newData = message['PROC_DATA']
-            let newDataSource = dataSource.concat(newData.rows)
-            setDataSource(newDataSource)
-            if (newDataSource.length < newData.rowTotal) {
-                const inputParam = [newDataSource[newDataSource.length - 1].o_1, '%']
-                sendRequest(serviceInfo.GET_ALL, inputParam, e => console.log('result ', e), true, handleTimeOut)
-            }
-        }
-    }
+    }, [productGroupID, value, dataSource])
 
-    const resultGetProductGroupByID = (message = {}, cltSeqResult = 0, reqInfoMap = new requestInfo()) => {
-        control_sv.clearTimeOutRequest(reqInfoMap.timeOutKey)
-        if (reqInfoMap.procStat !== 0 && reqInfoMap.procStat !== 1) {
-            return
-        }
-        reqInfoMap.procStat = 2
-        if (message['PROC_STATUS'] === 2) {
-            reqInfoMap.resSucc = false
+    const handleResultProductGroupDropDownList = (reqInfoMap, message) => {
+        if (message['PROC_STATUS'] !== 1) {
+            // xử lý thất bại
+            const cltSeqResult = message['REQUEST_SEQ']
             glb_sv.setReqInfoMapValue(cltSeqResult, reqInfoMap)
             control_sv.clearReqInfoMapRequest(cltSeqResult)
-        }
-        if (message['PROC_DATA']) {
+        } else if (message['PROC_DATA']) {
+            // xử lý thành công
             let newData = message['PROC_DATA']
-            setValueSelect(newData.rows[0])
+            setDataSource(newData.rows)
+            let productGroupRequireEnterExp = newData.rows.filter(x => x.o_2 === 'DƯỢC PHẨM')
+            if (productGroupRequireEnterExp.length > 0) {
+                glb_sv.defaultProductGroupId = [productGroupRequireEnterExp[0]?.o_1]
+            }
         }
     }
 
@@ -138,7 +97,7 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, disabl
             // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
-            renderInput={(params) => <TextField {...params} inputRef={inputRef} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField {...params} inputRef={inputRef} value={inputValue} autoFocus={autoFocus} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }

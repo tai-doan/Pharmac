@@ -130,7 +130,9 @@ const UnitAdd_Autocomplete = ({ onSelect = () => null, onCreate = () => null, on
             // xử lý thành công
             let data = message['PROC_DATA']
             idCreated.current = data.rows[0].o_1;
-            onCreate(data.rows[0].o_1)
+            setValueSelect(data.rows[0])
+            onSelect(data.rows[0])
+            // onCreate(data.rows[0].o_1)
             setUnitInfo({ name: '', note: '' })
             setShouldOpenModal(false)
             // Lấy dữ liệu mới nhất
