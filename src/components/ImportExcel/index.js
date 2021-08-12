@@ -329,6 +329,7 @@ const ImportExcel = ({ title, onRefresh }) => {
             setEditID(null)
             setEditModal({ ...productDefaulModal })
             setShouldOpenModalEdit(false)
+            setFileSelected('')
             setDataSource([])
             setShouldOpenModal(false)
         }
