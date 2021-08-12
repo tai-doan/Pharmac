@@ -888,6 +888,7 @@
         "main_branch": "Main branch",
         "value_transaction": "Transaction value",
         "current_month": "Current month",
-        "last_month": "Last month"
+        "last_month": "Last month",
+        "revenue": "Revenue"
     }
 }

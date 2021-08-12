@@ -899,6 +899,7 @@
         "main_branch": "Chi nhánh trung tâm",
         "value_transaction": "Giá trị giao dịch",
         "current_month": "Tháng này",
-        "last_month": "Tháng trước"
+        "last_month": "Tháng trước",
+        "revenue": "Doanh thu"
     }
 }

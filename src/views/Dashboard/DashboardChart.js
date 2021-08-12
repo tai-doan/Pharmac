@@ -1,22 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import { formatCurrency } from '../../components/Bill/initPharmacyInfo.modal'
-
-const CustomTooltip = ({ active, payload, label }) => {
-    const { t } = useTranslation()
-    if (active && payload && payload.length) {
-        return (
-            <div className="custom-tooltip" style={{ backgroundColor: '#fff', borderRadius: 5, padding: 4 }}>
-                <p className="label">{t('date')}: {label}</p>
-                <p className="intro">{t('dashboard.value_transaction')}: {formatCurrency(payload[0].value)}</p>
-            </div>
-        );
-    }
-
-    return null;
-};
 
 const DashboardChart = ({ data }) => {
     const { t } = useTranslation()
@@ -29,27 +15,29 @@ const DashboardChart = ({ data }) => {
         setDataChart(newData)
     }, [data])
 
+    const cols = {
+        value: {
+            // tickInterval: 100000,
+            base: 10
+        },
+    }
+
     return (
         <div ref={contentRef} className='w-100 text-center'>
             {dataChart.length > 0 ?
-                <BarChart
-                    width={contentRef.current.clientWidth}
-                    height={600}
-                    data={dataChart}
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis dataKey="value" />
-                    <Tooltip content={<CustomTooltip />} />
+                <Chart padding='auto' scale={cols} style={{ margin: '1rem' }} data={dataChart} height={600} autoFit={true} forceFit={true}>
                     <Legend />
-                    <Bar dataKey="value" fill="#1890ff" />
-                </BarChart>
+                    <Axis name='date' />
+                    <Axis name='value' />
+                    <Tooltip crosshairs={{ type: 'y' }} />
+                    <Geom type='interval' position='date*value' adjust={[{ type: 'dodge', marginRatio: 1 / 32 }]} tooltip={['date*value', (date, value) => {
+                        return {
+                            name: t('dashboard.revenue'),
+                            title: `${t('date')}: ` + date,
+                            value: formatCurrency(value) + t('currency')
+                        };
+                    }]} />
+                </Chart>
                 // <HighchartsReact
                 //     highcharts={Highcharts}
                 //     options={{
