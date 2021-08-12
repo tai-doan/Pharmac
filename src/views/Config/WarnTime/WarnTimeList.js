@@ -5,7 +5,6 @@ import { Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import LoopIcon from '@material-ui/icons/Loop';
 
 import SearchOne from '../../../components/SearchOne'
@@ -42,7 +41,6 @@ const WarnTimeList = () => {
     const [anChorEl, setAnChorEl] = useState(null)
     const [column, setColumn] = useState(tableColumn)
     const [searchValue, setSearchValue] = useState('')
-    const [page, setPage] = useState(0)
     const [totalRecords, setTotalRecords] = useState(0)
     const [dataSource, setDataSource] = useState([])
 
@@ -118,10 +116,6 @@ const WarnTimeList = () => {
         setSearchProcess(false)
     }
 
-    const onClickColumn = e => {
-        setAnChorEl(e.currentTarget);
-    }
-
     const onCloseColumn = () => {
         setAnChorEl(null);
     }
@@ -140,7 +134,6 @@ const WarnTimeList = () => {
         searchRef.current = value
         dataSourceRef.current = []
         setSearchValue(value)
-        setPage(0)
         setTotalRecords(0)
         getList(glb_sv.defaultValueSearch, value)
     }

@@ -5,7 +5,6 @@ import { Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import LoopIcon from '@material-ui/icons/Loop';
 
 import SearchOne from '../../../components/SearchOne'
@@ -96,10 +95,6 @@ const PriceList = () => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
         setSearchProcess(false)
-    }
-
-    const onClickColumn = e => {
-        setAnChorEl(e.currentTarget);
     }
 
     const onCloseColumn = () => {

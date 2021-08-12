@@ -10,7 +10,6 @@ import {
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import AddIcon from '@material-ui/icons/Add';
 import LoopIcon from '@material-ui/icons/Loop';
 

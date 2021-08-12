@@ -5,14 +5,13 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import {
     Card, CardHeader, CardContent, CardActions, IconButton, Chip, Select, FormControl, MenuItem, InputLabel, TextField, Grid, Button, Dialog,
-    Table, TableBody, TableCell, TableRow, TableContainer, TableHead, Paper, DialogActions, DialogContent
+    Table, TableBody, TableCell, TableRow, TableContainer, TableHead
 } from '@material-ui/core'
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import EditIcon from '@material-ui/icons/Edit'
 import AddIcon from '@material-ui/icons/Add';
 import LoopIcon from '@material-ui/icons/Loop';
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 
 import ColumnCtrComp from '../../../components/_ColumnCtr'
 import ExportExcel from '../../../components/ExportExcel'
@@ -137,9 +136,6 @@ const ExportRepayList = () => {
         setSearchProcess(false)
     }
 
-    const onClickColumn = e => {
-        setAnChorEl(e.currentTarget);
-    }
 
     const onCloseColumn = () => {
         setAnChorEl(null);

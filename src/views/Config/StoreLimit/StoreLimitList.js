@@ -5,7 +5,6 @@ import { Card, CardHeader, CardContent, CardActions, Table, TableBody, TableCell
 import FastForwardIcon from '@material-ui/icons/FastForward';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import LoopIcon from '@material-ui/icons/Loop';
 
 import SearchOne from '../../../components/SearchOne'
@@ -15,10 +14,7 @@ import DisplayColumn from '../../../components/DisplayColumn';
 
 import glb_sv from '../../../utils/service/global_service'
 import control_sv from '../../../utils/service/control_services'
-import socket_sv from '../../../utils/service/socket_service'
 import SnackBarService from '../../../utils/service/snackbar_service'
-import { requestInfo } from '../../../utils/models/requestInfo'
-import reqFunction from '../../../utils/constan/functions';
 import sendRequest from '../../../utils/service/sendReq'
 
 import { tableColumn, config } from './Modal/StoreLimit.modal'
@@ -118,10 +114,6 @@ const StoreLimitList = () => {
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
         setProcessing(false)
         setSearchProcess(false)
-    }
-
-    const onClickColumn = e => {
-        setAnChorEl(e.currentTarget);
     }
 
     const onCloseColumn = () => {

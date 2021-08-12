@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import {
-    Card, CardHeader, CardContent, CircularProgress, Backdrop, makeStyles, Grid, FormGroup, FormLabel, FormControl, FormControlLabel, Checkbox, Divider,
+    CircularProgress, Backdrop, makeStyles, Grid, FormGroup, FormControl, FormControlLabel, Checkbox, Divider,
     Accordion, AccordionDetails, AccordionSummary, Typography
 } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';

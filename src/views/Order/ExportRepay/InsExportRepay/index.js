@@ -351,18 +351,6 @@ const InsExportRepay = ({ }) => {
         setExportRepay(newExportRepay)
     }
 
-    const handleEditProduct = productObject => {
-        if (productObject === null) {
-            setProductEditID(-1);
-            return
-        }
-        let newDataSource = [...dataSource]
-        newDataSource[productEditID] = productObject
-        dataSourceRef.current = newDataSource
-        setDataSource([...newDataSource])
-        setProductEditID(-1);
-    }
-
     const checkValidate = () => {
         if (invoiceFlag && !!ExportRepay.supplier && !!ExportRepay.order_dt) {
             return false

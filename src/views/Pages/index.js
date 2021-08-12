@@ -2,7 +2,7 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Breadcrumbs, Link } from '@material-ui/core'
+import { Breadcrumbs } from '@material-ui/core'
 import style from './Pages.module.css'
 import { Switch, Route, Redirect, useParams } from 'react-router-dom'
 import LoadingView from '../../components/Loading/View'

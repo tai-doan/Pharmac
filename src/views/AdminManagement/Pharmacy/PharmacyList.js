@@ -63,14 +63,6 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const SmallAvatar = withStyles((theme) => ({
-    root: {
-        width: 30,
-        height: 30,
-        border: `2px solid ${theme.palette.background.paper}`,
-    },
-}))(Avatar);
-
 const PharmacyList = () => {
     const { t } = useTranslation()
     const classes = useStyles()

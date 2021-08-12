@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 import NumberFormat from 'react-number-format'
 import {
-    Card, CardHeader, CardContent, CardActions, FormControl, TextField, Grid, Button, Dialog, InputLabel, MenuItem, Typography, Select
+    Card, CardHeader, CardContent, CardActions, FormControl, TextField, Grid, Button, Dialog, InputLabel, MenuItem, Select
 } from '@material-ui/core'
 import sendRequest from '../../../utils/service/sendReq'
 import SnackBarService from '../../../utils/service/snackbar_service'
@@ -39,7 +39,6 @@ const ExportRepayEdit = ({ id, shouldOpenModal, setShouldOpenModal, onRefresh })
     const { t } = useTranslation()
 
     const [settlement, setSettlement] = useState({})
-    const [isExpanded, setIsExpanded] = useState(false)
     const [process, setProcess] = useState(false)
 
     useHotkeys('f3', () => handleUpdate(), { enableOnTags: ['INPUT', 'SELECT', 'TEXTAREA'] })

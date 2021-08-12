@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Grid, Tooltip, Table, TableBody, TableContainer, TableCell, TableHead, TableRow, Button, Divider, CardActions,
-    TextField, Card, CardHeader, CardContent, FormControl, MenuItem, InputLabel, Select, Dialog, Link as LinkMT
+    TextField, Card, CardHeader, CardContent, Dialog, Link as LinkMT
 } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -22,7 +22,7 @@ import { requestInfo } from '../../../../utils/models/requestInfo'
 import reqFunction from '../../../../utils/constan/functions';
 import sendRequest from '../../../../utils/service/sendReq'
 
-import { tableListAddColumn, invoiceImportModal, productImportModal } from '../Modal/Import.modal'
+import { tableListAddColumn, invoiceImportModal } from '../Modal/Import.modal'
 import moment from 'moment'
 // import AddProduct from '../AddProduct'
 
