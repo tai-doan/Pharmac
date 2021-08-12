@@ -9,6 +9,8 @@
         "profile": "Profile",
         "emptyData": "Empty data!"
     },
+    "example_file": "Download example file data",
+    "import_excel": "Import excel",
     "update_pharmacy_logo": "Update pharmacy logo",
     "pharma": "Pharmacy",
     "print": "Print invoice",
@@ -200,6 +202,7 @@
         "btn": "Send request"
     },
     "message": {
+        "error_file": "File upload is error",
         "require_unit_rate": "If you have entered the unit conversion configuration information, you must enter the required information",
         "require_exp_date": "The expiration date is required if the product is in the Pharmaceutical category",
         "require_store_limit": "If you have entered the warehouse limit configuration information, you must enter all the necessary information",

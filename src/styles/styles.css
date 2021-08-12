@@ -424,6 +424,9 @@ button.MuiButtonBase-root.MuiButton-root.MuiButton-text.btnSubmit {
     color: #888888;
 }
 
+tr.warning td {
+    color: red;
+}
 
 @keyframes spin {
     from {

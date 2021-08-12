@@ -22,6 +22,7 @@ import ProductEdit from './ProductEdit'
 import SearchOne from '../../../components/SearchOne'
 import ExportExcel from '../../../components/ExportExcel'
 import DisplayColumn from '../../../components/DisplayColumn';
+import ImportExcel from '../../../components/ImportExcel'
 
 import { ReactComponent as IC_LOCK_PERMISSION } from '../../../asset/images/lock-login.svg'
 
@@ -307,6 +308,7 @@ const ProductList = () => {
                             <Chip size='small' className='mr-1' deleteIcon={<FastForwardIcon />} onDelete={() => null} color='primary' label={t('getMoreData')} onClick={getNextData} disabled={dataSourceRef.current.length >= totalRecords} />
                             <ExportExcel filename='product' data={dataCSV()} headers={headersCSV} style={{ backgroundColor: '#00A248', color: '#fff' }} />
                             <ProductAdd onRefresh={handleRefresh} />
+                            <ImportExcel onRefresh={handleRefresh} />
                         </div>
                     }
                 />

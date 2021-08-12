@@ -97,7 +97,7 @@ const ProductGroup_Autocomplete = ({ onSelect, label, style, size, value, produc
             // autoSelect={true}
             autoHighlight={true}
             autoComplete={true}
-            renderInput={(params) => <TextField {...params} inputRef={inputRef} value={inputValue} autoFocus={autoFocus} label={!!label ? label : ''} variant="outlined" />}
+            renderInput={(params) => <TextField inputRef={inputRef} value={inputValue} {...params} autoFocus={autoFocus} label={!!label ? label : ''} variant="outlined" />}
         />
     )
 }
