@@ -76,11 +76,10 @@ const Export_Bill = ({ headerModal, detailModal, className, componentRef }) => {
             <div className='print-container'>
                 <div className='page-break'>
                     <style>
-                        {`
-                                @page{
-                                    margin:1cm;
-                                    size:A4
-                                }`}
+                        {`@page{
+                            margin:0.5cm;
+                            size:A4
+                        }`}
                     </style>
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'row', marginTop: '20px' }}>
                         <div style={{ textAlign: 'center', margin: 'auto' }} >
