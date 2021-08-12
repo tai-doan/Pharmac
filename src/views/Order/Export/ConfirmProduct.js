@@ -154,7 +154,6 @@ const ConfirmProduct = ({ productData, isInventory, shouldOpenModal, handleClose
     }
 
     const handleSelectLotNo = object => {
-        console.log('handleSelectLotNo: ', object)
         const newProductInfo = { ...productInfo };
         newProductInfo['quantity_in_stock'] = !!object ? object.o_5 : null
         newProductInfo['lot_no'] = !!object ? object.o_3 : null

@@ -9,7 +9,8 @@
         "profile": "Thông tin",
         "emptyData": "Không có dữ liệu cần tra cứu!"
     },
-    "example_file": "Tải dữ liệu mẫu",
+    "choose_file": "Chọn file",
+    "example_file": "Tải file mẫu",
     "import_excel": "Nhập file excel",
     "update_pharmacy_logo": "Cập nhật ảnh đại diện nhà thuốc",
     "pharma": "Nhà thuốc",

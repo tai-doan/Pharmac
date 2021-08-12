@@ -34,7 +34,7 @@ class globalService {
         this.userEmail = ''
         this.userLev = ''
         this.activeBiz = 0
-        this.langCrt = 'vi'
+        this.langCrt = 'vn'
         // --------------------------------
         this.commonEvent = new Subject()
         this.insIdExp = 'ID_EXP_IVC'
@@ -77,7 +77,7 @@ class globalService {
 
         this.getlang = () => {
             let lang = sessionStorage.getItem('Lang')
-            if (lang === null || lang === undefined) lang = 'vi'
+            if (lang === null || lang === undefined) lang = 'vn'
             return lang
         }
 

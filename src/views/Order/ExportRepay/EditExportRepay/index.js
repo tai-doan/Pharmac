@@ -137,7 +137,6 @@ const EditExportRepay = ({ }) => {
                 invoice_discount: newData.rows[0].o_13,
                 invoice_vat: newData.rows[0].o_14
             }
-            console.log(newData, dataExportRepay)
             setSupplierSelect(newData.rows[0].o_5)
             setExportRepay(dataExportRepay)
         }

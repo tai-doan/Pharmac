@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { useTranslation } from 'react-i18next'
 import {
-    Button, Dialog, CardHeader, CardContent, Card, CardActions, Input, Chip, Table, TableBody, TableCell, TableRow, TableContainer, TableHead,
+    Button, Dialog, CardHeader, CardContent, Card, CardActions, Chip, Table, TableBody, TableCell, TableRow, TableContainer, TableHead,
     Grid, TextField, Accordion, AccordionDetails, AccordionSummary, Typography, Tooltip
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -14,6 +14,9 @@ import glb_sv from '../../utils/service/global_service'
 import control_sv from '../../utils/service/control_services'
 import ProductGroup_Autocomplete from '../../views/Products/ProductGroup/Control/ProductGroup.Autocomplete';
 import UnitAdd_Autocomplete from '../../views/Config/Unit/Control/UnitAdd.Autocomplete';
+
+import { ReactComponent as IC_DOCUMENT_FOLDER } from '../../asset/images/document-folder.svg'
+import { ReactComponent as IC_DOCUMENT_DOWNLOAD_EXAMPLE } from '../../asset/images/document-download-example.svg'
 
 const serviceInfo = {
     CREATE_UNIT: {
@@ -102,6 +105,7 @@ const ImportExcel = ({ title, onRefresh }) => {
     const [shouldOpenModalEdit, setShouldOpenModalEdit] = useState(false)
     const [editID, setEditID] = useState(null)
     const [editModal, setEditModal] = useState(productDefaulModal)
+    const [fileSelected, setFileSelected] = useState('')
 
     const unitListRef = useRef([])
     const groupListRef = useRef([])
@@ -208,8 +212,6 @@ const ImportExcel = ({ title, onRefresh }) => {
             const e = dataSource[i]
             const groupObject = groupListRef.current.find(x => x.o_2 === e.group)
             const unitObject = unitListRef.current.find(x => x.o_2 === e.unit)
-            console.log('groupListRef.current: ', groupListRef.current)
-            console.log('unitListRef.current: ', unitListRef.current)
             if (!e.name.trim()) {
                 // Tên sp không có => bỏ qua không gửi lên sv
                 continue
@@ -424,16 +426,18 @@ const ImportExcel = ({ title, onRefresh }) => {
 
     const handleImportChange = e => {
         setDataSource([])
+        setFileSelected('')
         const { files } = e.target;
         if (files.length === 1) {
             // Process a file if we have exactly one
             if (validateFile(files[0]) === true) {
                 getDataBeginRow(files[0], 2);
+                setFileSelected(files[0].name)
                 setIsError(false);
             } else {
+                setFileSelected('')
                 setIsError(true);
             }
-
         }
     };
 
@@ -483,10 +487,15 @@ const ImportExcel = ({ title, onRefresh }) => {
                 maxWidth='md'
                 open={shouldOpenModal}
             >
-                <Card>
+                <Card className='product-card'>
                     <CardHeader title={title ? title : t('import_excel')} />
                     <CardContent>
-                        <Input style={{ padding: 1 }} type='file' accept='.xlsx, .xls, .csv' onChange={handleImportChange} />
+                        <input style={{ display: 'none' }} id='container-upload-file' type='file' accept='.xlsx, .xls, .csv' onChange={handleImportChange} />
+                        <label htmlFor='container-upload-file'>
+                            <div title={t('choose_file')} style={{ borderRadius: 5, backgroundColor: 'rgb(225 227 228 / 57%)', padding: '2px 10px' }}>
+                                <IC_DOCUMENT_FOLDER /> {fileSelected !== '' ? `(${fileSelected})` : t('choose_file')}
+                            </div>
+                        </label>
                         {isError &&
                             <Alert severity='error'>{t('message.error_file')}</Alert>
                         }
@@ -528,13 +537,12 @@ const ImportExcel = ({ title, onRefresh }) => {
                     </CardContent>
                     <CardActions className='align-items-end' style={{ justifyContent: 'flex-end' }}>
                         <Button size='small'
-                            onClick={() => window.open(window.location.origin + '/asset/files/example.xlsx', '_blank')}
+                            className='bg-print text-white'
+                            onClick={() => window.open(window.location.origin + '/asset/files/product_'+glb_sv.langCrt+'.xlsx', '_blank')}
                             variant='contained'
                             disableElevation
                         >
-                            {/* <a target='_blank' style={{ textDecoration: 'none' }} href={window.location.origin + '/asset/files/example.xlsx'}> */}
-                                {t('example_file')}
-                            {/* </a> */}
+                            <IC_DOCUMENT_DOWNLOAD_EXAMPLE /> {t('example_file')}
                         </Button>
                         <Button size='small'
                             onClick={handleCloseModal}
@@ -560,7 +568,7 @@ const ImportExcel = ({ title, onRefresh }) => {
                 maxWidth='md'
                 open={shouldOpenModalEdit}
             >
-                <Card>
+                <Card className='product-card'>
                     <CardHeader title={t('products.product.titleEdit')} />
                     <CardContent>
                         <Grid container spacing={1}>

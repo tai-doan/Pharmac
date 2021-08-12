@@ -428,6 +428,11 @@ tr.warning td {
     color: red;
 }
 
+.MuiCard-root.product-card {
+    max-height: 80vh;
+    overflow: auto;
+}
+
 @keyframes spin {
     from {
         transform:rotate(0deg);

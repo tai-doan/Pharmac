@@ -9,7 +9,8 @@
         "profile": "Profile",
         "emptyData": "Empty data!"
     },
-    "example_file": "Download example file data",
+    "choose_file": "Choose file",
+    "example_file": "Download example file",
     "import_excel": "Import excel",
     "update_pharmacy_logo": "Update pharmacy logo",
     "pharma": "Pharmacy",

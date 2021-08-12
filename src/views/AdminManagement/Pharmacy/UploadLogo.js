@@ -56,7 +56,6 @@ const UploadLogo = ({ }) => {
                 SnackBarService.alert(t('message.image_long_size'), true, 4, 3000)
                 return
             }
-            console.log('fileUpload: ', fileUpload)
             const reader = new FileReader()
             const reader2 = new FileReader()
 
@@ -89,7 +88,6 @@ const UploadLogo = ({ }) => {
     }
 
     const handleResultUpdateLogo = (reqInfoMap, message) => {
-        console.log('handleResultUpdateLogo: ', reqInfoMap, message)
         SnackBarService.alert(message['PROC_MESSAGE'], true, message['PROC_STATUS'], 3000)
         setProcess(false)
         if (message['PROC_STATUS'] !== 1) {
@@ -99,7 +97,6 @@ const UploadLogo = ({ }) => {
             control_sv.clearReqInfoMapRequest(cltSeqResult)
         } else if (message['PROC_DATA']) {
             // xử lý thành công
-            console.log('xử lý thành công')
             logoInfo.current = {
                 file: null,
                 name: '',
@@ -112,7 +109,6 @@ const UploadLogo = ({ }) => {
 
     //-- xử lý khi timeout -> ko nhận được phản hồi từ server
     const handleTimeOut = (e) => {
-        console.log('handleTimeOut')
         SnackBarService.alert(t(`message.${e.type}`), true, 4, 3000)
     }
 

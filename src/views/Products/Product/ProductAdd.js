@@ -167,7 +167,6 @@ const ProductAdd = ({ onRefresh }) => {
         }
         productPriceCreated.current = Price
         const inputParam = [productIDCreated.current, productCreated.current.unit, Price.importPrice || 0, Price.importVAT || 0, Price.price || 0, Price.wholePrice || 0, Price.exportVAT || 0, ''];
-        console.log('bắn event tạo bảng giá: ', inputParam)
         sendRequest(serviceInfo.CREATE_PRICE, inputParam, handleResultCreatePrice, true, handleTimeOut)
     }
 
@@ -187,7 +186,6 @@ const ProductAdd = ({ onRefresh }) => {
     const handleCreateUnitRate = () => {
         if (!productIDCreated.current || !unitRate.unit || Number(unitRate.rate) <= 0) return
         const inputParam = [productIDCreated.current, unitRate.unit, Number(unitRate.rate) || 10]
-        console.log('bắn event tạo chuyển đổi: ', inputParam)
         sendRequest(serviceInfo.CREATE_UNIT_RATE, inputParam, handleResultCreateUnitRate, true, handleTimeOut)
     }
 
@@ -207,7 +205,6 @@ const ProductAdd = ({ onRefresh }) => {
     const handleCreateStoreLimit = () => {
         if (!productIDCreated.current || !unitRate.unit || Number(unitRate.minQuantity) <= 0 || Number(unitRate.maxQuantity) <= 0 || Number(unitRate.minQuantity) > Number(unitRate.maxQuantity)) return
         const inputParam = [productIDCreated.current, productCreated.current.unit, Number(storeLimit.minQuantity) || 0, Number(storeLimit.maxQuantity) || 0]
-        console.log('bắn event tạo kho: ', inputParam)
         sendRequest(serviceInfo.CREATE_STORE_LIMIT, inputParam, handleResultCreateStoreLimit, true, handleTimeOut)
     }
 
@@ -226,7 +223,6 @@ const ProductAdd = ({ onRefresh }) => {
 
     const handleCreateInvoiceInventory = () => {
         if (!productIDCreated.current || productCreated.current.store_current <= 0 || !productCreated.current.unit) return
-        console.log('bắn event tạo hđ tồn: ')
         sendRequest(serviceInfo.CREATE_INVOICE_INVENTORY, [], handleResultCreateInvoice, true, handleTimeOut)
     }
 
@@ -251,7 +247,6 @@ const ProductAdd = ({ onRefresh }) => {
                     invoiceInventory.exp_dt ? moment(invoiceInventory.exp_dt).format('YYYYMMDD') : moment().format('YYYYMMDD'),
                     productPriceCreated?.current?.price
                 ]
-                console.log('bắn event thêm sp vô hđ tồn: ', inputParam)
                 sendRequest(serviceInfo.ADD_PRODUCT_TO_INVOICE, inputParam, handleResultAddProductToInvoice, true, handleTimeOut)
             }
         }

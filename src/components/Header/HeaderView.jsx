@@ -11,7 +11,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import LocalShippingIcon from '@material-ui/icons/LocalShipping'
 import TranslateIcon from '@material-ui/icons/Translate'
-// import glb_sv from "../../utils/service/global_service";
+import glb_sv from "../../utils/service/global_service";
 
 import { ReactComponent as IC_IMPORT } from '../../asset/images/import.svg'
 
@@ -84,6 +84,7 @@ const HeaderView = () => {
     const closeMenuLanguage = e => {
         setAnchorLanguage(null)
         if (e !== -1) {
+            glb_sv.langCrt = e === 0 ? 'vn' : 'en'
             i18n.changeLanguage(e === 0 ? 'vn' : 'en')
         }
     }

@@ -219,7 +219,6 @@ const AddProduct = ({ onAddProduct, resetFlag, invoiceType = true }) => {
     }
 
     const handleResultGetProductByBarcode = (reqInfoMap, message) => {
-        console.log('handleResultGetProductByBarcode: ', reqInfoMap, message)
         if (message['PROC_STATUS'] !== 1) {
             // xử lý thất bại
             const cltSeqResult = message['REQUEST_SEQ']
