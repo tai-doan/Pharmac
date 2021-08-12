@@ -28,7 +28,11 @@ const DashboardChart = ({ data }) => {
                 <Chart padding='auto' scale={cols} style={{ margin: '1rem' }} data={dataChart} height={600} autoFit={true} forceFit={true}>
                     <Legend />
                     <Axis name='date' />
-                    <Axis name='value' />
+                    <Axis name='value' label={{
+                        formatter(text, item, index) {
+                            return formatCurrency(text)
+                        }
+                    }} />
                     <Tooltip crosshairs={{ type: 'y' }} />
                     <Geom type='interval' position='date*value' color='#3ba1ff' adjust={[{ type: 'dodge', marginRatio: 1 / 32 }]} tooltip={['date*value', (date, value) => {
                         return {
