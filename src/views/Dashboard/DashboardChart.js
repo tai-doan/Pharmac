@@ -30,7 +30,7 @@ const DashboardChart = ({ data }) => {
                     <Axis name='date' />
                     <Axis name='value' />
                     <Tooltip crosshairs={{ type: 'y' }} />
-                    <Geom type='interval' position='date*value' adjust={[{ type: 'dodge', marginRatio: 1 / 32 }]} tooltip={['date*value', (date, value) => {
+                    <Geom type='interval' position='date*value' color='#3ba1ff' adjust={[{ type: 'dodge', marginRatio: 1 / 32 }]} tooltip={['date*value', (date, value) => {
                         return {
                             name: t('dashboard.revenue'),
                             title: `${t('date')}: ` + date,
