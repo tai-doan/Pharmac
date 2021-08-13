@@ -340,7 +340,7 @@ const menuAdmin = [
     {
         title: 'menu.management',
         icon: <IC_MANAGEMENT />,
-        link: 'management/user',
+        link: 'management/pharmacy',
         key: 'management',
         children: [
             {
