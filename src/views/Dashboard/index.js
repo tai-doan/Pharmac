@@ -16,6 +16,7 @@ import { ReactComponent as IC_DESTROY } from '../../asset/images/dashboard-destr
 import { ReactComponent as IC_IMPORT } from '../../asset/images/dashboard-import.svg'
 
 import DashboardChart from './DashboardChart'
+import ProductGroup_Autocomplete from '../Products/ProductGroup/Control/ProductGroup.Autocomplete'
 
 const serviceInfo = {
     REPORT_STATIC: {
@@ -90,6 +91,10 @@ const DashboardLayout = () => {
     return (
         <>
             <Grid container spacing={2}>
+                {/** Fake lấy id nhóm sp dược phẩm => check các điều kiện bắt buộc nhập exp date */}
+                <div className='d-none'>
+                    <ProductGroup_Autocomplete />
+                </div>
                 <Grid item xs={12} sm={12}>
                     <Card className='mt-2'>
                         <CardHeader title={t('dashboard.total_date')} />

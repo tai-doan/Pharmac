@@ -44,7 +44,7 @@ class globalService {
         // -- golobal variable
         this.timeoutNumber = 10000
         this.defaultValueSearch = 999999999999
-        this.defaultProductGroupId = [0, 1, 2, 3] // Danh sách id nhóm sp bắt buộc nhập ngày hết hạn
+        this.defaultProductGroupId = [] // Danh sách id nhóm sp bắt buộc nhập ngày hết hạn
         this.objShareGlb = {} // -- for share info all component of object
         // -- common method share
         this.configInfo = {}
